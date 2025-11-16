@@ -3,14 +3,17 @@ import { categories } from '@/lib/tools'
 
 export default function Home () {
   return (
-    <div className='mx-auto max-w-screen-xl px-4 py-12 sm:px-6 lg:px-8'>
+    <>
       {/* Hero Section */}
-      <div className='mb-12 text-center'>
-        <h1 className='mb-4 text-4xl font-bold'>
-          Web Development Toolkit
+      <div className='my-12 text-center'>
+        <h1 className='mb-4 font-[Outfit] text-4xl font-bold'>
+          8px.app
         </h1>
         <p className='text-lg text-gray-500'>
-          A collection of useful tools for web developers
+          ウェブ開発をもっとスムーズに、もっとクリエイティブに。
+        </p>
+        <p className='text-lg text-gray-500'>
+          開発者のための便利なツールを集めたコレクションです。
         </p>
       </div>
 
@@ -34,6 +37,6 @@ export default function Home () {
           </div>
         ))}
       </div>
-    </div>
+    </>
   )
 }

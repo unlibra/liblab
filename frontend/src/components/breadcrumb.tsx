@@ -12,7 +12,7 @@ interface BreadcrumbProps {
 
 export function Breadcrumb ({ items }: BreadcrumbProps) {
   return (
-    <nav className='flex min-w-0 items-center gap-2 text-sm'>
+    <nav className='mb-6 flex min-w-0 items-center gap-2 text-sm'>
       {items.map((item, index) => (
         <div key={index} className='flex min-w-0 items-center gap-2'>
           {index > 0 && <ChevronRightIcon className='size-4 shrink-0 text-gray-500' />}
