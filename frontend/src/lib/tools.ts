@@ -33,8 +33,8 @@ export type Category = {
 export const tools: Tool[] = [
   {
     id: 'favicon-generator',
-    name: 'Favicon Generator',
-    description: 'Generate favicons from images or text. Supports multiple sizes and formats.',
+    name: 'Faviconジェネレーター',
+    description: '画像からfaviconファイルを生成します。すべての処理はブラウザ内で完結します。',
     category: 'image',
     href: '/favicon-generator'
   },

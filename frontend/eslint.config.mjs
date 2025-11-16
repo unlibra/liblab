@@ -1,8 +1,12 @@
+import { createRequire } from 'module'
 import tseslint from '@typescript-eslint/eslint-plugin'
 import nextPlugin from '@next/eslint-plugin-next'
 import simpleImportSort from 'eslint-plugin-simple-import-sort'
 import tailwindcss from 'eslint-plugin-tailwindcss'
 import neostandard from 'neostandard'
+
+const require = createRequire(import.meta.url)
+const localRules = require('./eslint-local-rules.cjs')
 
 export default [
   // Ignore Next.js auto-generated files and config files
@@ -21,21 +25,31 @@ export default [
 
   // Next.js + 追加プラグイン
   {
+    files: ['**/*.ts', '**/*.tsx'],
     plugins: {
       '@typescript-eslint': tseslint,
       '@next/next': nextPlugin,
       'simple-import-sort': simpleImportSort,
-      tailwindcss
+      tailwindcss,
+      local: { rules: localRules }
     },
     rules: {
       // Import整列
       'simple-import-sort/imports': 'error',
 
-      // TypeScript型インポート（neostandardに含まれる@typescript-eslintプラグインを使用）
+      // TypeScript型インポート（インライン型を禁止し、分離を強制）
       '@typescript-eslint/consistent-type-imports': [
         'error',
-        { prefer: 'type-imports', fixStyle: 'separate-type-imports' }
+        {
+          prefer: 'type-imports',
+          disallowTypeAnnotations: false,
+          fixStyle: 'separate-type-imports'
+        }
       ],
+      '@typescript-eslint/no-import-type-side-effects': 'error',
+
+      // カスタムルール: インライン型アノテーションを禁止
+      'local/no-inline-type-imports': 'error',
 
       // JSXクォート
       'jsx-quotes': ['error', 'prefer-single'],
