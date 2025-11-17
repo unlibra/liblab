@@ -180,8 +180,13 @@ export async function generateOutputSet (
         ? (backgroundColor || '#ffffff')
         : backgroundColor
 
+      // apple-touch-icon: iOS applies rounded corners automatically, so don't apply border radius
+      const effectiveBorderRadius = file.name === 'apple-touch-icon.png'
+        ? 0
+        : borderRadiusPercent
+
       blob = await processImage(image, size, {
-        borderRadiusPercent,
+        borderRadiusPercent: effectiveBorderRadius,
         backgroundColor: effectiveBackgroundColor
       })
     }
