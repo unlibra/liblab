@@ -15,7 +15,7 @@ export function Breadcrumb ({ items }: BreadcrumbProps) {
     <nav className='mb-6 flex min-w-0 items-center gap-2 text-sm'>
       {items.map((item, index) => (
         <div key={index} className='flex min-w-0 items-center gap-2'>
-          {index > 0 && <ChevronRightIcon className='size-4 shrink-0 text-gray-500' />}
+          {index > 0 && <ChevronRightIcon className='size-4 shrink-0 text-gray-600 dark:text-gray-400' />}
           {item.href
             ? (
               <Link href={item.href} className='truncate font-medium leading-none text-blue-600 transition-colors hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300'>
@@ -23,7 +23,7 @@ export function Breadcrumb ({ items }: BreadcrumbProps) {
               </Link>
               )
             : (
-              <span className='truncate font-medium leading-none text-gray-500'>{item.label}</span>
+              <span className='truncate font-medium leading-none text-gray-600 dark:text-gray-400'>{item.label}</span>
               )}
         </div>
       ))}

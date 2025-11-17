@@ -9,10 +9,10 @@ export default function Home () {
         <h1 className='mb-4 font-[Outfit] text-4xl font-semibold'>
           8px.app
         </h1>
-        <p className='text-lg text-gray-500'>
+        <p className='text-lg text-gray-600 dark:text-gray-400'>
           ウェブ開発をもっとスムーズに、もっとクリエイティブに。
         </p>
-        <p className='text-lg text-gray-500'>
+        <p className='text-lg text-gray-600 dark:text-gray-400'>
           開発者のための便利なツールを集めたコレクションです。
         </p>
       </div>

@@ -88,14 +88,14 @@ export function Slider ({
           <label className='text-sm font-medium'>
             {label}
           </label>
-          <span className='text-sm text-gray-500 dark:text-gray-400'>
+          <span className='text-sm text-gray-600 dark:text-gray-400'>
             {value}{unit}
           </span>
         </div>
       )}
       {!label && (
         <div className='flex items-center justify-end'>
-          <span className='text-sm text-gray-500 dark:text-gray-400'>
+          <span className='text-sm text-gray-600 dark:text-gray-400'>
             {value}{unit}
           </span>
         </div>
@@ -115,7 +115,7 @@ export function Slider ({
         />
       </div>
       {description && (
-        <p className='text-xs text-gray-500 dark:text-gray-400'>
+        <p className='text-xs text-gray-600 dark:text-gray-400'>
           {description}
         </p>
       )}

@@ -101,10 +101,10 @@ export function FileUpload ({
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`mt-1 block cursor-pointer rounded-lg border-2 border-dashed p-6 text-center transition-colors duration-200 ${
+        className={`mt-1 block cursor-pointer rounded-lg border-2 border-dashed p-6 text-center transition-colors ${
           isDragging
-            ? 'border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-950'
-            : 'border-gray-300 transition-colors hover:border-blue-400 hover:bg-blue-50 dark:border-gray-600 dark:hover:border-blue-500 dark:hover:bg-blue-950'
+            ? 'border-blue-500 bg-blue-50 dark:border-blue-500 dark:bg-blue-950'
+            : 'border-gray-300 hover:border-blue-500 hover:bg-blue-50 dark:border-gray-600 dark:hover:border-blue-500 dark:hover:bg-blue-950'
         }`}
       >
         <input
@@ -128,12 +128,12 @@ export function FileUpload ({
               )
             : (
               <>
-                <ArrowUpTrayIcon className='size-6 text-gray-500' />
+                <ArrowUpTrayIcon className='size-6 text-gray-600 dark:text-gray-400' />
                 <div>
                   <p className='text-sm font-medium'>
                     {dragDropText}
                   </p>
-                  <p className='text-xs text-gray-500'>
+                  <p className='text-xs text-gray-600 dark:text-gray-400'>
                     {clickText}
                   </p>
                 </div>

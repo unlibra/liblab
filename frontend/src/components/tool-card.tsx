@@ -39,7 +39,7 @@ export function ToolCard ({ tool }: ToolCardProps) {
         <h3 className='text-sm font-semibold'>
           {tool.name}
         </h3>
-        <p className='line-clamp-2 text-xs text-gray-500'>
+        <p className='line-clamp-2 text-xs text-gray-600 dark:text-gray-400'>
           {tool.description}
         </p>
       </div>
