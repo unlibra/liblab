@@ -1,3 +1,4 @@
+import { LogoIcon } from '@/components/icons/logo-icon'
 import { ToolCard } from '@/components/tool-card'
 import { categories } from '@/lib/tools'
 
@@ -6,14 +7,17 @@ export default function Home () {
     <>
       {/* Hero Section */}
       <div className='my-12 text-center'>
+        <div className='mb-4 flex justify-center'>
+          <LogoIcon className='size-16' />
+        </div>
         <h1 className='mb-4 font-[Outfit] text-4xl font-semibold'>
           8px.app
         </h1>
         <p className='text-lg text-gray-600 dark:text-gray-400'>
-          ウェブ開発をもっとスムーズに、もっとクリエイティブに。
+          Web開発に必要なすべてを、シンプルに。
         </p>
         <p className='text-lg text-gray-600 dark:text-gray-400'>
-          開発者のための便利なツールを集めたコレクションです。
+          コードとデザインの境界を越え、クリエイターの想像力を刺激する便利な機能を集めました。
         </p>
       </div>
 

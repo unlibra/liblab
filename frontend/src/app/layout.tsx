@@ -30,8 +30,8 @@ const fontMono = Roboto_Mono({
 })
 
 export const metadata: Metadata = {
-  title: '8px.app - Web Development Toolkit',
-  description: 'A collection of useful tools for web developers',
+  title: '8px.app | Web Developer Toolkit',
+  description: 'Web開発に必要なすべてを、シンプルに。コードとデザインの境界を越え、クリエイターの想像力を刺激する便利な機能を集めました。',
   icons: {
     icon: [
       { url: '/icon.svg', type: 'image/svg+xml' },
