@@ -2,12 +2,13 @@
 
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react'
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
-import { ExclamationCircleIcon, LockClosedIcon, PhotoIcon, PlusIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { LockClosedIcon, PhotoIcon, PlusIcon } from '@heroicons/react/24/outline'
 import type { ChangeEvent } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { Breadcrumb } from '@/components/breadcrumb'
 import { FullPageDropZone } from '@/components/full-page-drop-zone'
+import { useToast } from '@/components/toast'
 import type { FaviconSize, OutputSetId } from '@/lib/favicon-generator'
 import {
   DEFAULT_OUTPUT_SETS,
@@ -22,6 +23,7 @@ import { createZip } from '@/lib/zip-utils'
 import { FaviconOptionsPanel } from './favicon-options-panel'
 
 export default function FaviconGeneratorPage () {
+  const toast = useToast()
   const [image, setImage] = useState<HTMLImageElement | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [selectedSets, setSelectedSets] = useState<Set<OutputSetId>>(
@@ -34,7 +36,6 @@ export default function FaviconGeneratorPage () {
   const [backgroundColor, setBackgroundColor] = useState('#ffffff')
   const [useBackground, setUseBackground] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
-  const [error, setError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const validateImageFileWrapper = useCallback(async (file: File): Promise<string | null> => {
@@ -45,12 +46,10 @@ export default function FaviconGeneratorPage () {
   }, [])
 
   const handleFileSelect = useCallback(async (file: File) => {
-    setError(null)
-
     // Validate file (including magic number check)
     const validationError = await validateImageFileWrapper(file)
     if (validationError) {
-      setError(validationError)
+      toast.error(validationError)
       return
     }
 
@@ -59,10 +58,10 @@ export default function FaviconGeneratorPage () {
       const loadedImage = await loadImageFromFile(file)
       setImage(loadedImage)
     } catch (err) {
-      setError('画像の読み込みに失敗しました')
+      toast.error('画像の読み込みに失敗しました')
       console.error(err)
     }
-  }, [validateImageFileWrapper])
+  }, [validateImageFileWrapper, toast])
 
   const handleInputChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -133,22 +132,21 @@ export default function FaviconGeneratorPage () {
 
   const handleGenerate = useCallback(async () => {
     if (!image) {
-      setError('画像ファイルを選択してください')
+      toast.error('画像ファイルを選択してください')
       return
     }
 
     if (selectedSets.size === 0) {
-      setError('少なくとも1つの出力形式を選択してください')
+      toast.error('少なくとも1つの出力形式を選択してください')
       return
     }
 
     if (selectedSets.has('favicon') && selectedSizes.size === 0) {
-      setError('favicon.icoを選択した場合、少なくとも1つのサイズを選択してください')
+      toast.error('favicon.icoを選択した場合、少なくとも1つのサイズを選択してください')
       return
     }
 
     setIsGenerating(true)
-    setError(null)
 
     try {
       const sizes = Array.from(selectedSizes).sort((a, b) => a - b)
@@ -178,16 +176,12 @@ export default function FaviconGeneratorPage () {
         downloadBlob(zipBlob, 'favicons.zip')
       }
     } catch (err) {
-      setError('ファビコンの生成に失敗しました')
+      toast.error('ファビコンの生成に失敗しました')
       console.error(err)
     } finally {
       setIsGenerating(false)
     }
-  }, [image, selectedSets, selectedSizes, borderRadius, backgroundColor, useBackground])
-
-  const handleCloseError = useCallback(() => {
-    setError(null)
-  }, [])
+  }, [image, selectedSets, selectedSizes, borderRadius, backgroundColor, useBackground, toast])
 
   return (
     <FullPageDropZone
@@ -209,27 +203,12 @@ export default function FaviconGeneratorPage () {
         </p>
 
         {/* Privacy Notice */}
-        <div className='mb-10 flex items-center gap-3 rounded-lg border border-sky-200 bg-sky-50 p-4 text-sky-900 dark:border-gray-700 dark:bg-atom-one-dark-light dark:text-gray-300'>
+        <div className='mb-8 flex items-center gap-3 rounded-lg border border-sky-200 bg-sky-50 p-4 text-sky-900 dark:border-gray-700 dark:bg-atom-one-dark-light dark:text-gray-300'>
           <LockClosedIcon className='size-5' />
           <div className='text-sm'>
             すべての画像処理はブラウザ内で安全に実行されます。サーバーにデータは一切送信されません。
           </div>
         </div>
-
-        {/* Error Message */}
-        {error && (
-          <div className='fixed left-0 top-0 z-50 flex h-16 w-full items-center gap-3 bg-red-100 p-4 text-sm text-red-800 shadow-lg dark:bg-red-900 dark:text-red-200'>
-            <ExclamationCircleIcon className='size-6' />
-            {error ?? 'エラーテスト'}
-            <button
-              onClick={handleCloseError}
-              className='ml-auto shrink-0 rounded-lg p-1 transition-colors hover:bg-black/5 dark:hover:bg-white/5'
-              aria-label='閉じる'
-            >
-              <XMarkIcon className='size-5' />
-            </button>
-          </div>
-        )}
 
         {/* Main Content Layout */}
         <div className='mb-8 flex flex-col gap-8 lg:flex-row'>

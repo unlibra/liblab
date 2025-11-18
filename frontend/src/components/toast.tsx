@@ -1,7 +1,7 @@
 'use client'
 
 import { Transition, TransitionChild } from '@headlessui/react'
-import { CheckCircleIcon, ExclamationCircleIcon, InformationCircleIcon, XCircleIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { CheckCircleIcon, ExclamationCircleIcon, ExclamationTriangleIcon, InformationCircleIcon, XMarkIcon } from '@heroicons/react/24/solid'
 import { createContext, Fragment, useCallback, useContext, useState } from 'react'
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info'
@@ -38,32 +38,33 @@ export function ToastProvider ({ children }: { children: React.ReactNode }) {
     setToasts((prev) => prev.filter((toast) => toast.id !== id))
   }, [])
 
-  const showToast = useCallback((message: string, type: ToastType = 'info', duration: number = 5000) => {
+  const showToast = useCallback((message: string, type: ToastType = 'info', duration?: number) => {
     const id = `${Date.now()}-${Math.random()}`
     const toast: Toast = { id, message, type, duration }
 
     setToasts((prev) => [...prev, toast])
 
-    if (duration > 0) {
+    if (duration !== undefined && duration > 0) {
       setTimeout(() => {
         removeToast(id)
       }, duration)
     }
   }, [removeToast])
 
-  const success = useCallback((message: string, duration?: number) => {
+  const success = useCallback((message: string, duration: number = 3000) => {
     showToast(message, 'success', duration)
   }, [showToast])
 
   const error = useCallback((message: string, duration?: number) => {
+    // Error toasts don't auto-close by default (duration = undefined = Infinity)
     showToast(message, 'error', duration)
   }, [showToast])
 
-  const warning = useCallback((message: string, duration?: number) => {
+  const warning = useCallback((message: string, duration: number = 3000) => {
     showToast(message, 'warning', duration)
   }, [showToast])
 
-  const info = useCallback((message: string, duration?: number) => {
+  const info = useCallback((message: string, duration: number = 3000) => {
     showToast(message, 'info', duration)
   }, [showToast])
 
@@ -98,65 +99,53 @@ function ToastItem ({ toast, onRemove }: { toast: Toast, onRemove: (id: string) 
   const getIcon = () => {
     switch (toast.type) {
       case 'success':
-        return <CheckCircleIcon className='size-6 text-green-600 dark:text-green-200' />
+        return <CheckCircleIcon className='size-6 text-white' />
       case 'error':
-        return <XCircleIcon className='size-6 text-red-600 dark:text-red-200' />
+        return <ExclamationCircleIcon className='size-6 text-white' />
       case 'warning':
-        return <ExclamationCircleIcon className='size-6 text-yellow-600 dark:text-yellow-200' />
+        return <ExclamationTriangleIcon className='size-6 text-white' />
       case 'info':
-        return <InformationCircleIcon className='size-6 text-blue-600 dark:text-blue-200' />
+        return <InformationCircleIcon className='size-6 text-white' />
     }
   }
 
   const getBgColor = () => {
     switch (toast.type) {
       case 'success':
-        return 'bg-green-50 border-green-200 dark:bg-green-900 dark:border-green-800'
+        return 'bg-green-500'
       case 'error':
-        return 'bg-red-50 border-red-200 dark:bg-red-900 dark:border-red-800'
+        return 'bg-red-500'
       case 'warning':
-        return 'bg-yellow-50 border-yellow-200 dark:bg-yellow-900 dark:border-yellow-800'
+        return 'bg-yellow-500'
       case 'info':
-        return 'bg-blue-50 border-blue-200 dark:bg-blue-900 dark:border-blue-800'
-    }
-  }
-
-  const getTextColor = () => {
-    switch (toast.type) {
-      case 'success':
-        return 'text-green-800 dark:text-green-200'
-      case 'error':
-        return 'text-red-800 dark:text-red-200'
-      case 'warning':
-        return 'text-yellow-800 dark:text-yellow-200'
-      case 'info':
-        return 'text-blue-800 dark:text-blue-200'
+        return 'bg-blue-500'
     }
   }
 
   return (
     <Transition show={show} as={Fragment}>
-      <div className='pointer-events-auto w-fit max-w-screen-sm'>
+      <div className='pointer-events-auto w-fit min-w-80 max-w-screen-sm'>
         <TransitionChild
           as={Fragment}
           enter='transform ease-out duration-300 transition'
-          enterFrom='translate-x-full opacity-0'
-          enterTo='translate-x-0 opacity-100'
+          enterFrom='translate-y-full opacity-0'
+          enterTo='translate-y-0 opacity-100'
           leave='transition ease-in duration-200'
-          leaveFrom='translate-x-0 opacity-100'
-          leaveTo='translate-x-full opacity-0'
+          leaveFrom='translate-y-0 opacity-100'
+          leaveTo='translate-y-full opacity-0'
         >
           <div className={`flex items-center gap-3 rounded-lg border p-4 shadow-lg ${getBgColor()}`}>
             {getIcon()}
-            <div className={`flex-1 text-sm font-medium ${getTextColor()}`}>
+            <div className='flex-1 text-sm font-medium text-white'>
               {toast.message}
             </div>
+            <div className='h-6 w-px bg-white' />
             <button
               onClick={handleClose}
-              className='shrink-0 rounded-lg p-1 transition-colors hover:bg-black/5 dark:hover:bg-white/5'
+              className='shrink-0 rounded-lg p-1 transition-colors hover:bg-white/5'
               aria-label='閉じる'
             >
-              <XMarkIcon className='size-5' />
+              <XMarkIcon className='size-5 stroke-2 text-white' />
             </button>
           </div>
         </TransitionChild>
