@@ -1,5 +1,7 @@
 'use client'
 
+import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react'
+import { ChevronDownIcon } from '@heroicons/react/20/solid'
 import { DocumentIcon, LockClosedIcon, PlusIcon } from '@heroicons/react/24/outline'
 import type { ChangeEvent } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -177,6 +179,29 @@ export default function SvgOptimizerPage () {
                 または画面のどこにでもドラッグ&ドロップ
               </p>
             </div>
+
+            {/* Options Panel (Mobile Only) */}
+            <Disclosure defaultOpen={false} as='div' className='lg:hidden'>
+              {({ open }) => (
+                <div className='overflow-hidden rounded-lg bg-gray-100 dark:bg-atom-one-dark-light'>
+                  <DisclosureButton className='flex w-full items-center justify-between rounded-lg px-4 py-3 text-left font-medium outline-none transition-colors hover:bg-gray-200 dark:hover:bg-gray-700'>
+                    <h6 className='text-sm font-semibold'>圧縮オプション</h6>
+                    <ChevronDownIcon
+                      className={`h-5 w-5 transition-transform ${open ? 'rotate-180' : ''
+                        }`}
+                    />
+                  </DisclosureButton>
+                  <DisclosurePanel className='p-4'>
+                    <SvgOptionsPanel
+                      options={options}
+                      onOptionsChange={handleOptionsChange}
+                      selectedPreset={selectedPreset}
+                      onPresetChange={handlePresetChange}
+                    />
+                  </DisclosurePanel>
+                </div>
+              )}
+            </Disclosure>
 
             {/* Preview */}
             <div className='flex flex-col'>
