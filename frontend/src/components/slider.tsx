@@ -52,7 +52,7 @@ export function Slider ({
   const percentage = ((value - min) / (max - min)) * 100
 
   const trackColor = isDark ? 'rgb(75, 85, 99)' : 'rgb(226, 232, 240)'
-  const thumbBg = isDark ? 'rgb(31, 41, 55)' : '#fff'
+  const thumbBg = '#fff'
 
   return (
     <div className={`space-y-2 ${className}`}>
