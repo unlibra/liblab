@@ -138,7 +138,7 @@ export default function SvgOptimizerPage () {
 
       <div className='mx-auto max-w-screen-lg'>
         <h1 className='mb-4 text-3xl font-bold'>SVG圧縮ツール</h1>
-        <p className='mb-8 text-gray-600 dark:text-gray-400'>
+        <p className='mb-4 text-gray-600 dark:text-gray-400'>
           SVGファイルを最適化・圧縮して、ファイルサイズを削減します。
         </p>
 
@@ -253,9 +253,9 @@ export default function SvgOptimizerPage () {
               <button
                 onClick={handleDownload}
                 disabled={!originalSvg || isDownloading}
-                className='rounded-full bg-sky-500 px-8 py-3 font-medium text-white outline-none transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 enabled:hover:bg-sky-600 disabled:opacity-50 dark:bg-sky-600 enabled:dark:hover:bg-sky-500'
+                className='rounded-full bg-amber-500 px-8 py-3 font-medium text-white outline-none transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500 enabled:hover:bg-amber-600 disabled:bg-gray-300 dark:bg-amber-600 enabled:dark:hover:bg-amber-500 disabled:dark:bg-atom-one-dark-light'
               >
-                {isDownloading ? 'ダウンロード中...' : 'ダウンロード'}
+                ダウンロード
               </button>
             </div>
           </div>
