@@ -2,11 +2,12 @@
 
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react'
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
-import { DocumentIcon, LockClosedIcon, PlusIcon } from '@heroicons/react/24/outline'
+import { LockClosedIcon, PhotoIcon, PlusIcon } from '@heroicons/react/24/outline'
 import type { ChangeEvent } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { Breadcrumb } from '@/components/breadcrumb'
+import { CheckerboardPreview } from '@/components/checkerboard-preview'
 import { FullPageDropZone } from '@/components/full-page-drop-zone'
 import { useToast } from '@/components/toast'
 import { optimizeSvg } from '@/lib/svgo-optimizer'
@@ -110,7 +111,6 @@ export default function SvgOptimizerPage () {
       a.click()
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
-      toast.success('SVGをダウンロードしました')
     } catch (err) {
       toast.error('SVGの最適化に失敗しました')
       console.error(err)
@@ -157,7 +157,7 @@ export default function SvgOptimizerPage () {
             {/* File Upload */}
             <div>
               <h6 className='mb-2 block text-sm font-semibold'>
-                SVGファイルを選択
+                ファイルを選択
               </h6>
               <input
                 ref={fileInputRef}
@@ -171,7 +171,7 @@ export default function SvgOptimizerPage () {
                 className='flex items-center gap-2 rounded-lg bg-sky-500 px-4 py-2 text-sm font-medium text-white outline-none transition-colors hover:bg-sky-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 dark:bg-sky-600 dark:hover:bg-sky-500'
               >
                 <PlusIcon className='size-5 stroke-2' />
-                SVGファイルを選択
+                ファイルを選択
               </button>
               <p className='mt-2 text-xs text-gray-600 dark:text-gray-400'>
                 SVGファイルをアップロードできます（最大10MB）
@@ -208,63 +208,44 @@ export default function SvgOptimizerPage () {
               <h6 className='mb-2 block text-sm font-semibold'>
                 プレビュー
               </h6>
-              {originalSvg
-                ? (
-                  <div className='space-y-4'>
-                    {/* SVG Preview */}
-                    {previewOptimizedSvg && (
-                      <div className='flex w-full items-center justify-center'>
-                        <div
-                          className='flex aspect-square h-full max-h-64 w-full items-center justify-center rounded-lg border border-gray-200 p-4 dark:border-gray-700'
-                          style={{
-                            backgroundImage: `
-                              linear-gradient(45deg, #ccc 25%, transparent 25%),
-                              linear-gradient(-45deg, #ccc 25%, transparent 25%),
-                              linear-gradient(45deg, transparent 75%, #ccc 75%),
-                              linear-gradient(-45deg, transparent 75%, #ccc 75%)
-                            `,
-                            backgroundSize: '20px 20px',
-                            backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
-                          }}
-                        >
-                          <div
-                            className='flex size-full items-center justify-center [&>svg]:h-auto [&>svg]:max-h-full [&>svg]:w-auto [&>svg]:max-w-full'
-                            dangerouslySetInnerHTML={{ __html: previewOptimizedSvg }}
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    {/* File Size Info */}
-                    {previewOptimizedSvg && (
-                      <div className='space-y-2 rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm dark:border-gray-700 dark:bg-atom-one-dark-light'>
-                        <div className='flex justify-between'>
-                          <span className='text-gray-600 dark:text-gray-400'>圧縮前:</span>
-                          <span className='font-medium'>{(originalSize / 1024).toFixed(2)} KB</span>
-                        </div>
-                        <div className='flex justify-between'>
-                          <span className='text-gray-600 dark:text-gray-400'>圧縮後:</span>
-                          <span className='font-medium'>{(previewOptimizedSize / 1024).toFixed(2)} KB</span>
-                        </div>
-                        <div className='flex justify-between'>
-                          <span className='text-gray-600 dark:text-gray-400'>削減:</span>
-                          <span className='font-medium text-green-600 dark:text-green-400'>
-                            {compressionRatio}%
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  )
-                : (
-                  <div className='flex aspect-square h-full max-h-64 w-full items-center justify-center rounded-lg bg-gray-50 dark:bg-atom-one-dark-light'>
+              <div className='space-y-4'>
+                <CheckerboardPreview
+                  emptyState={
                     <div className='text-center text-sm text-gray-600 dark:text-gray-400'>
-                      <DocumentIcon className='mx-auto mb-2 h-12 w-12' />
+                      <PhotoIcon className='mx-auto mb-2 h-12 w-12' />
                       <p>SVGファイルを選択すると</p>
                       <p>プレビューが表示されます</p>
                     </div>
-                  </div>
+                  }
+                >
+                  {previewOptimizedSvg && (
+                    <div
+                      className='flex size-full items-center justify-center [&>svg]:h-auto [&>svg]:max-h-full [&>svg]:w-auto [&>svg]:max-w-full'
+                      dangerouslySetInnerHTML={{ __html: previewOptimizedSvg }}
+                    />
                   )}
+                </CheckerboardPreview>
+
+                {/* File Size Info */}
+                {previewOptimizedSvg && (
+                  <div className='space-y-2 rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm dark:border-gray-700 dark:bg-atom-one-dark-light'>
+                    <div className='flex justify-between'>
+                      <span className='text-gray-600 dark:text-gray-400'>圧縮前:</span>
+                      <span className='font-medium'>{(originalSize / 1024).toFixed(2)} KB</span>
+                    </div>
+                    <div className='flex justify-between'>
+                      <span className='text-gray-600 dark:text-gray-400'>圧縮後:</span>
+                      <span className='font-medium'>{(previewOptimizedSize / 1024).toFixed(2)} KB</span>
+                    </div>
+                    <div className='flex justify-between'>
+                      <span className='text-gray-600 dark:text-gray-400'>削減:</span>
+                      <span className='font-medium text-green-600 dark:text-green-400'>
+                        {compressionRatio}%
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Download Button */}

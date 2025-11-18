@@ -134,7 +134,7 @@ function ToastItem ({ toast, onRemove }: { toast: Toast, onRemove: (id: string) 
           leaveFrom='translate-y-0 opacity-100'
           leaveTo='translate-y-full opacity-0'
         >
-          <div className={`flex items-center gap-3 rounded-lg border p-4 shadow-lg ${getBgColor()}`}>
+          <div className={`flex items-center gap-3 rounded-lg p-4 shadow-lg ${getBgColor()}`}>
             {getIcon()}
             <div className='flex-1 text-sm font-medium text-white'>
               {toast.message}

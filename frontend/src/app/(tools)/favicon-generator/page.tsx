@@ -245,7 +245,7 @@ export default function FaviconGeneratorPage () {
               {({ open }) => (
                 <div className='overflow-hidden rounded-lg bg-gray-100 dark:bg-atom-one-dark-light'>
                   <DisclosureButton className='flex w-full items-center justify-between rounded-lg px-4 py-3 text-left font-medium outline-none transition-colors hover:bg-gray-100 dark:hover:bg-gray-700'>
-                    <h6 className='text-sm font-semibold'>オプション</h6>
+                    <h6 className='text-sm font-semibold'>出力オプション</h6>
                     <ChevronDownIcon
                       className={`h-5 w-5 transition-transform ${open ? 'rotate-180' : ''
                         }`}
@@ -323,7 +323,7 @@ export default function FaviconGeneratorPage () {
 
           {/* Right Column - Settings Panel (Desktop Only) */}
           <div className='hidden lg:block lg:flex-1'>
-            <h6 className='mb-6 text-sm font-semibold'>オプション</h6>
+            <h6 className='mb-6 text-sm font-semibold'>出力オプション</h6>
             <FaviconOptionsPanel
               selectedSets={selectedSets}
               selectedSizes={selectedSizes}

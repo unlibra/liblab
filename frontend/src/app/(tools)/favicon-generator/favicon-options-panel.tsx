@@ -37,7 +37,7 @@ export function FaviconOptionsPanel ({
       <div>
         <div className='mb-3'>
           <span className='block text-sm font-semibold'>
-            出力ファイル形式
+            ファイル形式
           </span>
         </div>
         <div className='flex flex-wrap gap-2'>
