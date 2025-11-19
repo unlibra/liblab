@@ -10,12 +10,14 @@ import { CheckerboardPreview } from '@/components/checkerboard-preview'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { FullPageDropZone } from '@/components/ui/full-page-drop-zone'
 import { useToast } from '@/components/ui/toast'
+import { getToolById } from '@/config/tools'
 import type { PresetId, SvgoOptions } from '@/lib/image/svgo-optimizer'
 import { DEFAULT_SVGO_OPTIONS, optimizeSvg, PRESETS } from '@/lib/image/svgo-optimizer'
 
 import { SvgOptionsPanel } from './svg-options-panel'
 
 export default function SvgOptimizerPage () {
+  const tool = getToolById('svg-optimizer')
   const toast = useToast()
   const [originalSvg, setOriginalSvg] = useState<string | null>(null)
   const [previewOptimizedSvg, setPreviewOptimizedSvg] = useState<string | null>(null)
@@ -131,12 +133,12 @@ export default function SvgOptimizerPage () {
       <Breadcrumb
         items={[
           { label: 'Home', href: '/' },
-          { label: 'SVG圧縮ツール' }
+          { label: tool?.name ?? 'SVG圧縮ツール' }
         ]}
       />
 
       <div className='mx-auto max-w-screen-lg'>
-        <h1 className='mb-4 text-3xl font-bold'>SVG圧縮ツール</h1>
+        <h1 className='mb-4 text-3xl font-bold'>{tool?.name ?? 'SVG圧縮ツール'}</h1>
         <p className='mb-4 text-gray-600 dark:text-gray-400'>
           SVGファイルを最適化・圧縮して、ファイルサイズを削減します。
         </p>

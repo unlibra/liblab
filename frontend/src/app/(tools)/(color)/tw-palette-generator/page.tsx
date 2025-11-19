@@ -3,6 +3,7 @@
 import { useState } from 'react'
 
 import { Breadcrumb } from '@/components/ui/breadcrumb'
+import { getToolById } from '@/config/tools'
 import { hexToRgb } from '@/lib/color/color-utils'
 import type { ColorPalette } from '@/lib/color/palette-generator'
 import { adjustPaletteHue, generatePalette, getShadeLabels } from '@/lib/color/palette-generator'
@@ -10,6 +11,7 @@ import type { TailwindColorName, TailwindShade } from '@/lib/color/tailwind-colo
 import { getColorNames, getShades, tailwindColors } from '@/lib/color/tailwind-colors'
 
 export default function TailwindPaletteGeneratorPage () {
+  const tool = getToolById('tw-palette-generator')
   // State
   const [inputColor, setInputColor] = useState('#3b82f6') // Default: Tailwind blue-500
   const [palette, setPalette] = useState<ColorPalette | null>(null)
@@ -64,12 +66,12 @@ export default function TailwindPaletteGeneratorPage () {
       <Breadcrumb
         items={[
           { label: 'Home', href: '/' },
-          { label: 'TWパレットジェネレーター' }
+          { label: tool?.name ?? 'TWパレットジェネレーター' }
         ]}
       />
 
       <div className='mx-auto max-w-screen-lg'>
-        <h1 className='mb-4 text-3xl font-bold'>TWパレットジェネレーター</h1>
+        <h1 className='mb-4 text-3xl font-bold'>{tool?.name ?? 'TWパレットジェネレーター'}</h1>
         <p className='mb-8 text-gray-600 dark:text-gray-400'>
           好きな色からTailwind CSS風の50-950のシェードを持つカラーパレットを生成します。
         </p>

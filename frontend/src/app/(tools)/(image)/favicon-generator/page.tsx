@@ -9,6 +9,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { FullPageDropZone } from '@/components/ui/full-page-drop-zone'
 import { useToast } from '@/components/ui/toast'
+import { getToolById } from '@/config/tools'
 import { validateImageFile } from '@/lib/file/file-validation'
 import { createZip } from '@/lib/file/zip-utils'
 import type { FaviconSize, OutputSetId } from '@/lib/image/favicon-generator'
@@ -23,6 +24,7 @@ import { downloadBlob, loadImageFromFile, processImage } from '@/lib/image/image
 import { FaviconOptionsPanel } from './favicon-options-panel'
 
 export default function FaviconGeneratorPage () {
+  const tool = getToolById('favicon-generator')
   const toast = useToast()
   const [image, setImage] = useState<HTMLImageElement | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
@@ -192,12 +194,12 @@ export default function FaviconGeneratorPage () {
       <Breadcrumb
         items={[
           { label: 'Home', href: '/' },
-          { label: 'Faviconジェネレーター' }
+          { label: tool?.name ?? 'Faviconジェネレーター' }
         ]}
       />
 
       <div className='mx-auto max-w-screen-lg'>
-        <h1 className='mb-4 text-3xl font-bold'>Faviconジェネレーター</h1>
+        <h1 className='mb-4 text-3xl font-bold'>{tool?.name ?? 'Faviconジェネレーター'}</h1>
         <p className='mb-4 text-gray-600 dark:text-gray-400'>
           画像からfaviconファイルを生成します。Apple Touch IconやAndroidアイコンもサポート。
         </p>
