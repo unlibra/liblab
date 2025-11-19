@@ -35,7 +35,7 @@ export const tools: Tool[] = [
   {
     id: 'tw-palette-generator',
     name: 'TWパレットジェネレーター',
-    description: '好きな色からTailwindCSS風の50-950のシェードを持つカラーパレットを生成します。',
+    description: '選んだ色からTailwindCSS風の50-950のシェードを持つカラーパレットを生成します。',
     shortDescription: 'カラーパレットを生成',
     icon: '/icons/tools/tw-palette-generator.svg',
     category: 'color'

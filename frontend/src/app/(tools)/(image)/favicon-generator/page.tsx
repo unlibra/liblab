@@ -203,7 +203,7 @@ export default function FaviconGeneratorPage () {
       />
 
       <div className='mx-auto max-w-screen-lg'>
-        <h1 className='mb-4 text-3xl font-bold'>{tool?.name ?? 'Faviconジェネレーター'}</h1>
+        <h1 className='mb-4 text-2xl font-semibold'>{tool?.name ?? 'Faviconジェネレーター'}</h1>
         <p className='mb-4 text-gray-600 dark:text-gray-400'>
           画像からfaviconファイルを生成します。Apple Touch IconやAndroidアイコンもサポート。
         </p>
