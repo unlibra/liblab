@@ -60,7 +60,7 @@ export function Header () {
                     <>
                       <PopoverButton
                         ref={buttonRef}
-                        className='flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium outline-none transition-colors hover:bg-gray-100 focus-visible:bg-gray-100 dark:hover:bg-atom-one-dark-lighter focus-visible:dark:bg-atom-one-dark-lighter'
+                        className='flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium uppercase outline-none transition-colors hover:bg-gray-100 focus-visible:bg-gray-100 dark:hover:bg-atom-one-dark-lighter focus-visible:dark:bg-atom-one-dark-lighter'
                       >
                         {category.name}
                         <ChevronDownIcon className={`size-4 transition-transform ${open ? 'rotate-180' : ''}`} />
