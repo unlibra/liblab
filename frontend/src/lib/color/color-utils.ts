@@ -374,3 +374,112 @@ export function normalizeHue (hue: number): number {
   if (hue < 0) hue += 360
   return hue
 }
+
+/**
+ * HSL color
+ * H: Hue (0-360 degrees)
+ * S: Saturation (0-100%)
+ * L: Lightness (0-100%)
+ */
+export interface HSL {
+  h: number
+  s: number
+  l: number
+}
+
+/**
+ * CMYK color
+ * C: Cyan (0-100%)
+ * M: Magenta (0-100%)
+ * Y: Yellow (0-100%)
+ * K: Key/Black (0-100%)
+ */
+export interface CMYK {
+  c: number
+  m: number
+  y: number
+  k: number
+}
+
+/**
+ * Convert RGB to HSL
+ */
+export function rgbToHsl (rgb: RGB): HSL {
+  const r = rgb.r / 255
+  const g = rgb.g / 255
+  const b = rgb.b / 255
+
+  const max = Math.max(r, g, b)
+  const min = Math.min(r, g, b)
+  const delta = max - min
+
+  let h = 0
+  let s = 0
+  const l = (max + min) / 2
+
+  if (delta !== 0) {
+    s = l > 0.5 ? delta / (2 - max - min) : delta / (max + min)
+
+    switch (max) {
+      case r:
+        h = ((g - b) / delta + (g < b ? 6 : 0)) / 6
+        break
+      case g:
+        h = ((b - r) / delta + 2) / 6
+        break
+      case b:
+        h = ((r - g) / delta + 4) / 6
+        break
+    }
+  }
+
+  return {
+    h: Math.round(h * 360),
+    s: Math.round(s * 100),
+    l: Math.round(l * 100)
+  }
+}
+
+/**
+ * Convert HEX to HSL
+ */
+export function hexToHsl (hex: string): HSL | null {
+  const rgb = hexToRgb(hex)
+  if (!rgb) return null
+  return rgbToHsl(rgb)
+}
+
+/**
+ * Convert RGB to CMYK
+ */
+export function rgbToCmyk (rgb: RGB): CMYK {
+  const r = rgb.r / 255
+  const g = rgb.g / 255
+  const b = rgb.b / 255
+
+  const k = 1 - Math.max(r, g, b)
+
+  if (k === 1) {
+    return { c: 0, m: 0, y: 0, k: 100 }
+  }
+
+  const c = (1 - r - k) / (1 - k)
+  const m = (1 - g - k) / (1 - k)
+  const y = (1 - b - k) / (1 - k)
+
+  return {
+    c: Math.round(c * 100),
+    m: Math.round(m * 100),
+    y: Math.round(y * 100),
+    k: Math.round(k * 100)
+  }
+}
+
+/**
+ * Convert HEX to CMYK
+ */
+export function hexToCmyk (hex: string): CMYK | null {
+  const rgb = hexToRgb(hex)
+  if (!rgb) return null
+  return rgbToCmyk(rgb)
+}

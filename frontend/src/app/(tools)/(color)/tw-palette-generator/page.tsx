@@ -1,65 +1,91 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { Breadcrumb } from '@/components/ui/breadcrumb'
+import { HueSlider } from '@/components/ui/hue-slider'
+import { CircleSpinner } from '@/components/ui/spinner'
+import { useToast } from '@/components/ui/toast'
 import { getToolById } from '@/config/tools'
-import { hexToRgb } from '@/lib/color/color-utils'
+import { hexToCmyk, hexToHsl, hexToLch, hexToRgb, lchToHex, normalizeHue } from '@/lib/color/color-utils'
 import type { ColorPalette } from '@/lib/color/palette-generator'
 import { adjustPaletteHue, generatePalette, getShadeLabels } from '@/lib/color/palette-generator'
 import type { TailwindColorName, TailwindShade } from '@/lib/color/tailwind-colors'
-import { getColorNames, getShades, tailwindColors } from '@/lib/color/tailwind-colors'
+import { getColorNames, getShades, isGrayScale, tailwindColors } from '@/lib/color/tailwind-colors'
 
 export default function TailwindPaletteGeneratorPage () {
   const tool = getToolById('tw-palette-generator')
+  const toast = useToast()
+
   // State
   const [inputColor, setInputColor] = useState('#3b82f6') // Default: Tailwind blue-500
   const [palette, setPalette] = useState<ColorPalette | null>(null)
-  const [hueShift, setHueShift] = useState(0)
+  const [hueShift, setHueShift] = useState(0) // 0 = no shift
   const [basePalette, setBasePalette] = useState<ColorPalette | null>(null)
 
-  // Generate palette from input
-  const handleGenerate = () => {
-    const generated = generatePalette(inputColor)
-    if (generated) {
-      setBasePalette(generated)
-      setPalette(generated)
-      setHueShift(0)
-    }
-  }
+  // Auto-generate palette with debounce when inputColor changes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const generated = generatePalette(inputColor)
+      if (generated) {
+        setBasePalette(generated)
+        setPalette(generated)
+        setHueShift(0) // Reset to no shift
+      }
+    }, 300) // 300ms debounce
+
+    return () => clearTimeout(timer)
+  }, [inputColor])
 
   // Select Tailwind color
-  const handleTailwindColorSelect = (name: TailwindColorName, shade: TailwindShade) => {
+  const handleTailwindColorSelect = useCallback((name: TailwindColorName, shade: TailwindShade) => {
     const hex = tailwindColors[name][shade]
     setInputColor(hex)
-
-    // Auto-generate
-    const generated = generatePalette(hex)
-    if (generated) {
-      setBasePalette(generated)
-      setPalette(generated)
-      setHueShift(0)
-    }
-  }
+  }, [])
 
   // Adjust hue
-  const handleHueShiftChange = (shift: number) => {
-    setHueShift(shift)
+  const handleHueShiftChange = useCallback((sliderValue: number) => {
+    setHueShift(sliderValue)
     if (basePalette) {
-      const adjusted = adjustPaletteHue(basePalette, shift)
+      // Slider value directly represents hue shift (0 to 360 degrees)
+      const adjusted = adjustPaletteHue(basePalette, sliderValue)
       setPalette(adjusted)
     }
-  }
+  }, [basePalette])
+
+  // Reset hue
+  const handleHueReset = useCallback(() => {
+    setHueShift(0) // Reset to no shift
+    if (basePalette) {
+      setPalette(basePalette)
+    }
+  }, [basePalette])
 
   // Copy color to clipboard
-  const handleCopyColor = async (hex: string) => {
+  const handleCopyColor = useCallback(async (hex: string) => {
     try {
-      await navigator.clipboard.writeText(hex)
-      // TODO: Show toast notification
+      await navigator.clipboard.writeText(hex.toUpperCase())
+      toast.success('クリップボードにコピーしました')
     } catch (err) {
+      toast.error('コピーに失敗しました')
       console.error('Failed to copy:', err)
     }
-  }
+  }, [toast])
+
+  // Copy as Tailwind Config
+  const handleCopyAsTailwind = useCallback(() => {
+    if (!palette) return
+    try {
+      const tailwindConfig = `colors: {\n  custom: {\n${getShadeLabels()
+        .map(shade => `    ${shade}: '${palette[shade]}',`)
+        .join('\n')}\n  }\n}`
+      navigator.clipboard.writeText(tailwindConfig)
+      toast.success('Tailwind設定としてコピーしました')
+    } catch (err) {
+      toast.error('コピーに失敗しました')
+      console.error(err)
+    }
+  }, [palette, toast])
 
   return (
     <>
@@ -70,21 +96,20 @@ export default function TailwindPaletteGeneratorPage () {
         ]}
       />
 
-      <div className='mx-auto max-w-screen-lg'>
+      <div className='mx-auto max-w-screen-xl'>
         <h1 className='mb-4 text-3xl font-bold'>{tool?.name ?? 'TWパレットジェネレーター'}</h1>
         <p className='mb-8 text-gray-600 dark:text-gray-400'>
           好きな色からTailwind CSS風の50-950のシェードを持つカラーパレットを生成します。
         </p>
 
-        <div className='space-y-8'>
-          {/* Color Input Section */}
-          <div className='rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-atom-one-dark-light'>
-            <h2 className='mb-4 text-lg font-semibold'>カラー入力</h2>
-
-            <div className='space-y-4'>
+        {/* Two Column Layout */}
+        <div className='flex flex-col gap-8 lg:flex-row'>
+          {/* Left Column - Input */}
+          <div className='lg:w-1/2'>
+            <div className='space-y-6'>
               {/* HEX Input */}
-              <div>
-                <label className='mb-2 block text-sm font-medium'>HEXカラーコード</label>
+              <div className='rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-atom-one-dark-light'>
+                <h2 className='mb-4 text-lg font-semibold'>カラー入力</h2>
                 <div className='flex gap-3'>
                   <input
                     type='color'
@@ -99,26 +124,49 @@ export default function TailwindPaletteGeneratorPage () {
                     placeholder='#3b82f6'
                     className='flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2 font-mono text-sm focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200'
                   />
-                  <button
-                    onClick={handleGenerate}
-                    className='rounded-full bg-blue-600 px-6 py-2 font-medium text-white hover:bg-blue-700 focus:outline-none dark:bg-blue-700 dark:hover:bg-blue-600'
-                  >
-                    生成
-                  </button>
                 </div>
               </div>
 
+              {/* Hue Adjustment */}
+              <div className='rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-atom-one-dark-light'>
+                <HueSlider
+                  label='色相調整'
+                  value={hueShift}
+                  min={0}
+                  max={360}
+                  inputColor={inputColor}
+                  onChange={handleHueShiftChange}
+                  onReset={handleHueReset}
+                />
+              </div>
+
               {/* Tailwind Color Picker */}
-              <div>
-                <label className='mb-2 block text-sm font-medium'>またはTailwindカラーを選択</label>
-                <div className='max-h-96 overflow-y-auto rounded-lg border border-gray-200 p-4 dark:border-gray-700'>
+              <div className='rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-atom-one-dark-light'>
+                <h2 className='mb-4 text-lg font-semibold'>Tailwindカラーから選択</h2>
+                <div className='rounded-lg border border-gray-200 p-4 dark:border-gray-700'>
+                  {/* Header Row */}
+                  <div className='mb-3 flex items-center gap-1'>
+                    <div className='w-20 shrink-0 text-xs font-medium text-gray-600 dark:text-gray-400'>
+                      {/* Color name placeholder */}
+                    </div>
+                    {getShades().map((shade) => (
+                      <div
+                        key={shade}
+                        className='flex h-8 w-8 shrink-0 items-center justify-center text-[9px] font-medium text-gray-600 dark:text-gray-400'
+                      >
+                        {shade}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Chromatic Colors */}
                   <div className='space-y-3'>
-                    {getColorNames().map((colorName) => (
-                      <div key={colorName}>
-                        <div className='mb-1 text-xs font-medium text-gray-600 dark:text-gray-400'>
+                    {getColorNames().filter(name => !isGrayScale(name)).map((colorName) => (
+                      <div key={colorName} className='flex items-center gap-1'>
+                        <div className='w-20 shrink-0 text-xs font-medium text-gray-600 dark:text-gray-400'>
                           {colorName}
                         </div>
-                        <div className='flex flex-wrap gap-1'>
+                        <div className='flex gap-1'>
                           {getShades().map((shade) => {
                             const hex = tailwindColors[colorName][shade]
 
@@ -126,9 +174,37 @@ export default function TailwindPaletteGeneratorPage () {
                               <button
                                 key={shade}
                                 onClick={() => handleTailwindColorSelect(colorName, shade)}
-                                className='group relative h-10 w-10 rounded transition-transform hover:scale-110 focus:outline-none'
+                                className='group relative h-8 w-8 shrink-0 rounded transition-transform hover:scale-110 focus:outline-none'
                                 style={{ backgroundColor: hex }}
-                                title={`${colorName}-${shade}\n${hex}`}
+                                title='クリックで選択'
+                              >
+                                <span className='sr-only'>{colorName}-{shade}</span>
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Grayscale Colors */}
+                  <div className='mt-6 space-y-3 border-t border-gray-200 pt-6 dark:border-gray-700'>
+                    {getColorNames().filter(name => isGrayScale(name)).map((colorName) => (
+                      <div key={colorName} className='flex items-center gap-1'>
+                        <div className='w-20 shrink-0 text-xs font-medium text-gray-600 dark:text-gray-400'>
+                          {colorName}
+                        </div>
+                        <div className='flex gap-1'>
+                          {getShades().map((shade) => {
+                            const hex = tailwindColors[colorName][shade]
+
+                            return (
+                              <button
+                                key={shade}
+                                onClick={() => handleTailwindColorSelect(colorName, shade)}
+                                className='group relative h-8 w-8 shrink-0 rounded transition-transform hover:scale-110 focus:outline-none'
+                                style={{ backgroundColor: hex }}
+                                title='クリックで選択'
                               >
                                 <span className='sr-only'>{colorName}-{shade}</span>
                               </button>
@@ -143,104 +219,173 @@ export default function TailwindPaletteGeneratorPage () {
             </div>
           </div>
 
-          {/* Generated Palette */}
-          {palette && (
+          {/* Right Column - Output (Always visible) */}
+          <div className='lg:w-1/2'>
             <div className='rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-atom-one-dark-light'>
               <h2 className='mb-4 text-lg font-semibold'>生成されたパレット</h2>
 
-              {/* Hue Adjustment */}
-              <div className='mb-6'>
-                <label className='mb-2 block text-sm font-medium'>
-                  色相調整: {hueShift > 0 ? '+' : ''}{hueShift}°
-                </label>
-                <input
-                  type='range'
-                  min='-180'
-                  max='180'
-                  value={hueShift}
-                  onChange={(e) => handleHueShiftChange(Number(e.target.value))}
-                  className='w-full'
-                />
-                <div className='mt-1 flex justify-between text-xs text-gray-500 dark:text-gray-400'>
-                  <span>-180°</span>
-                  <span>0°</span>
-                  <span>+180°</span>
-                </div>
-              </div>
-
-              {/* Color Swatches */}
-              <div className='space-y-2'>
-                {getShadeLabels().map((shade) => {
-                  const hex = palette[shade]
-                  const rgb = hexToRgb(hex)
-
-                  return (
-                    <div
-                      key={shade}
-                      className='group flex items-center gap-4 rounded-lg border border-gray-200 p-3 transition-colors hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600'
-                    >
-                      {/* Color Preview */}
-                      <div
-                        className='h-12 w-12 flex-shrink-0 rounded shadow-sm'
-                        style={{ backgroundColor: hex }}
-                      />
-
-                      {/* Shade Label */}
-                      <div className='min-w-[3rem] font-mono text-sm font-semibold text-gray-700 dark:text-gray-300'>
-                        {shade}
+              {palette
+                ? (
+                  <>
+                    {/* Original Color (hue-adjusted) */}
+                    <div className='mb-4 rounded-lg border border-gray-200 p-3 dark:border-gray-700'>
+                      <div className='mb-2 text-sm font-medium text-gray-600 dark:text-gray-400'>
+                        オリジナルカラー
                       </div>
+                      <div className='flex items-center gap-3'>
+                        <button
+                          onClick={() => {
+                            const lch = hexToLch(inputColor)
+                            if (!lch) return
+                            const adjustedHex = hueShift === 0
+                              ? inputColor
+                              : lchToHex({
+                                l: lch.l,
+                                c: lch.c,
+                                h: normalizeHue(lch.h + hueShift)
+                              })
+                            handleCopyColor(adjustedHex)
+                          }}
+                          className='h-12 w-12 flex-shrink-0 cursor-pointer rounded shadow-sm transition-transform hover:scale-110'
+                          style={{
+                            backgroundColor: (() => {
+                              const lch = hexToLch(inputColor)
+                              if (!lch || hueShift === 0) return inputColor
+                              return lchToHex({
+                                l: lch.l,
+                                c: lch.c,
+                                h: normalizeHue(lch.h + hueShift)
+                              })
+                            })()
+                          }}
+                          title='クリックでコピー'
+                        />
+                        <div className='flex flex-1 items-center gap-4'>
+                          {(() => {
+                            const lch = hexToLch(inputColor)
+                            if (!lch) return null
+                            const adjustedHex = hueShift === 0
+                              ? inputColor
+                              : lchToHex({
+                                l: lch.l,
+                                c: lch.c,
+                                h: normalizeHue(lch.h + hueShift)
+                              })
+                            const rgb = hexToRgb(adjustedHex)
+                            const hsl = hexToHsl(adjustedHex)
+                            const cmyk = hexToCmyk(adjustedHex)
 
-                      {/* HEX Code */}
-                      <div className='flex-1'>
-                        <div className='font-mono text-sm font-medium text-gray-900 dark:text-gray-100'>
-                          {hex.toUpperCase()}
+                            return (
+                              <>
+                                <div className='font-mono text-sm font-semibold text-gray-900 dark:text-gray-100'>
+                                  {adjustedHex.toUpperCase()}
+                                </div>
+                                <div className='flex-1 space-y-0 text-xs leading-tight text-gray-500 dark:text-gray-500'>
+                                  {rgb && (
+                                    <div className='font-mono'>
+                                      rgb({rgb.r}, {rgb.g}, {rgb.b})
+                                    </div>
+                                  )}
+                                  {hsl && (
+                                    <div className='font-mono'>
+                                      hsl({hsl.h}°, {hsl.s}%, {hsl.l}%)
+                                    </div>
+                                  )}
+                                  {cmyk && (
+                                    <div className='font-mono'>
+                                      cmyk({cmyk.c}%, {cmyk.m}%, {cmyk.y}%, {cmyk.k}%)
+                                    </div>
+                                  )}
+                                </div>
+                              </>
+                            )
+                          })()}
                         </div>
-                        {rgb && (
-                          <div className='text-xs text-gray-500 dark:text-gray-400'>
-                            rgb({rgb.r}, {rgb.g}, {rgb.b})
-                          </div>
-                        )}
                       </div>
-
-                      {/* Copy Button */}
-                      <button
-                        onClick={() => handleCopyColor(hex)}
-                        className='rounded bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-700 opacity-0 transition-opacity hover:bg-gray-200 group-hover:opacity-100 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
-                      >
-                        Copy
-                      </button>
                     </div>
-                  )
-                })}
-              </div>
 
-              {/* Export Options */}
-              <div className='mt-6 flex gap-3'>
-                <button
-                  onClick={() => {
-                    const cssVars = getShadeLabels()
-                      .map(shade => `  --color-${shade}: ${palette[shade]};`)
-                      .join('\n')
-                    navigator.clipboard.writeText(`:root {\n${cssVars}\n}`)
-                  }}
-                  className='rounded bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
-                >
-                  Copy as CSS Variables
-                </button>
-                <button
-                  onClick={() => {
-                    const tailwindConfig = `colors: {\n  custom: {\n${getShadeLabels()
-                      .map(shade => `    ${shade}: '${palette[shade]}',`)
-                      .join('\n')}\n  }\n}`
-                    navigator.clipboard.writeText(tailwindConfig)
-                  }}
-                  className='rounded bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
-                >
-                  Copy as Tailwind Config
-                </button>
-              </div>
+                    {/* Color Swatches */}
+                    <div className='mb-4 space-y-1'>
+                      {getShadeLabels().map((shade) => {
+                        const hex = palette[shade]
+                        const rgb = hexToRgb(hex)
+                        const hsl = hexToHsl(hex)
+                        const cmyk = hexToCmyk(hex)
+
+                        return (
+                          <div
+                            key={shade}
+                            className='flex items-center gap-2 rounded px-1 py-1'
+                          >
+                            {/* Color Preview */}
+                            <button
+                              onClick={() => handleCopyColor(hex)}
+                              className='h-10 w-10 flex-shrink-0 cursor-pointer rounded shadow-sm transition-transform hover:scale-110'
+                              style={{ backgroundColor: hex }}
+                              title='クリックでコピー'
+                            />
+
+                            {/* Shade Label */}
+                            <div className='w-12 font-mono text-sm font-semibold text-gray-700 dark:text-gray-300'>
+                              {shade}
+                            </div>
+
+                            {/* HEX Value */}
+                            <div className='font-mono text-sm font-semibold text-gray-900 dark:text-gray-100'>
+                              {hex.toUpperCase()}
+                            </div>
+
+                            {/* Other Color Spaces */}
+                            <div className='ml-auto space-y-0 text-xs leading-tight text-gray-500 dark:text-gray-500'>
+                              {rgb && (
+                                <div className='font-mono'>
+                                  rgb({rgb.r}, {rgb.g}, {rgb.b})
+                                </div>
+                              )}
+                              {hsl && (
+                                <div className='font-mono'>
+                                  hsl({hsl.h}°, {hsl.s}%, {hsl.l}%)
+                                </div>
+                              )}
+                              {cmyk && (
+                                <div className='font-mono'>
+                                  cmyk({cmyk.c}%, {cmyk.m}%, {cmyk.k}%)
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+
+                    {/* Tailwind Config Snippet */}
+                    <div className='rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900'>
+                      <div className='mb-2 flex items-center justify-between'>
+                        <h3 className='text-sm font-semibold text-gray-700 dark:text-gray-300'>Tailwind Config</h3>
+                        <button
+                          onClick={handleCopyAsTailwind}
+                          className='rounded bg-gray-200 px-3 py-1 text-xs font-medium text-gray-700 hover:bg-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+                        >
+                          Copy
+                        </button>
+                      </div>
+                      <pre className='overflow-x-auto rounded bg-white p-3 font-mono text-xs text-gray-800 dark:bg-gray-950 dark:text-gray-200'>
+                        {`colors: {
+  custom: {
+${getShadeLabels().map(shade => `    ${shade}: '${palette[shade]}',`).join('\n')}
+  }
+}`}
+                      </pre>
+                    </div>
+                  </>
+                  )
+                : (
+                  <div className='flex h-96 items-center justify-center text-sky-500 dark:text-sky-400'>
+                    <CircleSpinner className='h-8 w-8' />
+                  </div>
+                  )}
             </div>
-          )}
+          </div>
         </div>
       </div>
     </>
