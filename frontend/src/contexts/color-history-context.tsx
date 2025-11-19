@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 
 const MAX_HISTORY_SIZE = 5
+const DEFAULT_COLORS = ['#8b5cf6', '#ef4444', '#f59e0b', '#22c55e', '#0ea5e9']
 
 interface ColorHistoryContextType {
   colors: string[]
@@ -13,7 +14,7 @@ interface ColorHistoryContextType {
 const ColorHistoryContext = createContext<ColorHistoryContextType | undefined>(undefined)
 
 export function ColorHistoryProvider ({ children }: { children: React.ReactNode }) {
-  const [colors, setColors] = useState<string[]>([])
+  const [colors, setColors] = useState<string[]>(DEFAULT_COLORS)
   const [mounted, setMounted] = useState(false)
 
   // Load history from localStorage on mount
@@ -50,7 +51,7 @@ export function ColorHistoryProvider ({ children }: { children: React.ReactNode 
   }, [])
 
   const clearHistory = useCallback(() => {
-    setColors([])
+    setColors(DEFAULT_COLORS)
   }, [])
 
   return (

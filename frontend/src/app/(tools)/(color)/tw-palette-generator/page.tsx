@@ -22,8 +22,20 @@ export default function TailwindPaletteGeneratorPage () {
   const { addColor } = useColorHistory()
 
   // State
-  const [inputColor, setInputColor] = useState('#3b82f6') // Default: Tailwind blue-500
-  const [palette, setPalette] = useState<ColorPalette | null>(null)
+  const [inputColor, setInputColor] = useState('#0ea5e9') // Default: Tailwind blue-500
+  const [palette, setPalette] = useState<ColorPalette>({ // Default: Tailwind sky
+    50: '#f0f9ff',
+    100: '#e0f2fe',
+    200: '#bae6fd',
+    300: '#7dd3fc',
+    400: '#38bdf8',
+    500: '#0ea5e9',
+    600: '#0284c7',
+    700: '#0369a1',
+    800: '#075985',
+    900: '#0c4a6e',
+    950: '#082f49'
+  })
   const [hueShift, setHueShift] = useState(0) // 0 = no shift
   const [basePalette, setBasePalette] = useState<ColorPalette | null>(null)
   const [selectedFormat, setSelectedFormat] = useState<'hex' | 'rgb' | 'hsl' | 'cmyk'>('hex')
