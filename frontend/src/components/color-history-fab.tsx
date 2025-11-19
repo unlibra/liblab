@@ -73,6 +73,7 @@ export function ColorHistoryFAB () {
                 className='size-10 rounded-full border-2 border-white shadow-lg outline-none transition-transform hover:scale-110 focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 active:scale-95 dark:border-gray-700'
                 style={{ backgroundColor: color }}
                 title={color.toUpperCase()}
+                tabIndex={-1}
               />
             </div>
           )
