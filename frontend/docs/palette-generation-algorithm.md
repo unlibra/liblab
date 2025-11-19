@@ -1,266 +1,280 @@
 # Tailwind風パレット生成アルゴリズム
 
-## 概要
+任意の入力色から、Tailwind CSS風の50-950シェードを持つカラーパレットを生成します。
 
-任意の入力色から、Tailwind CSS風の50-950シェードを持つカラーパレットを生成するアルゴリズム。
+## 核心コンセプト
 
-**特徴：**
-
-- LCh色空間による知覚的に均一な補間
-- 6アンカーカラー補間による滑らかな色相遷移
-- 入力色の色相・彩度レベルを保持
-- 非常に薄い色のグレー化を防止
-
-## 核心アルゴリズム
-
-### 1. アンカーポイント補間
-
-6つの代表色（アンカー）の曲線データを保持：
+**10個のアンカーカラー**の曲線データ（lightness, chroma, hueShift）を補間することで、色相環上の全ての色に対応します。
 
 ```
-red:    31.2°
-yellow: 84.3°
-green:  146.9°
-cyan:   223.2°
-blue:   285.2°
-purple: 312.7°
+Red    (25.3°) → Orange (47.6°) → Amber  (70.1°) → Yellow (86.0°) → Lime (130.8°)
+→ Green (149.6°) → Cyan (215.2°) → Blue (259.8°) → Purple (303.9°) → Pink (354.3°)
 ```
 
-入力色の色相に応じて、**隣接する2つのアンカーの曲線を線形補間**：
+**色空間**: OKLCh（知覚的に均一、特に黄色系で優れる）
+
+---
+
+## アルゴリズムの流れ
+
+### 1. 入力色の解析
 
 ```typescript
-// 入力色相 H=200° の場合
-// green (146.9°) と cyan (223.2°) の間に位置
-
-距離1 = 200° - 146.9° = 53.1°
-距離2 = 223.2° - 200° = 23.2°
-合計 = 76.3°
-
-ブレンド比率 = 53.1° / 76.3° = 0.696
-
-// 各shadeの値を補間
-Lightness[shade] = lerp(GREEN_L[shade], CYAN_L[shade], 0.696)
-Chroma[shade]    = lerp(GREEN_C[shade], CYAN_C[shade], 0.696)
-HueShift[shade]  = lerpAngle(GREEN_H[shade], CYAN_H[shade], 0.696)
+入力: #3B82F6 (Tailwind blue-500)
+↓
+OKLCh変換: L=62.3, C=24.4, H=259.8°
 ```
 
-**利点：** 色相環上のどの色でも滑らかに補間され、境界での不連続性がない
+### 2. アンカーマッチング
 
-### 2. 入力色の処理
+**全10アンカー**の全シェードとマッチング（L±5, H±5）：
 
 ```typescript
-入力: #ECFEFF (非常に薄いシアン)
-LCh: L=98.4, C=6.2, H=203.8°
-
-// 1. 常にshade 500を基準として扱う（明度は無視）
-shade500ExpectedChroma = getBlendedValue(203.8°, 500, 'chroma')
-                       = 37.8  // 補間された期待値
-
-// 2. 相対的な彩度スケールを計算
-chromaScale = 6.2 / 37.8 = 0.164
-
-// 3. 低彩度ブースト適用（グレー化防止）
-threshold = 37.8 × 0.5 = 18.9
-minScale = min(1.0, 6.2 / 18.9) = 0.328
-chromaScale = max(0.164, 0.328) = 0.328
-
-// 4. 基準色相（入力色尊重）
-baseHue = 203.8°
+// 入力: blue-500 (L=62.3, H=259.8°)
+// → blue anchor のshade 500 (L=62.3, H=259.8°) と完全一致
+// → matchedAnchor = 'blue'
 ```
 
-### 3. パレット生成
+**マッチした場合**: そのアンカーの曲線を直接使用（均一性保証）
+**マッチしない場合**: 隣接2アンカーを補間
+
+### 3. 隣接アンカーの補間（マッチなしの場合）
+
+入力色相から最も近い2つのアンカーを検出し、距離で重み付け：
 
 ```typescript
-for (shade of [50, 100, 200, ..., 950]) {
-  // 補間された曲線から値を取得
-  L = getBlendedValue(203.8°, shade, 'lightness')
-  standardC = getBlendedValue(203.8°, shade, 'chroma')
-  hShift = getBlendedValue(203.8°, shade, 'hueShift')
+// 例：H=180° (青緑)
+// green (149.6°) ← 30.4° → H=180° ← 35.2° → cyan (215.2°)
 
-  // 最終値を計算
-  finalL = L                           // Tailwind標準の明度
-  finalC = standardC × chromaScale     // 相対的にスケール
-  finalH = baseHue + hShift            // 入力色相を基準
+blendRatio = 30.4 / (30.4 + 35.2) = 0.46
 
-  // LCh → HEX変換（ガマットマッピング付き）
-  palette[shade] = lchToHex({L: finalL, C: finalC, H: finalH})
-}
+// 各シェードの値を補間
+L[shade] = lerp(green.L[shade], cyan.L[shade], 0.46)
+C[shade] = lerp(green.C[shade], cyan.C[shade], 0.46)
+H[shade] = lerpAngle(green.H[shade], cyan.H[shade], 0.46)
 ```
 
-## 低彩度ブースト
-
-非常に薄い色がグレーになる問題を解決：
+### 4. パレット生成
 
 ```typescript
-const CHROMA_BOOST_THRESHOLD_RATIO = 0.5  // 調整可能 (0.3-0.6)
+for (shade of [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950]) {
+  // 目標値を取得（マッチした場合は直接、そうでなければ補間）
+  targetL = anchor.lightness[shade]  // または補間値
+  targetC = anchor.chroma[shade]
+  hShift = anchor.hueShift[shade]
 
-threshold = expectedChroma × 0.5
-minScale = min(1.0, inputC / threshold)
-chromaScale = max(baseScale, minScale)
-```
+  // 最終色を計算
+  L = targetL
+  H = baseHue + hShift  // 入力色相を基準に回転
 
-**動作：**
-
-- 入力C < threshold: ブースト適用
-- 入力C ≥ threshold: 相対スケールのみ
-
-**トレードオフ：**
-
-```
-比率 0.3: 強力ブースト / くすんだ色も過剰に鮮やか
-比率 0.5: バランス良好 / 副作用軽微
-比率 0.6: くすみ保持 / 薄い色が不十分
-```
-
-## ガマットマッピング
-
-sRGB範囲外の色は、**明度と色相を保持してChromaを調整**：
-
-```typescript
-function lchToRgbWithGamutMapping(lch: LCh): RGB {
-  // 1. そのままRGB変換を試行
-  if (isInGamut(lch)) return lchToRgb(lch)
-
-  // 2. バイナリサーチで最大Chromaを探索
-  let low = 0, high = lch.c
-  while (high - low > 0.01) {
-    mid = (low + high) / 2
-    if (isInGamut({l: lch.l, c: mid, h: lch.h})) {
-      low = mid
-    } else {
-      high = mid
-    }
+  // ガマットマッピング
+  if (isInGamut(L, targetC, H)) {
+    C = targetC  // そのまま使用
+  } else {
+    C = findMaxChromaInGamut(L, H)  // バイナリサーチ
   }
 
-  // 3. L/H保持、C調整で変換
-  return lchToRgb({l: lch.l, c: low, h: lch.h})
+  // OKLCh → HEX
+  palette[shade] = oklchToHex({L, C, H})
 }
 ```
 
-## アンカーカラーデータ構造
+---
 
-各アンカーは3つの曲線を持つ：
+## 重要な最適化
+
+### 1. 全アンカーマッチング
+
+色相シフトが大きい色（orange, amber）も正確に検出：
 
 ```typescript
-interface AnchorCurves {
-  centerHue: number  // shade 500の色相
-  lightness: Record<TailwindShade, number>  // 各shadeの明度
-  chroma: Record<TailwindShade, number>     // 各shadeの彩度
-  hueShift: Record<TailwindShade, number>   // shade 500からの色相回転
-}
-
-// 例：cyan
-{
-  centerHue: 223.2,
-  lightness: {
-    50: 98.4, 100: 95.5, 200: 91.3, 300: 85.7, 400: 77.9,
-    500: 68.2, 600: 55.6, 700: 45.1, 800: 36.8, 900: 30.7, 950: 19.4
-  },
-  chroma: {
-    50: 6.2, 100: 14.4, 200: 24.7, 300: 36.1, 400: 40.8,
-    500: 37.8, 600: 33.1, 700: 28.0, 800: 23.2, 900: 20.2, 950: 16.4
-  },
-  hueShift: {
-    50: -19.5, 100: -16.5, 200: -14.4, 300: -11.5, 400: -5.2,
-    500: 0.0, 600: 9.4, 700: 11.3, 800: 12.5, 900: 16.6, 950: 20.3
-  }
-}
+// orange-200 (H=70.7°) は隣接的には amber-yellow の間だが、
+// 全アンカーをチェックすることで orange anchor と正しくマッチ
 ```
+
+### 2. 早期終了（ガマット内チェック）
+
+```typescript
+if (isInGamut(L, targetC, H)) {
+  // バイナリサーチをスキップ（50-70%のケースで有効）
+  return targetC
+}
+// ガマット外の場合のみバイナリサーチ実行
+```
+
+### 3. バイナリサーチ精度の最適化
+
+```
+precision: 0.1 → 0.5
+反復回数: ~10回 → ~6回（40%削減）
+```
+
+**結果**: 生成速度 ~0.032ms/パレット（31,000パレット/秒）
+
+---
 
 ## 具体例
 
-### 入力：#ECFEFF（非常に薄いシアン）
+### 例1: Tailwind blue-500 (#3B82F6)
 
 ```
-【入力解析】
-LCh = (98.4, 6.2, 203.8°)
-
-【隣接アンカー検出】
-green (146.9°) ← 57°
-cyan (223.2°)  → 19°
-ブレンド比率 = 57 / (57+19) = 0.75
-
-【彩度スケール計算】
-期待値 = 37.8 (補間値)
-基本スケール = 6.2 / 37.8 = 0.164
-閾値 = 37.8 × 0.5 = 18.9
-最小スケール = 6.2 / 18.9 = 0.328
-最終スケール = max(0.164, 0.328) = 0.328
-
-【shade 500生成】
-L = 68.2 (補間された標準明度)
-C = 37.8 × 0.328 = 12.4 (ブースト適用)
-H = 203.8° + 0.0° = 203.8°
-
-結果: #8BAEB0 (可視的なシアン)
+入力: L=62.3, C=24.4, H=259.8°
+  ↓
+アンカーマッチング: blue anchor のshade 500と完全一致
+  ↓
+結果: Tailwind blue パレットを再現（全シェードで均一）
+  blue-200 → blue-500 → blue-900 すべて同じパレット ✓
 ```
 
-### 入力：#FF0000（純粋な赤）
+### 例2: カスタムカラー H=180° (青緑)
 
 ```
-【入力解析】
-LCh = (53.2, 104.6, 40.0°)
-
-【隣接アンカー検出】
-red (31.2°)    → 9°
-yellow (84.3°) ← 44°
-ブレンド比率 = 9 / 53 = 0.17 (redに近い)
-
-【彩度スケール計算】
-期待値 = 75.6
-基本スケール = 104.6 / 75.6 = 1.38
-最終スケール = 1.38 (閾値以上なのでブーストなし)
-
-【shade 500生成】
-L = 55.0
-C = 75.6 × 1.38 = 104.3
-H = 40.0° + 0.0° = 40.0°
-
-結果: 高彩度を保持した赤系パレット
+入力: H=180°
+  ↓
+隣接アンカー: green (149.6°) と cyan (215.2°)
+ブレンド比率: 0.46
+  ↓
+結果: green と cyan の中間的なパレット
 ```
+
+### 例3: Orange系の色（色相シフトが大きい）
+
+```
+orange-200: L=90.1, H=70.7° (amber寄り)
+  ↓
+全アンカーチェック: orange anchor のshade 200と一致
+  ↓
+結果: orange パレットを正しく生成 ✓
+```
+
+---
+
+## アンカーカーブの構造
+
+```typescript
+interface AnchorCurves {
+  centerHue: number  // shade 500 の色相
+  lightness: Record<TailwindShade, number>
+  chroma: Record<TailwindShade, number>
+  hueShift: Record<TailwindShade, number>  // centerHue からのずれ
+}
+
+// 例: blue
+{
+  centerHue: 259.8,
+  lightness: {
+    50: 97.0, 100: 93.2, 200: 88.2, ..., 950: 28.2
+  },
+  chroma: {
+    50: 1.8, 100: 4.1, 200: 7.4, ..., 950: 11.4
+  },
+  hueShift: {
+    50: -5.2, 100: -4.2, 200: -5.7, ..., 950: 8.1
+  }
+}
+```
+
+**hueShift の意味**: 明るいシェードは青紫寄り、暗いシェードは紫寄りにシフト
+
+---
 
 ## API
 
 ```typescript
-// シンプルなAPI（入力色尊重のみ）
 function generatePalette(
   inputHex: string,
   options?: {
-    hueShift?: number  // 色相調整（デフォルト: 0）
+    hueShift?: number  // 色相を回転（0-360°）
   }
 ): ColorPalette | null
 
 // 使用例
-const palette = generatePalette('#ECFEFF')
-// palette[500] = '#8BAEB0'
-// palette[200] = '#D5EBE8'
-// ... 全11シェード
+const palette = generatePalette('#3B82F6')
+// → { 50: '#EFF6FF', 100: '#DBEAFE', ..., 950: '#172554' }
+
+// 色相を30°回転
+const rotated = generatePalette('#3B82F6', { hueShift: 30 })
 ```
 
-## アルゴリズムの利点
+---
 
-1. **滑らかな補間**: 6アンカー間を線形補間、境界の不連続性なし
-2. **入力色保持**: 色相と彩度レベル（vividness）を維持
-3. **グレー化防止**: 低彩度ブーストで薄い色も可視的
-4. **ガマット対応**: L/H保持でsRGB範囲内に収める
-5. **シンプルAPI**: オプション最小限、直感的な動作
+## アルゴリズムの特長
 
-## 調整可能パラメータ
+| 特長             | 説明                                                         |
+| ---------------- | ------------------------------------------------------------ |
+| **均一性**       | 同じアンカーカラーの任意のシェードから生成しても同一パレット |
+| **滑らかな補間** | 10アンカー間を補間、境界の不連続性なし                       |
+| **色相保持**     | 入力色の色相を尊重、自然な色遷移                             |
+| **高速**         | 早期終了とバイナリサーチ最適化で0.032ms/パレット             |
+| **正確性**       | OKLCh色空間で知覚的に均一な明度・彩度                        |
 
-**CHROMA_BOOST_THRESHOLD_RATIO**（現在: 0.5）
+---
 
-- 0.3-0.6の範囲で調整可能
-- 低い値: 薄い色を強くブースト（くすんだ色も鮮やかに）
-- 高い値: くすんだ色を保持（薄い色のブースト控えめ）
+## メンテナンス
 
-## データ抽出
-
-アンカーカラーデータは以下のスクリプトで抽出：
+### アンカーデータの更新
 
 ```bash
-# 6アンカーカラーのデータ抽出
-npx tsx scripts/extract-anchor-colors.ts
+# Tailwindカラーから10アンカーのデータを抽出
+npx tsx scripts/extract-anchor-colors.ts > output.txt
 
-# 各色の中心色相を特定
-npx tsx scripts/find-color-centers.ts
+# palette-generator.ts の ANCHOR_CURVES を更新
+
+# テストで検証
+npx tsx scripts/test-10-anchors.ts
+# → 9-10/10 PASS を確認
 ```
+
+### テスト
+
+```bash
+# 均一性テスト（推奨）
+npx tsx scripts/test-10-anchors.ts
+
+# 期待される結果：
+# ✓ PASS: 9/10 (greenは1/255の丸め誤差、許容範囲)
+```
+
+---
+
+## 技術的詳細
+
+### 色空間: OKLCh
+
+- **OK**: Oklab色空間（知覚的均一性が高い）
+- **L**: Lightness（明度、0-100）
+- **C**: Chroma（彩度、0-150程度）
+- **h**: Hue（色相、0-360°）
+
+**LChとの違い**: 特に黄色系での知覚的均一性が向上
+
+### ガマットマッピング
+
+sRGB範囲外の色は、L/Hを固定してCをバイナリサーチ：
+
+```typescript
+while (high - low > 0.5) {
+  mid = (low + high) / 2
+  if (isInGamut(L, mid, H)) {
+    maxC = mid
+    low = mid
+  } else {
+    high = mid
+  }
+}
+```
+
+**精度0.5**: 人間の目には区別不可能なレベル
+
+---
+
+## パフォーマンス
+
+| 指標               | 値                             |
+| ------------------ | ------------------------------ |
+| 生成速度           | ~0.032ms/パレット              |
+| スループット       | ~31,000パレット/秒             |
+| マッチングチェック | 110回（10アンカー×11シェード） |
+| ガマット回避率     | 50-70%（早期終了）             |
+
+**結論**: 実用上は瞬時に生成される

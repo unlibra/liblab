@@ -1,6 +1,6 @@
 /**
- * Extract curves for 6 anchor colors for interpolation-based palette generation
- * Anchor colors: red, yellow, green, cyan, blue, purple
+ * Extract curves for 10 anchor colors for interpolation-based palette generation
+ * Anchor colors: red, orange, amber, yellow, lime, green, cyan, blue, purple, pink
  * Using OKLCh color space for better perceptual uniformity
  */
 
@@ -8,8 +8,8 @@ import { hexToOklch } from '../src/lib/color/color-utils'
 import type { TailwindColorName, TailwindShade } from '../src/lib/color/tailwind-colors'
 import { getShades, tailwindColors } from '../src/lib/color/tailwind-colors'
 
-// 6 anchor colors for interpolation
-const ANCHOR_COLORS: TailwindColorName[] = ['red', 'yellow', 'green', 'cyan', 'blue', 'purple']
+// 10 anchor colors for interpolation
+const ANCHOR_COLORS: TailwindColorName[] = ['red', 'orange', 'amber', 'yellow', 'lime', 'green', 'cyan', 'blue', 'purple', 'pink']
 
 interface AnchorCurve {
   name: TailwindColorName
@@ -69,22 +69,31 @@ function extractAnchorCurves (): AnchorCurve[] {
 }
 
 function main () {
-  console.log('// 6 Anchor Colors for Interpolation-based Palette Generation\n')
-  console.log('// These curves will be blended based on input color hue\n')
+  console.log('/**')
+  console.log(' * 10 Anchor Colors for Interpolation-based Palette Generation')
+  console.log(' * These curves will be blended based on input color hue')
+  console.log(' *')
+  console.log(' * To update anchor curves in the codebase:')
+  console.log(' * 1. Run: npx tsx scripts/extract-anchor-colors.ts > temp-anchors.txt')
+  console.log(' * 2. Copy the ANCHOR_CURVES export from temp-anchors.txt')
+  console.log(' * 3. Update the ANCHOR_CURVES object in: src/config/anchor-curves.ts')
+  console.log(' * 4. Test: npx tsx scripts/test-10-anchors.ts')
+  console.log(' */')
+  console.log('')
 
   const anchors = extractAnchorCurves()
 
   // Generate TypeScript code
-  console.log('type AnchorColorName = \'red\' | \'yellow\' | \'green\' | \'cyan\' | \'blue\' | \'purple\'\n')
+  console.log('export type AnchorColorName = \'red\' | \'orange\' | \'amber\' | \'yellow\' | \'lime\' | \'green\' | \'cyan\' | \'blue\' | \'purple\' | \'pink\'\n')
 
-  console.log('interface AnchorCurves {')
+  console.log('export interface AnchorCurves {')
   console.log('  centerHue: number')
   console.log('  lightness: Record<TailwindShade, number>')
   console.log('  chroma: Record<TailwindShade, number>')
   console.log('  hueShift: Record<TailwindShade, number>')
   console.log('}\n')
 
-  console.log('const ANCHOR_CURVES: Record<AnchorColorName, AnchorCurves> = {')
+  console.log('export const ANCHOR_CURVES: Record<AnchorColorName, AnchorCurves> = {')
 
   for (const anchor of anchors) {
     console.log(`  ${anchor.name}: {`)

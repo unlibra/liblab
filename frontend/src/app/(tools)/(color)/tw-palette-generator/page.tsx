@@ -33,7 +33,7 @@ export default function TailwindPaletteGeneratorPage () {
         setPalette(generated)
         setHueShift(0) // Reset to no shift
       }
-    }, 300) // 300ms debounce
+    }, 100) // 100ms debounce (optimized for responsive UX)
 
     return () => clearTimeout(timer)
   }, [inputColor])
