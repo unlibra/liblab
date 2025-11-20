@@ -380,7 +380,7 @@ export default function TailwindPaletteGeneratorPage () {
                             <button
                               key={format}
                               onClick={() => handleSelectFormat(format)}
-                              className={`block w-full rounded-lg px-3 py-1.5 text-left text-sm uppercase outline-none transition-colors hover:bg-gray-100 focus-visible:bg-gray-100 dark:hover:bg-atom-one-dark-lighter dark:focus-visible:bg-atom-one-dark-lighter ${selectedFormat === format ? 'bg-sky-50 font-medium text-sky-600 dark:bg-sky-900/20 dark:text-sky-400' : ''
+                              className={`block w-full rounded-lg px-3 py-1.5 text-left text-sm uppercase outline-none transition-colors ${selectedFormat === format ? 'bg-sky-50 font-medium dark:bg-atom-one-dark-lighter' : 'hover:bg-gray-100 focus-visible:bg-gray-100 dark:hover:bg-atom-one-dark-lighter dark:focus-visible:bg-atom-one-dark-lighter'
                                 }`}
                             >
                               {format}
