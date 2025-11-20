@@ -203,17 +203,11 @@ export default function FaviconGeneratorPage () {
       />
 
       <div className='mx-auto max-w-screen-lg'>
-        <h1 className='mb-4 text-2xl font-semibold'>{tool?.name ?? 'Faviconジェネレーター'}</h1>
-        <p className='mb-4 text-gray-600 dark:text-gray-400'>
-          画像からfaviconファイルを生成します。Apple Touch IconやAndroidアイコンもサポート。
-        </p>
-
-        {/* Privacy Notice */}
-        <div className='mb-8 flex items-center gap-3 rounded-lg border border-sky-200 bg-sky-50 p-4 text-sky-900 dark:border-gray-700 dark:bg-atom-one-dark-light dark:text-gray-300'>
-          <LockClosedIcon className='size-5' />
-          <div className='text-sm'>
-            すべての画像処理はブラウザ内で安全に実行されます。サーバーにデータは一切送信されません。
-          </div>
+        <div className='mb-8 space-y-4'>
+          <h1 className='text-2xl font-semibold'>{tool?.name ?? 'Faviconジェネレーター'}</h1>
+          <p className='text-gray-600 dark:text-gray-400'>
+            {tool?.description ?? ''}
+          </p>
         </div>
 
         {/* Main Content Layout */}
@@ -221,8 +215,8 @@ export default function FaviconGeneratorPage () {
           {/* Left Column */}
           <div className='flex-1 space-y-8'>
             {/* File Upload */}
-            <div>
-              <h6 className='mb-2 block text-sm font-semibold'>
+            <div className='space-y-2'>
+              <h6 className='block text-sm font-semibold'>
                 画像を選択
               </h6>
               <input
@@ -239,11 +233,18 @@ export default function FaviconGeneratorPage () {
                 <PlusIcon className='size-5 stroke-2' />
                 画像を選択
               </button>
-              <p className='mt-2 text-xs text-gray-600 dark:text-gray-400'>
+              <p className='text-xs text-gray-600 dark:text-gray-400'>
                 PNG, JPG, WEBP, SVGなど画像ファイルをアップロードできます (最大10MB)
                 <br />
                 または画面のどこにでもドラッグ&ドロップ
               </p>
+              {/* Privacy Notice */}
+              <div className='flex items-center gap-3 rounded-lg border border-sky-200 bg-sky-50 px-4 py-3 text-sky-900 dark:border-gray-700 dark:bg-atom-one-dark-light dark:text-gray-300'>
+                <LockClosedIcon className='size-4 shrink-0' />
+                <div className='text-sm'>
+                  画像はサーバーに送信されず、ブラウザで安全に実行されます。
+                </div>
+              </div>
             </div>
 
             {/* Settings Panel (Mobile Only) */}

@@ -73,7 +73,7 @@ export function Header () {
                         leaveFrom='transform scale-100 opacity-100'
                         leaveTo='transform scale-95 opacity-0'
                       >
-                        <PopoverPanel className='absolute left-0 z-50 mt-2'>
+                        <PopoverPanel className='absolute right-0 z-50 mt-2'>
                           <div className='w-60 overflow-hidden rounded-lg border border-gray-200 bg-white p-1 shadow-lg dark:border-gray-700 dark:bg-atom-one-dark-light'>
                             {category.tools.map((tool) => (
                               <CloseButton

@@ -8,7 +8,8 @@ import { LogoIcon } from './icons/logo-icon'
 export function Footer () {
   const githubRepoUrl = siteConfig.links.github
   const issuesUrl = githubRepoUrl ? `${githubRepoUrl}/issues` : ''
-  const discussionsUrl = githubRepoUrl ? `${githubRepoUrl}/discussions` : ''
+  const ideasUrl = githubRepoUrl ? `${githubRepoUrl}/discussions/categories/ideas` : ''
+  const generalUrl = githubRepoUrl ? `${githubRepoUrl}/discussions/categories/general` : ''
 
   return (
     <footer className='bg-gray-100 py-12 dark:bg-atom-one-dark-light'>
@@ -54,7 +55,7 @@ export function Footer () {
           {/* Right: Feedback Links */}
           <div>
             <h3 className='mb-3 text-sm font-semibold uppercase tracking-wider'>
-              フィードバック
+              Support
             </h3>
             <ul className='space-y-2'>
               {issuesUrl && (
@@ -69,15 +70,27 @@ export function Footer () {
                   </a>
                 </li>
               )}
-              {discussionsUrl && (
+              {ideasUrl && (
                 <li>
                   <a
-                    href={discussionsUrl}
+                    href={ideasUrl}
                     target='_blank'
                     rel='noopener noreferrer'
                     className='text-sm text-gray-600 transition-all hover:underline dark:text-gray-400'
                   >
                     機能要望
+                  </a>
+                </li>
+              )}
+              {generalUrl && (
+                <li>
+                  <a
+                    href={generalUrl}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    className='text-sm text-gray-600 transition-all hover:underline dark:text-gray-400'
+                  >
+                    問い合わせ
                   </a>
                 </li>
               )}

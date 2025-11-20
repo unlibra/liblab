@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { useToast } from '@/components/ui/toast'
 import { useColorHistory } from '@/contexts/color-history-context'
@@ -11,6 +11,21 @@ export function ColorHistoryFAB () {
   const { colors, addColor } = useColorHistory()
   const toast = useToast()
   const [isExpanded, setIsExpanded] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  // Close when clicking outside
+  useEffect(() => {
+    if (!isExpanded) return
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsExpanded(false)
+      }
+    }
+
+    document.addEventListener('click', handleClickOutside)
+    return () => document.removeEventListener('click', handleClickOutside)
+  }, [isExpanded])
 
   const handleCopyColor = useCallback(async (color: string) => {
     try {
@@ -49,7 +64,7 @@ export function ColorHistoryFAB () {
   }, [])
 
   return (
-    <div className='fixed bottom-6 right-6 z-50'>
+    <div ref={containerRef} className='fixed bottom-6 right-6 z-50'>
       <div className='relative'>
         {/* Color circles on arc */}
         {colors.map((color, index) => {
@@ -69,7 +84,10 @@ export function ColorHistoryFAB () {
               }}
             >
               <button
-                onClick={() => handleCopyColor(color)}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleCopyColor(color)
+                }}
                 className='size-10 rounded-full border-2 border-white shadow-lg outline-none transition-transform hover:scale-110 focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 active:scale-95 dark:border-gray-700'
                 style={{ backgroundColor: color }}
                 title={color.toUpperCase()}

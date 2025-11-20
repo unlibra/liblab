@@ -35,8 +35,8 @@ export const tools: Tool[] = [
   {
     id: 'tw-palette-generator',
     name: 'TWパレットジェネレーター',
-    description: '選んだ色からTailwindCSS風の50-950のシェードを持つカラーパレットを生成します。',
-    shortDescription: 'カラーパレットを生成',
+    description: '選んだ色からTailwindCSS風のカラーパレットを生成します。',
+    shortDescription: '選んだ色からカラーパレットを生成',
     icon: '/icons/tools/tw-palette-generator.svg',
     category: 'color'
   },
@@ -51,15 +51,15 @@ export const tools: Tool[] = [
   {
     id: 'favicon-generator',
     name: 'Faviconジェネレーター',
-    description: '画像からfaviconファイルやApple Touch Iconを生成します。JPEG、PNG、WEBP、SVGなどをサポート。ブラウザ上で完結するため安全です。',
+    description: '画像からfaviconファイルやApple Touch Iconを生成します。JPEG、PNG、WEBP、SVGなどをサポート。',
     shortDescription: '画像からfaviconファイルを生成',
     icon: '/icons/tools/favicon-generator.svg',
     category: 'image'
   },
   {
     id: 'svg-optimizer',
-    name: 'SVG圧縮ツール',
-    description: 'SVGファイルを最適化・圧縮して、ファイルサイズを削減します。ブラウザ上で完結するため安全です。',
+    name: 'SVG最適化',
+    description: 'SVGファイルを最適化・圧縮して、ファイルサイズを削減します。',
     shortDescription: 'SVGファイルを最適化・圧縮',
     icon: '/icons/tools/svg-optimizer.svg',
     category: 'image'

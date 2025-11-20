@@ -6,12 +6,20 @@ import { useCallback, useEffect, useState } from 'react'
 
 import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { HueSlider } from '@/components/ui/hue-slider'
+import { LightnessSlider } from '@/components/ui/lightness-slider'
+import { SaturationSlider } from '@/components/ui/saturation-slider'
 import { useToast } from '@/components/ui/toast'
 import { getToolById } from '@/config/tools'
 import { useColorHistory } from '@/contexts/color-history-context'
-import { hexToCmyk, hexToHsl, hexToRgb } from '@/lib/color/color-utils'
+import { hexToCmyk, hexToHsl, hexToOklch, hexToRgb } from '@/lib/color/color-utils'
 import type { ColorPalette } from '@/lib/color/palette-generator'
-import { adjustPaletteHue, generatePalette, getShadeLabels } from '@/lib/color/palette-generator'
+import {
+  adjustPaletteHue,
+  adjustPaletteLightness,
+  adjustPaletteSaturation,
+  generatePalette,
+  getShadeLabels
+} from '@/lib/color/palette-generator'
 import type { TailwindColorName, TailwindShade } from '@/lib/color/tailwind-colors'
 import { getColorNames, getShades, isGrayScale, tailwindColors } from '@/lib/color/tailwind-colors'
 
@@ -35,7 +43,12 @@ export default function TailwindPaletteGeneratorPage () {
     900: '#0c4a6e',
     950: '#082f49'
   })
-  const [hueShift, setHueShift] = useState(0) // 0 = no shift
+  const [baseHue, setBaseHue] = useState(198) // Input color's H value
+  const [targetHue, setTargetHue] = useState(198) // Current slider value
+  const [baseLightness, setBaseLightness] = useState(55) // Input color's L value
+  const [baseSaturation, setBaseSaturation] = useState(90) // Input color's C value
+  const [targetLightness, setTargetLightness] = useState(55) // Current slider value
+  const [targetSaturation, setTargetSaturation] = useState(90) // Current slider value
   const [basePalette, setBasePalette] = useState<ColorPalette | null>(null)
   const [selectedFormat, setSelectedFormat] = useState<'hex' | 'rgb' | 'hsl' | 'cmyk'>('hex')
 
@@ -46,10 +59,17 @@ export default function TailwindPaletteGeneratorPage () {
   useEffect(() => {
     const timer = setTimeout(() => {
       const generated = generatePalette(normalizedInputColor)
-      if (generated) {
+      const oklch = hexToOklch(normalizedInputColor)
+      if (generated && oklch) {
         setBasePalette(generated)
         setPalette(generated)
-        setHueShift(0) // Reset to no shift
+        // Set base and target to input color's actual values
+        setBaseHue(Math.round(oklch.h))
+        setTargetHue(Math.round(oklch.h))
+        setBaseLightness(Math.round(oklch.l))
+        setBaseSaturation(Math.round(oklch.c))
+        setTargetLightness(Math.round(oklch.l))
+        setTargetSaturation(Math.round(oklch.c))
       }
     }, 100) // 100ms debounce (optimized for responsive UX)
 
@@ -67,15 +87,71 @@ export default function TailwindPaletteGeneratorPage () {
     setInputColor(hex)
   }, [])
 
+  // Apply all adjustments to base palette
+  const applyAdjustments = useCallback((
+    base: ColorPalette,
+    hue: number,
+    lightnessShift: number,
+    saturationShift: number
+  ) => {
+    let adjusted = base
+    if (hue !== 0) {
+      adjusted = adjustPaletteHue(adjusted, hue)
+    }
+    if (lightnessShift !== 0) {
+      adjusted = adjustPaletteLightness(adjusted, lightnessShift)
+    }
+    if (saturationShift !== 0) {
+      adjusted = adjustPaletteSaturation(adjusted, saturationShift)
+    }
+    return adjusted
+  }, [])
+
   // Adjust hue
-  const handleHueShiftChange = useCallback((sliderValue: number) => {
-    setHueShift(sliderValue)
+  const handleHueChange = useCallback((sliderValue: number) => {
+    setTargetHue(sliderValue)
     if (basePalette) {
-      // Slider value directly represents hue shift (0 to 360 degrees)
-      const adjusted = adjustPaletteHue(basePalette, sliderValue)
+      const hueShift = sliderValue - baseHue
+      const lightnessShift = targetLightness - baseLightness
+      const saturationShift = targetSaturation - baseSaturation
+      const adjusted = applyAdjustments(basePalette, hueShift, lightnessShift, saturationShift)
       setPalette(adjusted)
     }
-  }, [basePalette])
+  }, [basePalette, baseHue, targetLightness, baseLightness, targetSaturation, baseSaturation, applyAdjustments])
+
+  // Adjust lightness
+  const handleLightnessChange = useCallback((sliderValue: number) => {
+    setTargetLightness(sliderValue)
+    if (basePalette) {
+      const hueShift = targetHue - baseHue
+      const lightnessShift = sliderValue - baseLightness
+      const saturationShift = targetSaturation - baseSaturation
+      const adjusted = applyAdjustments(basePalette, hueShift, lightnessShift, saturationShift)
+      setPalette(adjusted)
+    }
+  }, [basePalette, baseLightness, targetHue, baseHue, targetSaturation, baseSaturation, applyAdjustments])
+
+  // Adjust saturation
+  const handleSaturationChange = useCallback((sliderValue: number) => {
+    setTargetSaturation(sliderValue)
+    if (basePalette) {
+      const hueShift = targetHue - baseHue
+      const lightnessShift = targetLightness - baseLightness
+      const saturationShift = sliderValue - baseSaturation
+      const adjusted = applyAdjustments(basePalette, hueShift, lightnessShift, saturationShift)
+      setPalette(adjusted)
+    }
+  }, [basePalette, targetLightness, baseLightness, baseSaturation, targetHue, baseHue, applyAdjustments])
+
+  // Reset adjustments to base values
+  const handleReset = useCallback(() => {
+    setTargetHue(baseHue)
+    setTargetLightness(baseLightness)
+    setTargetSaturation(baseSaturation)
+    if (basePalette) {
+      setPalette(basePalette)
+    }
+  }, [baseHue, baseLightness, baseSaturation, basePalette])
 
   // Select format
   const handleSelectFormat = useCallback((format: 'hex' | 'rgb' | 'hsl' | 'cmyk') => {
@@ -139,10 +215,12 @@ export default function TailwindPaletteGeneratorPage () {
       />
 
       <div className='mx-auto max-w-screen-sm lg:max-w-screen-xl'>
-        <h1 className='mb-4 text-2xl font-semibold'>{tool?.name ?? 'TWパレットジェネレーター'}</h1>
-        <p className='mb-8 text-gray-600 dark:text-gray-400'>
-          {tool?.description ?? ''}
-        </p>
+        <div className='mb-8 space-y-4'>
+          <h1 className='text-2xl font-semibold'>{tool?.name ?? 'TWパレットジェネレーター'}</h1>
+          <p className='text-gray-600 dark:text-gray-400'>
+            {tool?.description ?? ''}
+          </p>
+        </div>
 
         {/* Two Column Layout */}
         <div className='flex flex-col gap-12 lg:grid lg:grid-cols-2'>
@@ -150,7 +228,7 @@ export default function TailwindPaletteGeneratorPage () {
           <div className='space-y-8'>
             {/* HEX Input */}
             <section>
-              <h6 className='mb-4 text-sm font-semibold'>カラー入力</h6>
+              <h6 className='mb-4 text-sm font-semibold'>ベースカラー選択</h6>
               <div className='flex gap-3'>
                 <input
                   type='color'
@@ -172,7 +250,6 @@ export default function TailwindPaletteGeneratorPage () {
 
             {/* Tailwind Color Picker */}
             <section>
-              <h6 className='mb-4 text-sm font-semibold'>カラーパレットから選択</h6>
               {/* Shade Header */}
               <div className='mb-3 flex gap-1 md:ml-20'>
                 {getShades().map((shade) => (
@@ -243,17 +320,40 @@ export default function TailwindPaletteGeneratorPage () {
           </div>
 
           {/* Right Column - Output */}
-          <div className='space-y-8'>
-            {/* Hue Adjustment */}
+          <div className='space-y-10'>
+            {/* Adjustments */}
             <section>
-              <h6 className='mb-4 text-sm font-semibold'>色相調整</h6>
-              <div className='h-10 px-4'>
+              <div className='mb-4 flex items-center justify-between'>
+                <h6 className='text-sm font-semibold'>調整</h6>
+                <button
+                  onClick={handleReset}
+                  className='rounded-lg px-2 py-1 text-sm font-medium uppercase outline-none transition-colors hover:bg-gray-100 focus-visible:bg-gray-100 dark:hover:bg-atom-one-dark-lighter focus-visible:dark:bg-atom-one-dark-lighter'
+                >
+                  Reset
+                </button>
+              </div>
+              <div className='space-y-4 px-4'>
+                {/* Hue */}
                 <HueSlider
-                  value={hueShift}
+                  label='色相'
+                  value={targetHue}
                   min={0}
                   max={360}
                   inputColor={normalizedInputColor}
-                  onChange={handleHueShiftChange}
+                  onChange={handleHueChange}
+                />
+                {/* Lightness */}
+                <LightnessSlider
+                  label='明度'
+                  value={targetLightness}
+                  onChange={handleLightnessChange}
+                />
+                {/* Saturation */}
+                <SaturationSlider
+                  label='彩度'
+                  value={targetSaturation}
+                  inputColor={normalizedInputColor}
+                  onChange={handleSaturationChange}
                 />
               </div>
             </section>
@@ -262,7 +362,7 @@ export default function TailwindPaletteGeneratorPage () {
               <Popover className='relative'>
                 {({ open }) => (
                   <>
-                    <PopoverButton className='flex items-center gap-1 rounded-lg px-2 py-1 text-sm font-medium uppercase outline-none transition-colors hover:bg-gray-100 focus-visible:bg-gray-100 dark:hover:bg-gray-800 focus-visible:dark:bg-gray-800'>
+                    <PopoverButton className='flex items-center gap-1 rounded-lg px-2 py-1 text-sm font-medium uppercase outline-none transition-colors hover:bg-gray-100 focus-visible:bg-gray-100 dark:hover:bg-atom-one-dark-lighter focus-visible:dark:bg-atom-one-dark-lighter'>
                       {selectedFormat}
                       <ChevronDownIcon className={`size-4 transition-transform ${open ? 'rotate-180' : ''}`} />
                     </PopoverButton>
@@ -280,7 +380,7 @@ export default function TailwindPaletteGeneratorPage () {
                             <button
                               key={format}
                               onClick={() => handleSelectFormat(format)}
-                              className={`block w-full rounded-lg px-3 py-1.5 text-left text-sm uppercase outline-none transition-colors hover:bg-gray-100 focus-visible:bg-gray-100 dark:hover:bg-atom-one-dark-lighter dark:focus-visible:bg-atom-one-dark-lighter ${selectedFormat === format ? 'bg-sky-50 font-medium text-sky-600 dark:bg-sky-900/20 dark:text-sky-400' : ''
+                              className={`block w-full rounded-lg px-3 py-1.5 text-left text-sm uppercase outline-none transition-colors ${selectedFormat === format ? 'bg-sky-50 font-medium dark:bg-atom-one-dark-lighter' : 'hover:bg-gray-100 focus-visible:bg-gray-100 dark:hover:bg-atom-one-dark-lighter dark:focus-visible:bg-atom-one-dark-lighter'
                                 }`}
                             >
                               {format}
