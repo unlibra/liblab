@@ -139,10 +139,12 @@ export default function TailwindPaletteGeneratorPage () {
       />
 
       <div className='mx-auto max-w-screen-sm lg:max-w-screen-xl'>
-        <h1 className='mb-4 text-2xl font-semibold'>{tool?.name ?? 'TWパレットジェネレーター'}</h1>
-        <p className='mb-8 text-gray-600 dark:text-gray-400'>
-          {tool?.description ?? ''}
-        </p>
+        <div className='mb-8 space-y-4'>
+          <h1 className='text-2xl font-semibold'>{tool?.name ?? 'TWパレットジェネレーター'}</h1>
+          <p className='text-gray-600 dark:text-gray-400'>
+            {tool?.description ?? ''}
+          </p>
+        </div>
 
         {/* Two Column Layout */}
         <div className='flex flex-col gap-12 lg:grid lg:grid-cols-2'>
@@ -150,7 +152,7 @@ export default function TailwindPaletteGeneratorPage () {
           <div className='space-y-8'>
             {/* HEX Input */}
             <section>
-              <h6 className='mb-4 text-sm font-semibold'>カラー入力</h6>
+              <h6 className='mb-4 text-sm font-semibold'>ベースカラー選択</h6>
               <div className='flex gap-3'>
                 <input
                   type='color'
@@ -172,7 +174,6 @@ export default function TailwindPaletteGeneratorPage () {
 
             {/* Tailwind Color Picker */}
             <section>
-              <h6 className='mb-4 text-sm font-semibold'>カラーパレットから選択</h6>
               {/* Shade Header */}
               <div className='mb-3 flex gap-1 md:ml-20'>
                 {getShades().map((shade) => (
