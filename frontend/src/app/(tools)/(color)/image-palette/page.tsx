@@ -15,6 +15,102 @@ import { extractColorsFromImage, } from '@/lib/api/colors'
 import { generateWaffleChartBlob } from '@/lib/color/waffle-chart'
 import { validateImageFile } from '@/lib/file/file-validation'
 
+// Shared Polaroid Frame component with optional content in bottom margin
+function PolaroidFrame ({
+  src,
+  alt,
+  rotation = 0,
+  className = '',
+  style = {},
+  children
+}: {
+  src: string
+  alt: string
+  rotation?: number
+  className?: string
+  style?: React.CSSProperties
+  children?: React.ReactNode
+}) {
+  return (
+    <div
+      // Root element: handles positioning and rotation only
+      className={`${className}`}
+      style={{ transform: `rotate(${rotation}deg)`, ...style }}
+    >
+      {/* Inner element: handles Polaroid appearance and internal coordinates */}
+      <div className='relative bg-white p-4 shadow-xl dark:bg-gray-100'>
+
+        {/* Paper texture */}
+        <div className='pointer-events-none absolute inset-0 bg-gray-50 opacity-[0.02]' />
+
+        <div className='relative flex justify-center overflow-hidden'>
+          {/* Photo */}
+          <img
+            src={src}
+            alt={alt}
+            className='max-h-96 w-auto object-cover shadow-inner'
+          />
+
+          {/* Film gloss effect */}
+          <div className='pointer-events-none absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent opacity-50' />
+        </div>
+
+        {/* Bottom margin content */}
+        {children && (
+          <div className='mt-4 flex justify-center'>
+            {children}
+          </div>
+        )}
+
+        {/* Outer frame thin line */}
+        <div className='pointer-events-none absolute inset-0 rounded-sm ring-1 ring-black/5' />
+      </div>
+    </div>
+  )
+}
+
+// Shared Color Palette component
+function ColorPalette ({
+  colors,
+  onColorClick
+}: {
+  colors: ExtractedColor[]
+  onColorClick?: (hex: string) => void
+}) {
+  return (
+    <div className='mb-6'>
+      <div className='flex flex-wrap justify-center gap-4'>
+        {colors.map((color, index) => {
+          const circle = (
+            <div
+              className='size-8 rounded-full shadow-lg ring-4 ring-white dark:ring-gray-800 sm:size-16'
+              style={{ backgroundColor: color.hex }}
+            />
+          )
+
+          if (onColorClick) {
+            return (
+              <button
+                key={index}
+                onClick={() => onColorClick(color.hex)}
+                className='transition-transform hover:scale-110 active:scale-95'
+              >
+                {circle}
+              </button>
+            )
+          }
+
+          return (
+            <div key={index}>
+              {circle}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 export default function ImagePalettePage () {
   const tool = getToolById('image-palette')
   const toast = useToast()
@@ -27,9 +123,18 @@ export default function ImagePalettePage () {
   const [isProcessing, setIsProcessing] = useState(false)
   const [wafflePreview, setWafflePreview] = useState<string | null>(null)
   const [isFlipped, setIsFlipped] = useState(false)
+  const [isFlipping, setIsFlipping] = useState(false)
+
+  // Handle flip with animation tracking
+  const handleFlip = useCallback(() => {
+    setIsFlipping(true)
+    setIsFlipped(!isFlipped)
+    // Reset after animation duration (500ms)
+    setTimeout(() => setIsFlipping(false), 500)
+  }, [isFlipped])
 
   // Fixed color count for simplicity
-  const colorCount = 5
+  const colorCount = 6
 
   // Cleanup blob URLs on unmount or when preview changes
   useEffect(() => {
@@ -172,184 +277,168 @@ export default function ImagePalettePage () {
       onFileDrop={handleFileSelect}
       accept='image/*'
     >
-      <div className='mx-auto flex min-h-[calc(100vh-12rem)] max-w-screen-md flex-col px-4'>
-        {/* Header */}
-        <div className='py-8 text-center'>
-          <h1 className='text-3xl font-bold'>{tool?.name ?? 'イメージパレット+'}</h1>
+      <div className='relative left-1/2 -mb-12 -mt-6 w-screen -translate-x-1/2 bg-gray-50 px-4 py-12 dark:bg-atom-one-dark sm:px-6 lg:px-8'>
+        <div className='mx-auto flex min-h-screen max-w-screen-md flex-col px-4'>
+          {/* Header */}
           {!imagePreview && (
-            <p className='mt-2 text-gray-500 dark:text-gray-400'>
-              画像をドロップするだけでカラーパレットを作成
-            </p>
-          )}
-        </div>
-
-        {/* Main Content */}
-        {!imagePreview && !isProcessing
-          ? (
-            // Upload State
-            <div className='flex flex-1 items-center justify-center pb-12'>
-              <label className='group flex w-full max-w-lg cursor-pointer flex-col items-center justify-center rounded-3xl border-[3px] border-dashed border-gray-300 bg-gradient-to-br from-gray-50 to-gray-100 p-16 transition-all hover:border-sky-400 hover:from-sky-50 hover:to-indigo-50 dark:border-gray-600 dark:from-atom-one-dark dark:to-atom-one-dark-light dark:hover:border-sky-500 dark:hover:from-atom-one-dark-light dark:hover:to-atom-one-dark-lighter'>
-                <div className='mb-6 rounded-full bg-white p-6 shadow-lg transition-transform group-hover:scale-110 dark:bg-atom-one-dark-lighter'>
-                  <PhotoIcon className='size-12 text-gray-400 transition-colors group-hover:text-sky-500' />
-                </div>
-                <span className='mb-2 text-lg font-semibold text-gray-700 dark:text-gray-300'>
-                  画像をドロップ
-                </span>
-                <span className='text-sm text-gray-500 dark:text-gray-400'>
-                  またはクリックして選択
-                </span>
-                <input
-                  type='file'
-                  accept='image/*'
-                  onChange={(e) => handleFileSelect(e.target.files?.[0] ?? null)}
-                  className='hidden'
-                />
-              </label>
+            <div className='py-8 text-center'>
+              <h1 className='text-3xl font-bold'>{tool?.name ?? 'イメージパレット+'}</h1>
+              <p className='mt-2 text-gray-500 dark:text-gray-400'>
+                {tool?.description ?? ''}
+              </p>
             </div>
-            )
-          : isProcessing
+          )}
+
+          {/* Main Content */}
+          {!imagePreview && !isProcessing
             ? (
-              // Processing State
-              <div className='flex flex-1 flex-col items-center justify-center pb-12'>
-                <div className='relative mb-8'>
-                  {imagePreview && (
-                    <img
-                      src={imagePreview}
-                      alt='Processing'
-                      className='max-h-64 rounded-2xl opacity-50'
-                    />
-                  )}
-                  <div className='absolute inset-0 flex items-center justify-center'>
-                    <div className='rounded-full bg-white/90 p-4 shadow-lg dark:bg-atom-one-dark/90'>
-                      <Spinner size={32} className='text-sky-500' />
-                    </div>
+              // Upload State
+              <div className='flex items-center justify-center'>
+                <label className='group flex w-full max-w-lg cursor-pointer flex-col items-center justify-center rounded-3xl border-[3px] border-dashed border-gray-300 bg-gradient-to-br from-gray-50 to-gray-100 p-16 transition-all hover:border-sky-400 hover:from-sky-50 hover:to-indigo-50 dark:border-gray-600 dark:from-atom-one-dark dark:to-atom-one-dark-light dark:hover:border-sky-500 dark:hover:from-atom-one-dark-light dark:hover:to-atom-one-dark-lighter'>
+                  <div className='mb-6 rounded-full p-6 transition-transform group-hover:scale-110'>
+                    <PhotoIcon className='size-12 text-gray-400 transition-colors group-hover:text-sky-500' />
                   </div>
-                </div>
-                <p className='text-lg font-medium text-gray-600 dark:text-gray-400'>
-                  色を解析中...
-                </p>
+                  <span className='mb-2 text-lg font-semibold text-gray-700 dark:text-gray-300'>
+                    画像を選択
+                  </span>
+                  <span className='text-sm text-gray-500 dark:text-gray-400'>
+                    またはドラッグ＆ドロップ
+                  </span>
+                  <input
+                    type='file'
+                    accept='image/*'
+                    onChange={(e) => handleFileSelect(e.target.files?.[0] ?? null)}
+                    className='hidden'
+                  />
+                </label>
               </div>
               )
-            : (
-              // Result State
-              <div className='flex flex-1 flex-col pb-8'>
-                {/* Hidden Share Target - for html2canvas capture (without 3D transforms) */}
-                <div ref={shareTargetRef} className='absolute -left-[100vw]'>
-                  {/* Static image for html2canvas capture */}
-                  <div className='mb-8 flex justify-center'>
-                    <div
-                      className='bg-white p-3 pb-12 shadow-xl'
-                      style={{ transform: isFlipped ? 'rotate(2deg)' : 'rotate(-2deg)' }}
-                    >
-                      <img
+            : isProcessing
+              ? (
+            // Processing State
+                <div className='flex flex-1 flex-col items-center justify-center gap-4'>
+                  <Spinner size={24} />
+                  <p className='text-lg font-medium text-gray-600 dark:text-gray-400'>
+                    解析中
+                  </p>
+                </div>
+                )
+              : (
+            // Result State
+                <div className='flex flex-1 flex-col items-center justify-center gap-4'>
+                  {/* Hidden Share Target - for html2canvas capture */}
+                  <div ref={shareTargetRef} className='absolute -left-[200vw] p-10'>
+                    <div className='relative flex justify-center'>
+                      {/* Decorative Masking Tape */}
+                      <div className='absolute -top-4 left-1/2 z-10 h-8 w-24 -translate-x-1/2 bg-yellow-200/75 shadow-sm backdrop-blur-sm' />
+
+                      <PolaroidFrame
                         src={isFlipped && wafflePreview ? wafflePreview : imagePreview!}
                         alt={isFlipped ? 'Waffle chart' : 'Uploaded'}
-                        className='max-h-56 w-auto'
-                      />
+                        rotation={isFlipped ? 2 : -2}
+                      >
+                        <div className='flex gap-2'>
+                          {extractedColors.map((color, index) => (
+                            <div
+                              key={index}
+                              className='size-8 rounded-full shadow-sm'
+                              style={{ backgroundColor: color.hex }}
+                            />
+                          ))}
+                        </div>
+                      </PolaroidFrame>
+                    </div>
+                  </div>
+
+                  {/* Visible Flip Card */}
+                  <div className='mb-8 flex justify-center'>
+                    <div className='relative'>
+                      {/* Flip Button */}
+                      <button
+                        onClick={handleFlip}
+                        className='absolute -bottom-2 -right-2 z-20 transition-transform hover:scale-110 active:scale-95'
+                        title={isFlipped ? '画像を表示' : 'パレットを表示'}
+                      >
+                        <WavingHandIcon className='size-16' />
+                      </button>
+
+                      {/* Decorative Masking Tape - hidden during flip animation */}
+                      <div className={`absolute -top-4 left-1/2 z-10 h-8 w-24 -translate-x-1/2 bg-yellow-200/75 shadow-sm backdrop-blur-sm transition-opacity ${isFlipping ? 'opacity-0' : 'opacity-100'}`} />
+
+                      {/* Flip Container - clickable to flip */}
+                      <button
+                        onClick={handleFlip}
+                        className='cursor-pointer transition-transform duration-500 '
+                        style={{
+                          transformStyle: 'preserve-3d',
+                          transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'
+                        }}
+                      >
+                        {/* Front - Polaroid Image */}
+                        <PolaroidFrame
+                          src={imagePreview!}
+                          alt='Uploaded'
+                          rotation={-2}
+                          style={{ backfaceVisibility: 'hidden' }}
+                        >
+                          <div className='flex gap-2'>
+                            {extractedColors.map((color, index) => (
+                              <div
+                                key={index}
+                                className='size-6 rounded-full shadow-sm sm:size-8'
+                                style={{ backgroundColor: color.hex }}
+                              />
+                            ))}
+                          </div>
+                        </PolaroidFrame>
+
+                        {/* Back - Waffle Chart */}
+                        {wafflePreview && (
+                          <PolaroidFrame
+                            src={wafflePreview}
+                            alt='Waffle chart'
+                            className='absolute inset-0'
+                            style={{
+                              backfaceVisibility: 'hidden',
+                              transform: 'rotateY(180deg) rotate(2deg)'
+                            }}
+                          >
+                            <div className='flex gap-2'>
+                              {extractedColors.map((color, index) => (
+                                <div
+                                  key={index}
+                                  className='size-6 rounded-full shadow-sm sm:size-8'
+                                  style={{ backgroundColor: color.hex }}
+                                />
+                              ))}
+                            </div>
+                          </PolaroidFrame>
+                        )}
+                      </button>
                     </div>
                   </div>
 
                   {/* Color Palette */}
-                  <div className='mb-6'>
-                    <div className='flex flex-wrap justify-center gap-4'>
-                      {extractedColors.map((color, index) => (
-                        <div
-                          key={index}
-                          className='size-16 rounded-full shadow-lg ring-4 ring-white sm:size-20'
-                          style={{ backgroundColor: color.hex }}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
+                  <ColorPalette colors={extractedColors} onColorClick={handleCopyColor} />
 
-                {/* Visible Flip Card */}
-                <div className='mb-8 flex justify-center'>
-                  <div className='relative'>
-                    {/* Flip Button */}
+                  {/* Actions */}
+                  <div className='flex flex-col items-center gap-6'>
                     <button
-                      onClick={() => setIsFlipped(!isFlipped)}
-                      className='absolute -right-2 -top-4 z-20 transition-transform hover:scale-110 active:scale-95'
-                      title={isFlipped ? '画像を表示' : 'パレットを表示'}
+                      onClick={handleSharePalette}
+                      className='rounded-full bg-sky-500 px-6 py-3 font-medium text-white transition-colors hover:bg-sky-600'
                     >
-                      <WavingHandIcon className='size-10' />
+                      シェアする
                     </button>
-
-                    {/* Flip Container */}
-                    <div
-                      className='transition-transform duration-500'
-                      style={{
-                        transformStyle: 'preserve-3d',
-                        transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'
-                      }}
+                    <button
+                      onClick={handleReset}
+                      className='rounded-full px-6 py-3 font-medium text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-atom-one-dark-lighter'
                     >
-                      {/* Front - Polaroid Image */}
-                      <div
-                        className='rotate-[-2deg] bg-white p-3 pb-12 shadow-xl dark:bg-gray-100'
-                        style={{ backfaceVisibility: 'hidden' }}
-                      >
-                        <img
-                          src={imagePreview!}
-                          alt='Uploaded'
-                          className='max-h-56 w-auto'
-                        />
-                      </div>
-
-                      {/* Back - Waffle Chart */}
-                      {wafflePreview && (
-                        <div
-                          className='absolute inset-0 flex items-center justify-center bg-white p-3 pb-12 shadow-xl dark:bg-gray-100'
-                          style={{
-                            backfaceVisibility: 'hidden',
-                            transform: 'rotateY(180deg) rotate(2deg)'
-                          }}
-                        >
-                          <img
-                            src={wafflePreview}
-                            alt='Waffle chart'
-                            className='max-h-56 w-auto'
-                          />
-                        </div>
-                      )}
-                    </div>
+                      別の画像で試す
+                    </button>
                   </div>
                 </div>
-
-                {/* Color Palette */}
-                <div className='mb-6'>
-                  <div className='flex flex-wrap justify-center gap-4'>
-                    {extractedColors.map((color, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handleCopyColor(color.hex)}
-                        className='transition-transform hover:scale-110 active:scale-95'
-                      >
-                        <div
-                          className='size-16 rounded-full shadow-lg ring-4 ring-white dark:ring-gray-800 sm:size-20'
-                          style={{ backgroundColor: color.hex }}
-                        />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className='flex flex-col items-center gap-4'>
-                  <button
-                    onClick={handleSharePalette}
-                    className='w-32 rounded-full bg-sky-500 py-3 font-medium text-white transition-colors hover:bg-sky-600'
-                  >
-                    シェア
-                  </button>
-                  <button
-                    onClick={handleReset}
-                    className='text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-                  >
-                    別の画像で試す
-                  </button>
-                </div>
-              </div>
-              )}
+                )}
+        </div>
       </div>
     </FullPageDropZone>
   )

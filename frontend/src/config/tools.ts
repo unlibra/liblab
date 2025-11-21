@@ -42,8 +42,8 @@ export const tools: Tool[] = [
   },
   {
     id: 'image-palette',
-    name: 'イメージパレット+',
-    description: '好きな画像からカラーパレットを作ろう。画像解析して主要な色を抽出します。',
+    name: 'イメージパレット++',
+    description: '好きな画像からカラーパレットを生成。画像解析して主要な色を抽出します。',
     shortDescription: '画像からカラーパレットを生成',
     icon: '/icons/tools/image-palette.svg',
     category: 'color'
