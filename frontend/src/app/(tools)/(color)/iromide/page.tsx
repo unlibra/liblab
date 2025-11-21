@@ -215,8 +215,9 @@ export default function ImagePalettePage () {
         try {
           await navigator.share({
             files: [file],
-            title: 'カラーパレット',
-            text: '8px.appで作成したカラーパレット'
+            title: '推し色生成 イロマイド',
+            text: 'あなたの推しを、イロマイドに。',
+            url: 'https://8px.app/iromide'
           })
         } catch (err) {
           // User cancelled or share failed
