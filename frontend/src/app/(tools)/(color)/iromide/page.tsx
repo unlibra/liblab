@@ -198,7 +198,9 @@ export default function ImagePalettePage () {
       // Capture the hidden element with opacity override
       const blob = await toBlob(shareTargetRef.current, {
         pixelRatio: 2, // Higher resolution for better quality
-        style: { opacity: '1' } // Override opacity for capture
+        style: { opacity: '1' }, // Override opacity for capture
+        cacheBust: true, // Disable cache to ensure fresh image capture
+        preferCanvas: true // Use canvas method for better mobile compatibility
       })
 
       if (!blob) return

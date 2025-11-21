@@ -32,6 +32,7 @@ export function PolaroidFrame ({
           <img
             src={src}
             alt={alt}
+            crossOrigin='anonymous'
             className='max-h-96 w-auto object-cover shadow-inner'
           />
 
