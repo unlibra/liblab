@@ -4,7 +4,6 @@ import { PhotoIcon } from '@heroicons/react/24/outline'
 import { domToBlob } from 'modern-screenshot'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { WavingHandIcon } from '@/components/icons/waving-hand-icon'
 import { CorkBoardBackground } from '@/components/ui/cork-board-background'
 import { FullPageDropZone } from '@/components/ui/full-page-drop-zone'
 import { MaskingTape } from '@/components/ui/masking-tape'
@@ -93,6 +92,7 @@ export default function ImagePalettePage () {
   const [isFlipped, setIsFlipped] = useState(false)
   const [isFlipping, setIsFlipping] = useState(false)
   const [resultRotation, setResultRotation] = useState(0)
+  const [message, setMessage] = useState('')
 
   // Handle flip with animation tracking
   const handleFlip = useCallback(() => {
@@ -202,9 +202,10 @@ export default function ImagePalettePage () {
     if (!shareTargetRef.current) return
 
     try {
-      // Capture the hidden element with opacity override
+      // Capture the hidden element with high resolution
       const blob = await domToBlob(shareTargetRef.current, {
-        style: { opacity: '1' } // Override opacity for capture
+        style: { opacity: '1' }, // Override opacity for capture
+        scale: 2 // Higher resolution for sharper text
       })
 
       if (!blob) return
@@ -217,7 +218,7 @@ export default function ImagePalettePage () {
           const shareUrl = `${siteConfig.url ?? 'https://8px.app'}/${tool?.id ?? 'iromide'}`
           await navigator.share({
             files: [file],
-            text: `あなたの推しは、なに色？イロマイドでパレットを作成しましょう！ - ${shareUrl}`
+            text: `${message || 'あなたの推しは、なに色？イロマイドでパレットを作成しましょう！'} - ${shareUrl}`
           })
         } catch (err) {
           // User cancelled or share failed
@@ -247,6 +248,7 @@ export default function ImagePalettePage () {
     setImagePreview(null)
     setImageDimensions(null)
     setExtractedColors([])
+    setMessage('')
   }, [])
 
   return (
@@ -344,14 +346,21 @@ export default function ImagePalettePage () {
                           }}
                           rotation={isFlipped ? -resultRotation : resultRotation}
                         >
-                          <div className='flex gap-2'>
-                            {extractedColors.map((color, index) => (
-                              <div
-                                key={index}
-                                className='size-8 rounded-full shadow-sm'
-                                style={{ backgroundColor: color.hex }}
-                              />
-                            ))}
+                          <div className='flex flex-col items-center gap-2'>
+                            <div className='flex gap-2'>
+                              {extractedColors.map((color, index) => (
+                                <div
+                                  key={index}
+                                  className='size-8 rounded-full shadow-sm'
+                                  style={{ backgroundColor: color.hex }}
+                                />
+                              ))}
+                            </div>
+                            {message && (
+                              <p className='text-center text-sm font-medium antialiased sm:text-lg'>
+                                {message}
+                              </p>
+                            )}
                           </div>
                         </PolaroidFrame>
                       </div>
@@ -361,15 +370,6 @@ export default function ImagePalettePage () {
                   {/* Visible Flip Card */}
                   <div className='mb-8 flex justify-center'>
                     <div className='relative [perspective:1000px]'>
-                      {/* Flip Button */}
-                      <button
-                        onClick={handleFlip}
-                        className='absolute -bottom-2 -right-2 z-20 transition-transform hover:scale-110 active:scale-95'
-                        title={isFlipped ? '画像を表示' : 'パレットを表示'}
-                      >
-                        <WavingHandIcon className='size-12 sm:size-16' />
-                      </button>
-
                       {/* Decorative Masking Tape - hidden during flip animation */}
                       <MaskingTape className={`absolute -top-4 left-1/2 z-10 -translate-x-1/2 transition-opacity ${isFlipping ? 'opacity-0' : 'opacity-100'}`} />
 
@@ -392,14 +392,23 @@ export default function ImagePalettePage () {
                           rotation={resultRotation}
                           style={{ backfaceVisibility: 'hidden' }}
                         >
-                          <div className='flex gap-2'>
-                            {extractedColors.map((color, index) => (
-                              <div
-                                key={index}
-                                className='size-6 rounded-full shadow-sm sm:size-8'
-                                style={{ backgroundColor: color.hex }}
-                              />
-                            ))}
+                          <div className='flex flex-col items-center gap-2'>
+                            <div className='flex gap-2'>
+                              {extractedColors.map((color, index) => (
+                                <div
+                                  key={index}
+                                  className='size-6 rounded-full shadow-sm sm:size-8'
+                                  style={{ backgroundColor: color.hex }}
+                                />
+                              ))}
+                            </div>
+                            {message && (
+                              <p
+                                className='text-center text-sm font-medium antialiased sm:text-lg'
+                              >
+                                {message}
+                              </p>
+                            )}
                           </div>
                         </PolaroidFrame>
 
@@ -416,14 +425,21 @@ export default function ImagePalettePage () {
                               transform: `rotateY(180deg) rotate(${-resultRotation}deg)`
                             }}
                           >
-                            <div className='flex gap-2'>
-                              {extractedColors.map((color, index) => (
-                                <div
-                                  key={index}
-                                  className='size-6 rounded-full shadow-sm sm:size-8'
-                                  style={{ backgroundColor: color.hex }}
-                                />
-                              ))}
+                            <div className='flex flex-col items-center gap-2'>
+                              <div className='flex gap-2'>
+                                {extractedColors.map((color, index) => (
+                                  <div
+                                    key={index}
+                                    className='size-6 rounded-full shadow-sm sm:size-8'
+                                    style={{ backgroundColor: color.hex }}
+                                  />
+                                ))}
+                              </div>
+                              {message && (
+                                <p className='text-center text-sm font-medium antialiased sm:text-lg'>
+                                  {message}
+                                </p>
+                              )}
                             </div>
                           </PolaroidFrame>
                         )}
@@ -433,6 +449,17 @@ export default function ImagePalettePage () {
 
                   {/* Color Palette */}
                   <ColorPalette colors={extractedColors} onColorClick={handleCopyColor} />
+
+                  {/* Message Input */}
+                  <div className='mb-6 w-full max-w-md'>
+                    <input
+                      type='text'
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value.slice(0, 25))}
+                      placeholder='メッセージを追加（25文字まで）'
+                      className='w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-center text-sm outline-none transition-colors focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-gray-600 dark:bg-atom-one-dark-light'
+                    />
+                  </div>
 
                   {/* Actions */}
                   <div className='flex flex-col items-center gap-6'>
