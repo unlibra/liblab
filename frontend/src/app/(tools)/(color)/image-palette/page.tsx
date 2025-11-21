@@ -382,7 +382,7 @@ export default function ImagePalettePage () {
 
                   {/* Visible Flip Card */}
                   <div className='mb-8 flex justify-center'>
-                    <div className='relative'>
+                    <div className='relative [perspective:1000px]'>
                       {/* Flip Button */}
                       <button
                         onClick={handleFlip}
@@ -401,6 +401,7 @@ export default function ImagePalettePage () {
                         className='cursor-pointer transition-transform duration-500 '
                         style={{
                           transformStyle: 'preserve-3d',
+                          transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
                           transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'
                         }}
                       >
