@@ -7,6 +7,7 @@ export type ImageProcessingOptions = {
   borderRadius?: number // pixel value
   borderRadiusPercent?: number // 0-100 (percentage, 100 = perfect circle)
   backgroundColor?: string // hex color (e.g., '#ffffff')
+  preserveAspectRatio?: boolean // true = preserve aspect ratio, false = force square
 }
 
 /**
@@ -33,6 +34,9 @@ export async function loadImageFromFile (file: File): Promise<HTMLImageElement> 
 
 /**
  * 画像をリサイズして処理を適用
+ * @param image HTMLImageElement
+ * @param size 出力サイズ（preserveAspectRatio=trueの場合は最大幅/高さ）
+ * @param options 処理オプション
  */
 export async function processImage (
   image: HTMLImageElement,
@@ -46,31 +50,59 @@ export async function processImage (
     throw new Error('Canvasコンテキストの取得に失敗しました')
   }
 
-  canvas.width = size
-  canvas.height = size
+  // サイズ計算
+  let width = size
+  let height = size
+
+  if (options.preserveAspectRatio) {
+    // アスペクト比を保持
+    if (image.width > image.height) {
+      if (image.width > size) {
+        height = Math.round((image.height * size) / image.width)
+        width = size
+      } else {
+        width = image.width
+        height = image.height
+      }
+    } else {
+      if (image.height > size) {
+        width = Math.round((image.width * size) / image.height)
+        height = size
+      } else {
+        width = image.width
+        height = image.height
+      }
+    }
+  }
+
+  canvas.width = width
+  canvas.height = height
 
   ctx.imageSmoothingEnabled = true
   ctx.imageSmoothingQuality = 'high'
 
-  // 角丸を適用
+  // 角丸を適用（正方形の場合のみ）
   let radius = 0
   let isCircle = false
+  const minDimension = Math.min(width, height)
 
-  if (options.borderRadius && options.borderRadius > 0) {
-    radius = options.borderRadius
-    // px指定で半径がsize/2以上の場合は円として扱う
-    if (radius >= size / 2) {
-      radius = size / 2
-      isCircle = true
-    }
-  } else if (options.borderRadiusPercent && options.borderRadiusPercent > 0) {
-    // %指定の場合、100%で完全な円
-    if (options.borderRadiusPercent >= 100) {
-      radius = size / 2
-      isCircle = true
-    } else {
-      // 100%未満の場合は角丸の半径を計算
-      radius = (size / 2) * (options.borderRadiusPercent / 100)
+  if (!options.preserveAspectRatio) {
+    if (options.borderRadius && options.borderRadius > 0) {
+      radius = options.borderRadius
+      // px指定で半径がsize/2以上の場合は円として扱う
+      if (radius >= size / 2) {
+        radius = size / 2
+        isCircle = true
+      }
+    } else if (options.borderRadiusPercent && options.borderRadiusPercent > 0) {
+      // %指定の場合、100%で完全な円
+      if (options.borderRadiusPercent >= 100) {
+        radius = size / 2
+        isCircle = true
+      } else {
+        // 100%未満の場合は角丸の半径を計算
+        radius = (size / 2) * (options.borderRadiusPercent / 100)
+      }
     }
   }
 
@@ -80,16 +112,16 @@ export async function processImage (
 
     if (isCircle) {
       // 完全な円を描画
-      ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2)
+      ctx.arc(width / 2, height / 2, minDimension / 2, 0, Math.PI * 2)
     } else {
       // 角丸四角形を描画
       ctx.moveTo(radius, 0)
-      ctx.lineTo(size - radius, 0)
-      ctx.quadraticCurveTo(size, 0, size, radius)
-      ctx.lineTo(size, size - radius)
-      ctx.quadraticCurveTo(size, size, size - radius, size)
-      ctx.lineTo(radius, size)
-      ctx.quadraticCurveTo(0, size, 0, size - radius)
+      ctx.lineTo(width - radius, 0)
+      ctx.quadraticCurveTo(width, 0, width, radius)
+      ctx.lineTo(width, height - radius)
+      ctx.quadraticCurveTo(width, height, width - radius, height)
+      ctx.lineTo(radius, height)
+      ctx.quadraticCurveTo(0, height, 0, height - radius)
       ctx.lineTo(0, radius)
       ctx.quadraticCurveTo(0, 0, radius, 0)
     }
@@ -100,11 +132,11 @@ export async function processImage (
     // 背景色を適用（クリップされた領域内のみ）
     if (options.backgroundColor) {
       ctx.fillStyle = options.backgroundColor
-      ctx.fillRect(0, 0, size, size)
+      ctx.fillRect(0, 0, width, height)
     }
 
     // 画像を描画
-    ctx.drawImage(image, 0, 0, size, size)
+    ctx.drawImage(image, 0, 0, width, height)
 
     ctx.restore()
   } else {
@@ -112,11 +144,11 @@ export async function processImage (
     // 背景色を適用
     if (options.backgroundColor) {
       ctx.fillStyle = options.backgroundColor
-      ctx.fillRect(0, 0, size, size)
+      ctx.fillRect(0, 0, width, height)
     }
 
     // 画像を描画
-    ctx.drawImage(image, 0, 0, size, size)
+    ctx.drawImage(image, 0, 0, width, height)
   }
 
   // PNG blobに変換

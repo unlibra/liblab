@@ -30,8 +30,8 @@ export default function Home () {
           8px.app
         </h1>
         <p className='whitespace-pre-line font-medium text-gray-600 dark:text-gray-400'>
-          {`Web開発に必要なすべてを、シンプルに。
-コードとデザインの境界を越え、クリエイターの想像力を刺激する便利な機能を集めました。`}
+          {`その色も、そのアイコンも、思い通りに。
+カラーパレット生成からファビコン作成まで、Web・UI開発者のためのツールセット。`}
         </p>
       </div>
 

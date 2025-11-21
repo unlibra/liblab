@@ -4,6 +4,9 @@ const config: Config = {
   content: [
     './src/**/*.{js,ts,jsx,tsx,mdx}'
   ],
+  safelist: [
+    'animate-fade-in'
+  ],
   darkMode: 'class',
   theme: {
     extend: {
@@ -17,6 +20,15 @@ const config: Config = {
           light: '#333842',
           DEFAULT: '#282c34',
           deep: '#21252b'
+        }
+      },
+      animation: {
+        'fade-in': 'fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1)'
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' }
         }
       }
     }

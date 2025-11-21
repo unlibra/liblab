@@ -8,7 +8,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api import health, ping
+from app.api import colors, health, ping
 from app.core.config import get_settings
 from app.core.logging import configure_logging, get_logger
 from app.middleware.request_id import RequestIDMiddleware
@@ -111,3 +111,4 @@ app.add_middleware(
 # Include routers
 app.include_router(health.router, prefix='/health', tags=['health'])
 app.include_router(ping.router, prefix='/api/ping', tags=['ping'])
+app.include_router(colors.router, prefix='/api/colors', tags=['colors'])
