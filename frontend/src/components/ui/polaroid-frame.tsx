@@ -1,17 +1,19 @@
 type PolaroidFrameProps = {
-  src: string
-  alt: string
   rotation?: number
   className?: string
+  image: {
+    src: string
+    alt: string
+    className?: string
+  }
   style?: React.CSSProperties
   children?: React.ReactNode
 }
 
 export function PolaroidFrame ({
-  src,
-  alt,
   rotation = 0,
   className = '',
+  image,
   style = {},
   children
 }: PolaroidFrameProps) {
@@ -22,7 +24,7 @@ export function PolaroidFrame ({
       style={{ transform: `rotate(${rotation}deg)`, ...style }}
     >
       {/* Inner element: handles Polaroid appearance and internal coordinates */}
-      <div className='relative bg-white p-6 shadow-xl dark:bg-gray-100'>
+      <div className='relative bg-white p-4 shadow-xl dark:bg-gray-100 sm:p-6'>
 
         {/* Paper texture */}
         <div className='pointer-events-none absolute inset-0 bg-gray-50 opacity-5' />
@@ -30,10 +32,10 @@ export function PolaroidFrame ({
         <div className='relative flex justify-center overflow-hidden'>
           {/* Photo */}
           <img
-            src={src}
-            alt={alt}
+            src={image.src}
+            alt={image.alt}
             crossOrigin='anonymous'
-            className='max-h-[800px] w-auto max-w-[1200px] object-cover'
+            className={image.className ?? 'max-h-[800px] w-auto max-w-[calc(min(1200px,85vw))]'}
           />
 
           {/* Film gloss effect */}
@@ -42,7 +44,7 @@ export function PolaroidFrame ({
 
         {/* Bottom margin content */}
         {children && (
-          <div className='mt-6 flex justify-center'>
+          <div className='mt-4 flex justify-center sm:mt-6'>
             {children}
           </div>
         )}
