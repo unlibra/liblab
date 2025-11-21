@@ -1,7 +1,7 @@
 'use client'
 
 import { PhotoIcon } from '@heroicons/react/24/outline'
-import html2canvas from 'html2canvas'
+import { toBlob } from 'html-to-image'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { WavingHandIcon } from '@/components/icons/waving-hand-icon'
@@ -22,15 +22,15 @@ import { validateImageFile } from '@/lib/file/file-validation'
 // Sample data for showcase
 const sampleImages = [
   {
-    src: '/images/samples/iromide/sample-1.jpg',
+    src: '/images/iromide/sample-1.jpg',
     colors: ['#FABE28', '#9B122B', '#2A1E17', '#DF4156', '#AB8828', '#F08E93']
   },
   {
-    src: '/images/samples/iromide/sample-2.jpg',
+    src: '/images/iromide/sample-2.jpg',
     colors: ['#DCE5EE', '#878464', '#2C160D', '#544B34']
   },
   {
-    src: '/images/samples/iromide/sample-3.jpg',
+    src: '/images/iromide/sample-3.jpg',
     colors: ['#DED0C3', '#4C4735', '#6D7E38', '#111211', '#A72A26']
   }
 ]
@@ -195,16 +195,10 @@ export default function ImagePalettePage () {
     if (!shareTargetRef.current) return
 
     try {
-      // Capture the share target element
-      const canvas = await html2canvas(shareTargetRef.current, {
-        backgroundColor: null, // Use background from CorkBoardBackground
-        scale: 2, // Higher resolution for better quality
-        useCORS: true
-      })
-
-      // Convert to blob
-      const blob = await new Promise<Blob | null>((resolve) => {
-        canvas.toBlob(resolve, 'image/png')
+      // Capture the hidden element with opacity override
+      const blob = await toBlob(shareTargetRef.current, {
+        pixelRatio: 2, // Higher resolution for better quality
+        style: { opacity: '1' } // Override opacity for capture
       })
 
       if (!blob) return
@@ -239,7 +233,7 @@ export default function ImagePalettePage () {
       }
     } catch (err) {
       toast.error('画像の生成に失敗しました')
-      console.error('html2canvas failed:', err)
+      console.error('Image capture failed:', err)
     }
   }, [toast])
 
@@ -331,8 +325,8 @@ export default function ImagePalettePage () {
               : (
                 // Result State
                 <div className='flex flex-1 flex-col items-center justify-center gap-4'>
-                  {/* Hidden Share Target - for html2canvas capture */}
-                  <div ref={shareTargetRef} className='absolute -left-[200vw]'>
+                  {/* Hidden Share Target - for image capture */}
+                  <div ref={shareTargetRef} className='pointer-events-none fixed left-0 top-0 opacity-0'>
                     <CorkBoardBackground className='p-10'>
                       <div className='relative flex justify-center'>
                         {/* Decorative Masking Tape */}
