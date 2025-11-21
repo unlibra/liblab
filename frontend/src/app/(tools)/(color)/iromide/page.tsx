@@ -11,6 +11,7 @@ import { MaskingTape } from '@/components/ui/masking-tape'
 import { PolaroidFrame } from '@/components/ui/polaroid-frame'
 import { Spinner } from '@/components/ui/spinner'
 import { useToast } from '@/components/ui/toast'
+import { siteConfig } from '@/config/site'
 import { getToolById } from '@/config/tools'
 import { useColorHistory } from '@/contexts/color-history-context'
 import type { ExtractedColor } from '@/lib/api/colors'
@@ -215,9 +216,9 @@ export default function ImagePalettePage () {
         try {
           await navigator.share({
             files: [file],
-            title: '推し色生成 イロマイド',
+            title: tool?.name ?? '推し色生成 イロマイド',
             text: 'あなたの推しを、イロマイドに。',
-            url: 'https://8px.app/iromide'
+            url: `${siteConfig.url ?? 'https://8px.app'}/${tool?.id ?? 'iromide'}`
           })
         } catch (err) {
           // User cancelled or share failed
