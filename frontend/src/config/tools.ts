@@ -21,6 +21,7 @@ export type Tool = {
   shortDescription?: string // For popovers and compact displays
   icon: string // Path to icon file
   category: CategoryId
+  badge?: string // Optional badge like "HOT", "NEW"
 }
 
 export type Category = {
@@ -46,7 +47,8 @@ export const tools: Tool[] = [
     description: '好きな画像からカラーパレットを生成。画像解析して主要な色を抽出します。',
     shortDescription: '画像からカラーパレットを生成',
     icon: '/icons/tools/image-palette.svg',
-    category: 'color'
+    category: 'color',
+    badge: 'HOT'
   },
   {
     id: 'favicon-generator',
