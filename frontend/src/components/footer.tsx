@@ -94,6 +94,14 @@ export function Footer () {
                   </a>
                 </li>
               )}
+              <li>
+                <Link
+                  href='/privacy'
+                  className='text-sm text-gray-600 transition-all hover:underline dark:text-gray-400'
+                >
+                  プライバシーポリシー
+                </Link>
+              </li>
             </ul>
           </div>
         </div>

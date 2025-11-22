@@ -44,7 +44,7 @@ function CategoryPopover ({ category }: { category: typeof categories[number] })
               >
                 <div className='flex flex-col items-start'>
                   <span className='text-sm font-medium'>{tool.name}</span>
-                  <span className='line-clamp-2 break-keep text-xs text-gray-500 dark:text-gray-400'>
+                  <span className='line-clamp-2 break-keep text-xs text-gray-500'>
                     {tool.shortDescription || tool.description}
                   </span>
                 </div>

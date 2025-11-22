@@ -24,5 +24,10 @@ export default function sitemap (): MetadataRoute.Sitemap {
     }
   }
 
+  // Add privacy policy page
+  routes.push({
+    url: `${baseUrl}/privacy`
+  })
+
   return routes
 }

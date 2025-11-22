@@ -167,13 +167,37 @@ export default function ImagePalettePage () {
 
   // Share palette image using Web Share API
   const handleSharePalette = useCallback(async () => {
-    if (!shareTargetRef.current) return
+    if (!shareTargetRef.current) {
+      toast.error('シェア用の画像が準備できていません')
+      console.error('Share target ref is null')
+      return
+    }
 
     try {
+      // Wait for images to load
+      const images = shareTargetRef.current.querySelectorAll('img')
+      await Promise.all(
+        Array.from(images).map(
+          img =>
+            new Promise((resolve, reject) => {
+              if (img.complete) {
+                resolve(null)
+              } else {
+                img.onload = () => resolve(null)
+                img.onerror = reject
+              }
+            })
+        )
+      )
+
       // Capture the element
       const blob = await domToBlob(shareTargetRef.current, {})
 
-      if (!blob) return
+      if (!blob) {
+        toast.error('画像の生成に失敗しました')
+        console.error('domToBlob returned null')
+        return
+      }
 
       const file = new File([blob], 'palette.png', { type: 'image/png' })
 
@@ -233,7 +257,7 @@ export default function ImagePalettePage () {
           {!imagePreview && (
             <div className='mb-16 text-center'>
               <h1 className='text-3xl font-bold'>{tool?.name ?? 'iromide'}</h1>
-              <p className='mt-2 break-keep text-gray-500 dark:text-gray-400'>
+              <p className='mt-2 break-keep text-gray-500'>
                 {tool?.description ?? ''}
               </p>
             </div>
@@ -283,9 +307,12 @@ export default function ImagePalettePage () {
                   <div className='mb-4 rounded-full bg-gray-100 p-4 transition-colors group-hover:bg-gray-200 dark:bg-atom-one-dark-light dark:group-hover:bg-atom-one-dark-lighter'>
                     <PhotoIcon className='size-8 text-gray-600 dark:text-gray-400' />
                   </div>
-                  <span className='mb-1 font-semibold'>
+                  <span className='mb-2 font-semibold'>
                     あなたの画像で試す
                   </span>
+                  <p className='text-center text-sm text-gray-500'>
+                    推奨: 縦長 (3:4) / 正方形 (1:1) / 横長 (8:5)
+                  </p>
                   <input
                     type='file'
                     accept='image/*'
@@ -293,6 +320,11 @@ export default function ImagePalettePage () {
                     className='hidden'
                   />
                 </label>
+
+                {/* Privacy Notice */}
+                <p className='text-center text-xs text-gray-500'>
+                  ※ 画像は処理のみに使用され、保存されません
+                </p>
               </div>
               )
             : isProcessing
