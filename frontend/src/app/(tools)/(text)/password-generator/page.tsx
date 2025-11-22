@@ -167,14 +167,16 @@ export default function PasswordGeneratorPage () {
 
         {/* Password Display */}
         <div className='mb-8 space-y-3'>
-          <div className='relative overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-atom-one-dark'>
-            <input
-              type='text'
-              value={password}
-              readOnly
-              className='w-full bg-transparent py-3 pl-4 pr-24 font-mono text-lg focus:outline-none'
-              placeholder={hasCharset ? '' : '文字種を選択してください'}
-            />
+          <div className='relative overflow-hidden rounded-lg border border-gray-200 bg-white'>
+            <div
+              className='w-full bg-transparent py-3 pl-4 pr-24 font-mono text-lg text-gray-900 outline-none dark:text-gray-100'
+            >
+              {password || (
+                <span className='text-gray-400 dark:text-gray-500'>
+                  文字種を選択してください
+                </span>
+              )}
+            </div>
             <button
               onClick={handleCopy}
               disabled={!password}
