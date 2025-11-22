@@ -2,6 +2,7 @@
 
 import { PhotoIcon } from '@heroicons/react/24/outline'
 import { domToBlob } from 'modern-screenshot'
+import Image from 'next/image'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { CorkBoardBackground } from '@/components/ui/cork-board-background'
@@ -19,22 +20,6 @@ import { validateImageFile } from '@/lib/file/file-validation'
 import type { ChekiPadding } from '@/lib/image/cheki-size'
 import { calculateChekiPadding, determineChekiSize } from '@/lib/image/cheki-size'
 import { loadImageFromFile, processImageForCheki } from '@/lib/image/image-processing'
-
-// Sample data for showcase
-const sampleImages = [
-  {
-    src: '/images/iromide/sample-1.jpg',
-    colors: ['#FABE28', '#9B122B', '#2A1E17', '#DF4156', '#AB8828', '#F08E93']
-  },
-  {
-    src: '/images/iromide/sample-2.jpg',
-    colors: ['#DCE5EE', '#878464', '#2C160D', '#544B34']
-  },
-  {
-    src: '/images/iromide/sample-3.jpg',
-    colors: ['#DED0C3', '#4C4735', '#6D7E38', '#111211', '#A72A26']
-  }
-]
 
 export default function ImagePalettePage () {
   const tool = getToolById('iromide')
@@ -270,34 +255,18 @@ export default function ImagePalettePage () {
               <div className='flex flex-1 flex-col items-center justify-center gap-8'>
                 {/* Sample Polaroids */}
                 <div className='mb-12'>
-                  <div className='flex justify-center gap-12'>
-                    {sampleImages.map((sample, index) => (
-                      <div key={index} className='relative'>
-                        <MaskingTape
-                          className='absolute left-1/2 top-0 z-10 -translate-x-1/2 -translate-y-1/2'
-                        />
-                        <PolaroidFrame
-                          image={{
-                            src: sample.src,
-                            alt: `Sample ${index + 1}`
-                          }}
-                          rotation={index === 0 ? -3 : index === 1 ? 2 : -1}
-                        >
-                          <div className='relative flex size-full flex-col items-center gap-2'>
-                            <div className='absolute bottom-1/2 left-1/2 flex -translate-x-1/2 gap-2 '>
-                              {sample.colors.map((color, index) => (
-                                <div
-                                  key={index}
-                                  className='size-5 rounded-full shadow-sm sm:size-12'
-                                  style={{
-                                    backgroundColor: color
-                                  }}
-                                />
-                              ))}
-                            </div>
-                          </div>
-                        </PolaroidFrame>
-                      </div>
+                  <div className='flex justify-center gap-4 sm:gap-8'>
+                    {Array.from(Array(3)).map((_, index) => (
+                      <Image
+                        key={index}
+                        src={`/images/iromide/sample-cheki-${index + 1}.webp`}
+                        alt={`Sample ${index + 1}`}
+                        width={500}
+                        height={600}
+                        unoptimized
+                        className='max-h-[60vh] w-auto max-w-[60vw]'
+                        style={{ transform: `rotate(${index === 0 ? 2 : index === 1 ? -2 : 1}deg)` }}
+                      />
                     ))}
                   </div>
                 </div>
