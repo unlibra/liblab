@@ -9,7 +9,8 @@ export const siteConfig = {
   },
   locale: 'ja_JP',
   links: {
-    github: process.env.NEXT_PUBLIC_GITHUB_URL || ''
+    github: process.env.NEXT_PUBLIC_GITHUB_URL || '',
+    sponsor: process.env.NEXT_PUBLIC_SPONSOR_URL || ''
   }
 } as const
 

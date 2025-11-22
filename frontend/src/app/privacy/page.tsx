@@ -50,8 +50,9 @@ export default function PrivacyPage () {
             <div>
               <h3 className='mb-2 font-semibold'>2.1 アクセス情報</h3>
               <p>
-                本サイトでは、サービス改善のため、Google Analyticsを使用してアクセス情報を収集しています。
-                収集される情報には、IPアドレス、ブラウザの種類、アクセス日時、閲覧ページなどが含まれます。
+                本サイトではサービス改善のため、Google Analytics 4（以下「GA4」）を使用してアクセス情報を収集します。
+                収集される情報には、IP アドレス（匿名化処理を含む）、ブラウザの種類、アクセス日時、閲覧ページなどが含まれます。
+                Google によるデータ収集方法については Google のポリシーに従います。
               </p>
             </div>
 
@@ -75,7 +76,7 @@ export default function PrivacyPage () {
             <div>
               <h3 className='mb-2 font-semibold'>2.4 クッキー（Cookie）</h3>
               <p>
-                本サイトでは、Google Analyticsによるアクセス解析のためにクッキーを使用します。
+                本サイトでは、GA4 によるアクセス解析のためにクッキーを使用します。
               </p>
             </div>
           </div>
@@ -102,7 +103,7 @@ export default function PrivacyPage () {
           <ul className='ml-6 mt-2 list-disc space-y-1 leading-relaxed'>
             <li>ユーザーの同意がある場合</li>
             <li>法令に基づく場合</li>
-            <li>Google Analyticsなど、サービス提供に必要な外部サービスへの情報提供（匿名化された統計情報のみ）</li>
+            <li>GA4などサービス提供に必要な外部サービスへの情報提供（匿名化された統計情報のみ）</li>
           </ul>
         </section>
 
@@ -116,7 +117,7 @@ export default function PrivacyPage () {
               <strong className='font-semibold'>ローカルストレージ：</strong>ユーザーがブラウザから削除するまで保持されます。
             </p>
             <p>
-              <strong className='font-semibold'>クッキー（Google Analytics）：</strong>Google Analyticsのデータ保持ポリシーに従います。
+              <strong className='font-semibold'>クッキー（GA4）：</strong>Googleのデータ保持ポリシーに従います。
             </p>
           </div>
         </section>
@@ -140,17 +141,24 @@ export default function PrivacyPage () {
         <section>
           <h2 className='mb-4 text-xl font-semibold'>8. お問い合わせ</h2>
           <p className='leading-relaxed'>
-            本プライバシーポリシーに関するご質問やご不明な点がございましたら、
-            <a
-              href={siteConfig.links.github ? `${siteConfig.links.github}/discussions/categories/general` : '#'}
-              target='_blank'
-              rel='noopener noreferrer'
-              className='font-medium text-blue-600 underline hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300'
-            >
-              GitHubディスカッション
-            </a>
-            よりお問い合わせください。
+            本プライバシーポリシーに関するご質問やご不明な点がございましたら、以下までお問い合わせください。
           </p>
+          <div className='mt-4 leading-relaxed'>
+            <p>
+              <strong className='font-semibold'>運営者：</strong>{siteConfig.author}
+            </p>
+            <p className='mt-2'>
+              <strong className='font-semibold'>お問い合わせ：</strong>
+              <a
+                href={siteConfig.links.github ? `${siteConfig.links.github}/discussions/categories/general` : '#'}
+                target='_blank'
+                rel='noopener noreferrer'
+                className='font-medium text-blue-600 underline hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300'
+              >
+                GitHubディスカッション
+              </a>
+            </p>
+          </div>
         </section>
 
         <div className='mt-12 border-t border-gray-300 pt-8 text-sm text-gray-500 dark:border-gray-700 dark:text-gray-500'>
