@@ -323,7 +323,7 @@ export default function ImagePalettePage () {
                           image={{
                             src: imagePreview!,
                             alt: 'Uploaded',
-                            className: '' // クロップ済み画像をネイティブサイズで表示
+                            className: '' // Display cropped image at native size
                           }}
                           rotation={resultRotation}
                           chekiPadding={chekiPadding ?? undefined}

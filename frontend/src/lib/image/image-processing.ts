@@ -1,6 +1,6 @@
 /**
- * 画像処理ユーティリティ
- * 再利用可能な画像処理機能を提供
+ * Image processing utilities
+ * Provides reusable image processing functionality
  */
 
 export type ImageProcessingOptions = {
@@ -11,7 +11,7 @@ export type ImageProcessingOptions = {
 }
 
 /**
- * ファイルから画像を読み込む
+ * Load image from file
  */
 export async function loadImageFromFile (file: File): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
@@ -25,7 +25,7 @@ export async function loadImageFromFile (file: File): Promise<HTMLImageElement> 
 
     img.onerror = () => {
       URL.revokeObjectURL(url)
-      reject(new Error('画像の読み込みに失敗しました'))
+      reject(new Error('Failed to load image'))
     }
 
     img.src = url
@@ -33,11 +33,11 @@ export async function loadImageFromFile (file: File): Promise<HTMLImageElement> 
 }
 
 /**
- * 画像をリサイズして処理を適用
+ * Resize image and apply processing
  * @param image HTMLImageElement
- * @param maxWidth 最大幅（preserveAspectRatio=falseの場合は出力幅）
- * @param maxHeight 最大高さ（preserveAspectRatio=falseの場合は出力高さ、省略時はmaxWidthと同じ）
- * @param options 処理オプション
+ * @param maxWidth Maximum width (output width if preserveAspectRatio=false)
+ * @param maxHeight Maximum height (output height if preserveAspectRatio=false, defaults to maxWidth if omitted)
+ * @param options Processing options
  */
 export async function processImage (
   image: HTMLImageElement,
@@ -49,21 +49,21 @@ export async function processImage (
   const ctx = canvas.getContext('2d')
 
   if (!ctx) {
-    throw new Error('Canvasコンテキストの取得に失敗しました')
+    throw new Error('Failed to get canvas context')
   }
 
   // If maxHeight is not specified, use maxWidth (square)
   const maxH = maxHeight ?? maxWidth
 
-  // サイズ計算
+  // Calculate size
   let width = maxWidth
   let height = maxH
 
   if (options.preserveAspectRatio) {
-    // アスペクト比を保持しながら、maxWidth と maxHeight の範囲内に収める
+    // Fit within maxWidth and maxHeight while preserving aspect ratio
     const widthRatio = maxWidth / image.width
     const heightRatio = maxH / image.height
-    const scale = Math.min(widthRatio, heightRatio, 1) // 1を超えないように（拡大しない）
+    const scale = Math.min(widthRatio, heightRatio, 1) // Don't exceed 1 (don't upscale)
 
     width = Math.round(image.width * scale)
     height = Math.round(image.height * scale)
@@ -75,7 +75,7 @@ export async function processImage (
   ctx.imageSmoothingEnabled = true
   ctx.imageSmoothingQuality = 'high'
 
-  // 角丸を適用（正方形の場合のみ）
+  // Apply border radius (square only)
   let radius = 0
   let isCircle = false
   const minDimension = Math.min(width, height)
@@ -83,18 +83,18 @@ export async function processImage (
   if (!options.preserveAspectRatio) {
     if (options.borderRadius && options.borderRadius > 0) {
       radius = options.borderRadius
-      // px指定で半径がmaxWidth/2以上の場合は円として扱う
+      // Treat as circle if radius >= maxWidth/2 in px
       if (radius >= maxWidth / 2) {
         radius = maxWidth / 2
         isCircle = true
       }
     } else if (options.borderRadiusPercent && options.borderRadiusPercent > 0) {
-      // %指定の場合、100%で完全な円
+      // For percentage, 100% = perfect circle
       if (options.borderRadiusPercent >= 100) {
         radius = maxWidth / 2
         isCircle = true
       } else {
-        // 100%未満の場合は角丸の半径を計算
+        // Calculate radius for percentages < 100%
         radius = (maxWidth / 2) * (options.borderRadiusPercent / 100)
       }
     }
@@ -105,10 +105,10 @@ export async function processImage (
     ctx.beginPath()
 
     if (isCircle) {
-      // 完全な円を描画
+      // Draw perfect circle
       ctx.arc(width / 2, height / 2, minDimension / 2, 0, Math.PI * 2)
     } else {
-      // 角丸四角形を描画
+      // Draw rounded rectangle
       ctx.moveTo(radius, 0)
       ctx.lineTo(width - radius, 0)
       ctx.quadraticCurveTo(width, 0, width, radius)
@@ -123,36 +123,36 @@ export async function processImage (
     ctx.closePath()
     ctx.clip()
 
-    // 背景色を適用（クリップされた領域内のみ）
+    // Apply background color (clipped region only)
     if (options.backgroundColor) {
       ctx.fillStyle = options.backgroundColor
       ctx.fillRect(0, 0, width, height)
     }
 
-    // 画像を描画
+    // Draw image
     ctx.drawImage(image, 0, 0, width, height)
 
     ctx.restore()
   } else {
-    // 角丸なしの場合
-    // 背景色を適用
+    // No border radius
+    // Apply background color
     if (options.backgroundColor) {
       ctx.fillStyle = options.backgroundColor
       ctx.fillRect(0, 0, width, height)
     }
 
-    // 画像を描画
+    // Draw image
     ctx.drawImage(image, 0, 0, width, height)
   }
 
-  // PNG blobに変換
+  // Convert to PNG blob
   return new Promise((resolve, reject) => {
     canvas.toBlob(
       (blob) => {
         if (blob) {
           resolve(blob)
         } else {
-          reject(new Error('Canvasからのblob作成に失敗しました'))
+          reject(new Error('Failed to create blob from canvas'))
         }
       },
       'image/png',
@@ -162,11 +162,11 @@ export async function processImage (
 }
 
 /**
- * チェキ用に画像をリサイズ（object-fit: cover方式）
+ * Resize image for cheki (object-fit: cover style)
  * @param image HTMLImageElement
- * @param targetWidth 目標幅
- * @param targetHeight 目標高さ
- * @param backgroundColor 背景色（デフォルト: 白）
+ * @param targetWidth Target width
+ * @param targetHeight Target height
+ * @param backgroundColor Background color (default: white)
  */
 export async function processImageForCheki (
   image: HTMLImageElement,
@@ -178,7 +178,7 @@ export async function processImageForCheki (
   const ctx = canvas.getContext('2d')
 
   if (!ctx) {
-    throw new Error('Canvasコンテキストの取得に失敗しました')
+    throw new Error('Failed to get canvas context')
   }
 
   canvas.width = targetWidth
@@ -187,44 +187,44 @@ export async function processImageForCheki (
   ctx.imageSmoothingEnabled = true
   ctx.imageSmoothingQuality = 'high'
 
-  // 背景色を塗りつぶす
+  // Fill background color
   ctx.fillStyle = backgroundColor
   ctx.fillRect(0, 0, targetWidth, targetHeight)
 
-  // object-fit: cover のような動作
-  // ターゲットのアスペクト比
+  // object-fit: cover behavior
+  // Target aspect ratio
   const targetRatio = targetWidth / targetHeight
-  // 元画像のアスペクト比
+  // Original image aspect ratio
   const imageRatio = image.width / image.height
 
   if (imageRatio > targetRatio) {
-    // 画像の方が横長 → 高さ全体を使い、幅を中央クロップ
+    // Image is wider → use full height, center-crop width
     const sourceWidth = image.height * targetRatio
     const sourceX = (image.width - sourceWidth) / 2
     ctx.drawImage(
       image,
-      sourceX, 0, sourceWidth, image.height, // 元画像の切り取り範囲
-      0, 0, targetWidth, targetHeight // キャンバス上の描画範囲
+      sourceX, 0, sourceWidth, image.height, // Source crop area
+      0, 0, targetWidth, targetHeight // Canvas draw area
     )
   } else {
-    // 画像の方が縦長 → 幅全体を使い、高さを中央クロップ
+    // Image is taller → use full width, center-crop height
     const sourceHeight = image.width / targetRatio
     const sourceY = (image.height - sourceHeight) / 2
     ctx.drawImage(
       image,
-      0, sourceY, image.width, sourceHeight, // 元画像の切り取り範囲
-      0, 0, targetWidth, targetHeight // キャンバス上の描画範囲
+      0, sourceY, image.width, sourceHeight, // Source crop area
+      0, 0, targetWidth, targetHeight // Canvas draw area
     )
   }
 
-  // PNG blobに変換
+  // Convert to PNG blob
   return new Promise((resolve, reject) => {
     canvas.toBlob(
       (blob) => {
         if (blob) {
           resolve(blob)
         } else {
-          reject(new Error('Canvasからのblob作成に失敗しました'))
+          reject(new Error('Failed to create blob from canvas'))
         }
       },
       'image/png',
@@ -234,7 +234,7 @@ export async function processImageForCheki (
 }
 
 /**
- * Blobをダウンロード
+ * Download blob
  */
 export function downloadBlob (blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob)

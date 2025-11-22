@@ -101,7 +101,7 @@ export function ThemeToggle () {
   // Determine if current display is light
   const isLight = (theme === 'system' && systemTheme === 'light') || theme === 'light'
 
-  // サーバーサイドではプレースホルダーを表示してレイアウトシフト回避
+  // Show placeholder on server-side to avoid layout shift
   if (!mounted) {
     return (
       <div className='flex items-center justify-center rounded-full p-2'>

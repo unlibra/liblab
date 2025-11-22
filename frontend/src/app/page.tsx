@@ -4,7 +4,7 @@ import { siteConfig } from '@/config/site'
 import { categories } from '@/config/tools'
 
 export default function Home () {
-  // JSON-LD構造化データ
+  // JSON-LD structured data
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
@@ -15,7 +15,7 @@ export default function Home () {
 
   return (
     <>
-      {/* JSON-LD構造化データ */}
+      {/* JSON-LD structured data */}
       <script
         type='application/ld+json'
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

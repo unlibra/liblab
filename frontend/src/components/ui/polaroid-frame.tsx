@@ -16,7 +16,7 @@ type PolaroidFrameProps = {
   }
   style?: React.CSSProperties
   children?: React.ReactNode
-  chekiPadding?: ChekiPadding // チェキの余白（px）
+  chekiPadding?: ChekiPadding // Cheki padding (px)
 }
 
 export function PolaroidFrame ({
@@ -27,7 +27,7 @@ export function PolaroidFrame ({
   children,
   chekiPadding
 }: PolaroidFrameProps) {
-  // チェキ余白が指定されている場合は使用、なければデフォルト
+  // Use cheki padding if specified, otherwise default
   const paddingStyle = chekiPadding
     ? {
         paddingTop: `${chekiPadding.top}px`,
@@ -37,7 +37,7 @@ export function PolaroidFrame ({
       }
     : undefined
 
-  // カラーパレット領域のスタイル（下余白の領域内に収める）
+  // Color palette area style (fit within bottom padding area)
   const paletteContainerStyle = chekiPadding
     ? {
         height: `${chekiPadding.bottom}px`,

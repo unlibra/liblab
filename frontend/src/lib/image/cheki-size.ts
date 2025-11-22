@@ -1,5 +1,5 @@
 /**
- * チェキサイズとアスペクト比の決定
+ * Cheki size and aspect ratio determination
  */
 
 export type ChekiAspectRatio = 'portrait' | 'square' | 'landscape'
@@ -17,11 +17,11 @@ export type ChekiPadding = {
   bottom: number
 }
 
-// サイズパターン（基準となる長辺のサイズ、16の倍数）
+// Size patterns (based on longer side, multiples of 16)
 const SIZE_BREAKPOINTS = [400, 640, 800, 1024, 1280]
 
 /**
- * 画像のアスペクト比を判定
+ * Determine aspect ratio of image
  */
 export function determineAspectRatio (
   width: number,
@@ -29,22 +29,22 @@ export function determineAspectRatio (
 ): ChekiAspectRatio {
   const ratio = width / height
 
-  // 正方形に近い場合（0.9 ~ 1.1）
+  // Near-square (0.9 ~ 1.1)
   if (ratio >= 0.9 && ratio <= 1.1) {
     return 'square'
   }
 
-  // 横長
+  // Landscape
   if (ratio > 1.1) {
     return 'landscape'
   }
 
-  // 縦長
+  // Portrait
   return 'portrait'
 }
 
 /**
- * 適切なチェキサイズを決定
+ * Determine appropriate cheki size
  */
 export function determineChekiSize (
   width: number,
@@ -52,10 +52,10 @@ export function determineChekiSize (
 ): ChekiSize {
   const aspectRatio = determineAspectRatio(width, height)
 
-  // 長辺を基準にサイズを決定
+  // Determine size based on longer side
   const longerSide = Math.max(width, height)
 
-  // 最も近いブレークポイントを見つける（小さい画像は最小サイズまで拡大）
+  // Find nearest breakpoint (upscale small images to minimum size)
   let targetSize = SIZE_BREAKPOINTS[0]
   for (const breakpoint of SIZE_BREAKPOINTS) {
     if (longerSide <= breakpoint) {
@@ -65,20 +65,20 @@ export function determineChekiSize (
     targetSize = breakpoint
   }
 
-  // アスペクト比に応じて幅と高さを決定
+  // Determine width and height based on aspect ratio
   let targetWidth: number
   let targetHeight: number
 
   if (aspectRatio === 'portrait') {
-    // 縦長: 長辺が高さ、幅は46mm基準
+    // Portrait: longer side is height, width based on 46mm
     targetHeight = targetSize
     targetWidth = Math.round(targetSize * (46 / 62))
   } else if (aspectRatio === 'square') {
-    // 正方形: 幅と高さが同じ
+    // Square: same width and height
     targetWidth = targetSize
     targetHeight = targetSize
   } else {
-    // 横長: 長辺が幅、高さは62mm基準
+    // Landscape: longer side is width, height based on 62mm
     targetWidth = targetSize
     targetHeight = Math.round(targetSize * (62 / 99))
   }
@@ -91,15 +91,15 @@ export function determineChekiSize (
 }
 
 /**
- * チェキの余白を計算
- * 実物のチェキフィルムの比率に基づく
+ * Calculate cheki padding
+ * Based on actual cheki film proportions
  */
 export function calculateChekiPadding (
   imageWidth: number,
   imageHeight: number,
   aspectRatio: ChekiAspectRatio
 ): ChekiPadding {
-  // 余白の比率（画像サイズに対する%）
+  // Padding ratios (percentage of image size)
   const paddingRatios = {
     portrait: {
       horizontal: 0.087, // 4mm / 46mm = 8.70%
