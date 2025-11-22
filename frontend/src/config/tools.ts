@@ -66,9 +66,9 @@ export const tools: Tool[] = [
   },
   {
     id: 'password-generator',
-    name: 'パスワード生成',
-    description: '安全で強力なパスワードをワンクリックで生成。長さや使用文字をカスタマイズして、あなたに最適なパスワードを作成します。',
-    shortDescription: '安全なパスワードを生成',
+    name: 'パスワードジェネレーター',
+    description: 'シンプルなパスワードジェネレーター。パスワードの長さと文字種を指定してパスワードを生成します。',
+    shortDescription: 'シンプルなパスワードジェネレーター',
     icon: '/icons/tools/password-generator.svg',
     category: 'tools'
   }
