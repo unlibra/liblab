@@ -1,4 +1,4 @@
-import { Switch } from '@headlessui/react'
+import { Field, Label, Switch } from '@headlessui/react'
 import { useCallback } from 'react'
 
 import { Slider } from '@/components/ui/slider'
@@ -113,10 +113,10 @@ export function SvgOptionsPanel ({ options, onOptionsChange, selectedPreset, onP
 
             <div className='space-y-3'>
               {group.plugins.map((key) => (
-                <Switch.Group key={key} as='div' className='flex items-center justify-between gap-4'>
-                  <Switch.Label className='flex-1 cursor-pointer text-sm text-gray-700 dark:text-gray-300'>
+                <Field key={key} as='div' className='flex items-center justify-between gap-4'>
+                  <Label className='flex-1 cursor-pointer text-sm text-gray-700 dark:text-gray-300'>
                     {PLUGIN_DESCRIPTIONS[key]}
-                  </Switch.Label>
+                  </Label>
                   <Switch
                     checked={options[key] as boolean}
                     onChange={() => handleToggle(key)}
@@ -131,7 +131,7 @@ export function SvgOptionsPanel ({ options, onOptionsChange, selectedPreset, onP
                       } pointer-events-none inline-block size-4 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out`}
                     />
                   </Switch>
-                </Switch.Group>
+                </Field>
               ))}
             </div>
           </div>
