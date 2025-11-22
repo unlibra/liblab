@@ -87,9 +87,9 @@ export default function RootLayout ({
 
   return (
     <html lang='ja' className={`${fontASCII.variable} ${fontJP.variable} ${fontMono.variable} ${fontZenMaru.variable}`} suppressHydrationWarning>
-      <body className='overflow-x-hidden bg-white text-gray-700 antialiased dark:bg-atom-one-dark dark:text-gray-300'>
+      <body className='bg-white text-gray-700 antialiased dark:bg-atom-one-dark dark:text-gray-300'>
         <Providers>
-          <div className='flex min-h-screen flex-col'>
+          <div className='flex min-h-screen flex-col overflow-x-hidden'>
             <Header />
             <main className='mx-auto w-full max-w-screen-xl flex-1 px-4 pb-12 pt-6 sm:px-6 lg:px-8'>
               {children}

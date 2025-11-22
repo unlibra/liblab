@@ -24,13 +24,8 @@ export function ToolCard ({ tool, iconBgColor }: ToolCardProps) {
             height={40}
           />
         </div>
-        <h3 className='flex items-center gap-2 font-semibold'>
+        <h3 className='font-semibold'>
           {tool.name}
-          {tool.badge && (
-            <span className='rounded bg-rose-500 px-1.5 py-0.5 text-xs font-semibold text-white'>
-              {tool.badge}
-            </span>
-          )}
         </h3>
       </div>
 

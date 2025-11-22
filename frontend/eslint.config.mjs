@@ -1,6 +1,7 @@
 import { createRequire } from 'module'
 import tseslint from '@typescript-eslint/eslint-plugin'
 import nextPlugin from '@next/eslint-plugin-next'
+import reactHooks from 'eslint-plugin-react-hooks'
 import simpleImportSort from 'eslint-plugin-simple-import-sort'
 import tailwindcss from 'eslint-plugin-tailwindcss'
 import neostandard from 'neostandard'
@@ -12,6 +13,7 @@ export default [
   // Ignore Next.js auto-generated files and config files
   {
     ignores: [
+      '.next/**',
       'next-env.d.ts',
       'eslint.config.mjs',
       'next.config.ts',
@@ -29,11 +31,16 @@ export default [
     plugins: {
       '@typescript-eslint': tseslint,
       '@next/next': nextPlugin,
+      'react-hooks': reactHooks,
       'simple-import-sort': simpleImportSort,
       tailwindcss,
       local: { rules: localRules }
     },
     rules: {
+      // React Hooks
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
+
       // Import整列
       'simple-import-sort/imports': 'error',
 

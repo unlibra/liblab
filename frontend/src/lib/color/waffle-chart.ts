@@ -46,22 +46,34 @@ export function calculateCellColors (
  */
 export async function generateWaffleChartBlob (
   colors: ExtractedColor[],
-  size: number = 1080
+  width: number = 1080,
+  height?: number
 ): Promise<Blob | null> {
   const canvas = document.createElement('canvas')
   const ctx = canvas.getContext('2d')
   if (!ctx) return null
 
-  canvas.width = size
-  canvas.height = size
+  // If height is not provided, use width (square)
+  const canvasHeight = height ?? width
+
+  canvas.width = width
+  canvas.height = canvasHeight
 
   const gridSize = 8
   const totalCellCount = gridSize * gridSize
 
+  // Use the smaller dimension to calculate cell size for 8x8 grid
+  const minDimension = Math.min(width, canvasHeight)
   // gap = cellSize / 8 (8px.app!)
-  const cellSize = size / (gridSize + (gridSize - 1) / 8)
+  const cellSize = minDimension / (gridSize + (gridSize - 1) / 8)
   const gap = cellSize / 8
   const cornerRadius = cellSize / 8
+
+  // Calculate total chart size and offset to center it
+  const chartWidth = gridSize * cellSize + (gridSize - 1) * gap
+  const chartHeight = gridSize * cellSize + (gridSize - 1) * gap
+  const offsetX = (width - chartWidth) / 2
+  const offsetY = (canvasHeight - chartHeight) / 2
 
   const cellColors = calculateCellColors(colors, totalCellCount)
 
@@ -69,8 +81,8 @@ export async function generateWaffleChartBlob (
   for (let i = 0; i < gridSize * gridSize; i++) {
     const row = Math.floor(i / gridSize)
     const col = i % gridSize
-    const x = col * (cellSize + gap)
-    const y = row * (cellSize + gap)
+    const x = offsetX + col * (cellSize + gap)
+    const y = offsetY + row * (cellSize + gap)
 
     ctx.fillStyle = cellColors[i] || '#ffffff'
     ctx.beginPath()

@@ -8,14 +8,14 @@ export const dynamic = 'force-static'
 export default function sitemap (): MetadataRoute.Sitemap {
   const baseUrl = siteConfig.url
 
-  // ホームページ
+  // Homepage
   const routes: MetadataRoute.Sitemap = [
     {
       url: baseUrl
     }
   ]
 
-  // 全ツールページを追加
+  // Add all tool pages
   for (const category of categories) {
     for (const tool of category.tools) {
       routes.push({
@@ -23,6 +23,11 @@ export default function sitemap (): MetadataRoute.Sitemap {
       })
     }
   }
+
+  // Add privacy policy page
+  routes.push({
+    url: `${baseUrl}/privacy`
+  })
 
   return routes
 }

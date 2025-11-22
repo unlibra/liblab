@@ -13,7 +13,7 @@ interface BreadcrumbProps {
 }
 
 export function Breadcrumb ({ items }: BreadcrumbProps) {
-  // 構造化データ（JSON-LD）を生成
+  // Generate structured data (JSON-LD)
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -27,14 +27,14 @@ export function Breadcrumb ({ items }: BreadcrumbProps) {
 
   return (
     <>
-      {/* JSON-LD構造化データ */}
+      {/* JSON-LD structured data */}
       <script
         type='application/ld+json'
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
 
-      {/* 視覚的なパンくずリスト */}
-      <nav className='mb-6 flex min-w-0 items-center gap-2 text-sm' aria-label='パンくずリスト'>
+      {/* Visual breadcrumb list */}
+      <nav className='mb-6 flex min-w-0 items-center gap-2 text-sm' aria-label='Breadcrumb'>
         {items.map((item, index) => (
           <div key={index} className='flex min-w-0 items-center gap-2'>
             {index > 0 && <ChevronRightIcon className='size-4 shrink-0 text-gray-600 dark:text-gray-400' aria-hidden='true' />}

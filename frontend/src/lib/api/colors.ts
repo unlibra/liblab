@@ -18,9 +18,9 @@ export async function extractColorsFromImage (
   file: File,
   numColors: number
 ): Promise<ExtractedColor[]> {
-  // Resize image on client side to reduce bandwidth
+  // Resize image on client side to reduce bandwidth (max 300x300)
   const image = await loadImageFromFile(file)
-  const resizedBlob = await processImage(image, 300, { preserveAspectRatio: true })
+  const resizedBlob = await processImage(image, 300, 300, { preserveAspectRatio: true })
   const resizedFile = new File([resizedBlob], file.name, { type: 'image/png' })
 
   const formData = new FormData()

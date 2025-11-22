@@ -4,7 +4,7 @@ import { siteConfig } from '@/config/site'
 import { categories } from '@/config/tools'
 
 export default function Home () {
-  // JSON-LD構造化データ
+  // JSON-LD structured data
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
@@ -15,23 +15,22 @@ export default function Home () {
 
   return (
     <>
-      {/* JSON-LD構造化データ */}
+      {/* JSON-LD structured data */}
       <script
         type='application/ld+json'
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
       {/* Hero Section */}
-      <div className='my-12 text-center'>
+      <div className='mx-auto my-12 max-w-screen-sm text-center'>
         <div className='mb-4 flex justify-center'>
           <LogoIcon className='size-16' />
         </div>
         <h1 className='mb-6 font-[Outfit] text-4xl font-semibold'>
-          8px.app
+          {siteConfig.name}
         </h1>
-        <p className='whitespace-pre-line font-medium text-gray-600 dark:text-gray-400'>
-          {`その色も、そのアイコンも、思い通りに。
-カラーパレット生成からファビコン作成まで、Web・UI開発者のためのツールセット。`}
+        <p className='whitespace-pre-line break-keep font-medium text-gray-600 dark:text-gray-400'>
+          {siteConfig.description}
         </p>
       </div>
 

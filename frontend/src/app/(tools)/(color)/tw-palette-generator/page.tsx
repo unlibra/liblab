@@ -217,7 +217,7 @@ export default function TailwindPaletteGeneratorPage () {
       <div className='mx-auto max-w-screen-sm lg:max-w-screen-xl'>
         <div className='mb-8 space-y-4'>
           <h1 className='text-2xl font-semibold'>{tool?.name ?? 'TWパレットジェネレーター'}</h1>
-          <p className='text-gray-600 dark:text-gray-400'>
+          <p className='break-keep text-gray-600 dark:text-gray-400'>
             {tool?.description ?? ''}
           </p>
         </div>

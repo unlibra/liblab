@@ -109,6 +109,6 @@ app.add_middleware(
 )
 
 # Include routers
-app.include_router(health.router, prefix='/health', tags=['health'])
+app.include_router(health.router, prefix='', tags=['health'])
 app.include_router(ping.router, prefix='/api/ping', tags=['ping'])
 app.include_router(colors.router, prefix='/api/colors', tags=['colors'])

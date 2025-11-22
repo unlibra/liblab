@@ -3,7 +3,7 @@
 import { CloseButton, Dialog, DialogPanel, Popover, PopoverButton, PopoverPanel, Transition, TransitionChild } from '@headlessui/react'
 import { Bars3Icon, ChevronDownIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 
 import { siteConfig } from '@/config/site'
 import { categories } from '@/config/tools'
@@ -11,6 +11,51 @@ import { categories } from '@/config/tools'
 import { GitHubIcon } from './icons/github-icon'
 import { LogoIcon } from './icons/logo-icon'
 import { ThemeToggle } from './theme-toggle'
+
+function CategoryPopover ({ category }: { category: typeof categories[number] }) {
+  const buttonRef = useRef<HTMLButtonElement>(null)
+
+  return (
+    <Popover className='relative'>
+      <PopoverButton
+        ref={buttonRef}
+        className='flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium uppercase outline-none transition-colors hover:bg-gray-100 focus-visible:bg-gray-100 data-[open]:bg-gray-100 dark:hover:bg-atom-one-dark-lighter focus-visible:dark:bg-atom-one-dark-lighter data-[open]:dark:bg-atom-one-dark-lighter'
+      >
+        {category.name}
+        <ChevronDownIcon className='size-4 transition-transform data-[open]:rotate-180' />
+      </PopoverButton>
+      <Transition
+        enter='transition duration-100 ease-out'
+        enterFrom='transform scale-95 opacity-0'
+        enterTo='transform scale-100 opacity-100'
+        leave='transition duration-100 ease-out'
+        leaveFrom='transform scale-100 opacity-100'
+        leaveTo='transform scale-95 opacity-0'
+        afterLeave={() => buttonRef.current?.blur()}
+      >
+        <PopoverPanel className='absolute right-0 z-50 mt-2'>
+          <div className='w-60 overflow-hidden rounded-lg border border-gray-200 bg-white p-1 shadow-lg dark:border-gray-700 dark:bg-atom-one-dark-light'>
+            {category.tools.map((tool) => (
+              <CloseButton
+                as={Link}
+                key={tool.id}
+                href={`/${tool.id}`}
+                className='flex w-full items-center gap-3 rounded-md px-3 py-2 outline-none transition-colors hover:bg-gray-100 focus-visible:bg-gray-100 dark:hover:bg-atom-one-dark-lighter focus-visible:dark:bg-atom-one-dark-lighter'
+              >
+                <div className='flex flex-col items-start'>
+                  <span className='text-sm font-medium'>{tool.name}</span>
+                  <span className='line-clamp-2 break-keep text-xs text-gray-500'>
+                    {tool.shortDescription || tool.description}
+                  </span>
+                </div>
+              </CloseButton>
+            ))}
+          </div>
+        </PopoverPanel>
+      </Transition>
+    </Popover>
+  )
+}
 
 export function Header () {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -47,54 +92,7 @@ export function Header () {
           {/* Category Popovers */}
           <div className='flex items-center gap-2'>
             {categories.map((category) => (
-              <Popover key={category.id} className='relative'>
-                {({ open }) => {
-                  const buttonRef = useRef<HTMLButtonElement>(null)
-
-                  useEffect(() => {
-                    if (!open && buttonRef.current) {
-                      buttonRef.current.blur()
-                    }
-                  }, [open])
-                  return (
-                    <>
-                      <PopoverButton
-                        ref={buttonRef}
-                        className='flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium uppercase outline-none transition-colors hover:bg-gray-100 focus-visible:bg-gray-100 dark:hover:bg-atom-one-dark-lighter focus-visible:dark:bg-atom-one-dark-lighter'
-                      >
-                        {category.name}
-                        <ChevronDownIcon className={`size-4 transition-transform ${open ? 'rotate-180' : ''}`} />
-                      </PopoverButton>
-                      <Transition
-                        enter='transition duration-100 ease-out'
-                        enterFrom='transform scale-95 opacity-0'
-                        enterTo='transform scale-100 opacity-100'
-                        leave='transition duration-100 ease-out'
-                        leaveFrom='transform scale-100 opacity-100'
-                        leaveTo='transform scale-95 opacity-0'
-                      >
-                        <PopoverPanel className='absolute right-0 z-50 mt-2'>
-                          <div className='w-60 overflow-hidden rounded-lg border border-gray-200 bg-white p-1 shadow-lg dark:border-gray-700 dark:bg-atom-one-dark-light'>
-                            {category.tools.map((tool) => (
-                              <CloseButton
-                                as={Link}
-                                key={tool.id}
-                                href={`/${tool.id}`}
-                                className='block rounded-lg px-3 py-2 outline-none transition-colors hover:bg-gray-100 focus-visible:bg-gray-100 dark:hover:bg-atom-one-dark-lighter focus-visible:dark:bg-atom-one-dark-lighter'
-                              >
-                                <div className='text-sm font-medium'>{tool.name}</div>
-                                <div className='mt-0.5 text-xs text-gray-600 dark:text-gray-400'>
-                                  {tool.shortDescription || tool.description}
-                                </div>
-                              </CloseButton>
-                            ))}
-                          </div>
-                        </PopoverPanel>
-                      </Transition>
-                    </>
-                  )
-                }}
-              </Popover>
+              <CategoryPopover key={category.id} category={category} />
             ))}
           </div>
 

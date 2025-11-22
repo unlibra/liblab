@@ -10,6 +10,7 @@ export function Footer () {
   const issuesUrl = githubRepoUrl ? `${githubRepoUrl}/issues` : ''
   const ideasUrl = githubRepoUrl ? `${githubRepoUrl}/discussions/categories/ideas` : ''
   const generalUrl = githubRepoUrl ? `${githubRepoUrl}/discussions/categories/general` : ''
+  const sponsorUrl = siteConfig.links.sponsor
 
   return (
     <footer className='bg-gray-100 py-12 dark:bg-atom-one-dark-light'>
@@ -21,7 +22,7 @@ export function Footer () {
               <LogoIcon className='size-6' />
               <span className='font-[Outfit] text-xl font-semibold'>{siteConfig.name}</span>
             </Link>
-            <p className='mt-3 text-sm text-gray-600 dark:text-gray-400'>
+            <p className='mt-3 break-keep text-sm text-gray-600 dark:text-gray-400'>
               {siteConfig.description}
             </p>
             <p className='mt-12 text-sm text-gray-600 dark:text-gray-400'>
@@ -94,6 +95,26 @@ export function Footer () {
                   </a>
                 </li>
               )}
+              {sponsorUrl && (
+                <li>
+                  <a
+                    href={sponsorUrl}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    className='text-sm text-gray-600 transition-all hover:underline dark:text-gray-400'
+                  >
+                    寄付・支援
+                  </a>
+                </li>
+              )}
+              <li>
+                <Link
+                  href='/privacy'
+                  className='text-sm text-gray-600 transition-all hover:underline dark:text-gray-400'
+                >
+                  プライバシーポリシー
+                </Link>
+              </li>
             </ul>
           </div>
         </div>

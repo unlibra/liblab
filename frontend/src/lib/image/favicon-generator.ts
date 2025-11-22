@@ -134,11 +134,11 @@ export async function generateFavicon (
   sizes: FaviconSize[],
   options: ImageProcessingOptions = {}
 ): Promise<Blob> {
-  // Resize to each size and convert to PNG
+  // Resize to each size and convert to PNG (square)
   const pngBlobs = await Promise.all(
     sizes.map(async (size) => ({
       size,
-      blob: await processImage(image, size, options)
+      blob: await processImage(image, size, undefined, options)
     }))
   )
 
@@ -185,7 +185,7 @@ export async function generateOutputSet (
         ? 0
         : borderRadiusPercent
 
-      blob = await processImage(image, size, {
+      blob = await processImage(image, size, undefined, {
         borderRadiusPercent: effectiveBorderRadius,
         backgroundColor: effectiveBackgroundColor
       })

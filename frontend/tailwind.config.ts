@@ -1,11 +1,9 @@
 import type { Config } from 'tailwindcss'
+import containerQueries from '@tailwindcss/container-queries'
 
 const config: Config = {
   content: [
     './src/**/*.{js,ts,jsx,tsx,mdx}'
-  ],
-  safelist: [
-    'animate-fade-in'
   ],
   darkMode: 'class',
   theme: {
@@ -20,10 +18,13 @@ const config: Config = {
           light: '#333842',
           DEFAULT: '#282c34',
           deep: '#21252b'
+        },
+        logo: {
+          light: '#5bc5dc',
+          medium: '#3ba0be',
+          dark: '#1a7ba0',
+          accent: '#f88c49'
         }
-      },
-      animation: {
-        'fade-in': 'fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1)'
       },
       keyframes: {
         fadeIn: {
@@ -33,7 +34,9 @@ const config: Config = {
       }
     }
   },
-  plugins: []
+  plugins: [
+    containerQueries
+  ]
 }
 
 export default config

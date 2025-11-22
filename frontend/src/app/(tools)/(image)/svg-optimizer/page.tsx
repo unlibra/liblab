@@ -2,7 +2,7 @@
 
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react'
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
-import { LockClosedIcon, PhotoIcon, PlusIcon } from '@heroicons/react/24/outline'
+import { PhotoIcon, PlusIcon, ShieldCheckIcon } from '@heroicons/react/24/outline'
 import type { ChangeEvent } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -144,7 +144,7 @@ export default function SvgOptimizerPage () {
       <div className='mx-auto max-w-screen-lg'>
         <div className='mb-8 space-y-4'>
           <h1 className='text-2xl font-semibold'>{tool?.name ?? 'SVG圧縮ツール'}</h1>
-          <p className='text-gray-600 dark:text-gray-400'>
+          <p className='break-keep text-gray-600 dark:text-gray-400'>
             {tool?.description ?? ''}
           </p>
         </div>
@@ -178,8 +178,8 @@ export default function SvgOptimizerPage () {
                 または画面のどこにでもドラッグ&ドロップ
               </p>
               {/* Privacy Notice */}
-              <div className='flex items-center gap-3 rounded-lg border border-sky-200 bg-sky-50 px-4 py-3 text-sky-900 dark:border-gray-700 dark:bg-atom-one-dark-light dark:text-gray-300'>
-                <LockClosedIcon className='size-4 shrink-0' />
+              <div className='flex items-center gap-3 rounded-lg border border-sky-200 bg-sky-50 px-4 py-3 text-sky-900 dark:border-sky-950 dark:bg-sky-950 dark:text-gray-300'>
+                <ShieldCheckIcon className='size-5 shrink-0' />
                 <div className='text-sm'>
                   画像はサーバーに送信されず、ブラウザで安全に実行されます。
                 </div>

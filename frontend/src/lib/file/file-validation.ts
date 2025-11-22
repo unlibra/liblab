@@ -1,6 +1,6 @@
 /**
- * ファイル検証ユーティリティ
- * マジックナンバー（ファイルシグネチャ）によるファイルタイプ検証
+ * File validation utilities
+ * File type validation using magic numbers (file signatures)
  */
 
 export type SupportedImageType = 'png' | 'jpeg' | 'gif' | 'webp' | 'svg' | 'avif' | 'heif' | 'heic' | 'tiff' | 'bmp'
@@ -12,21 +12,21 @@ export interface FileValidationResult {
 }
 
 /**
- * マジックナンバーでファイルタイプを検証
+ * Validate file type using magic numbers
  *
- * サポート形式:
+ * Supported formats:
  * - PNG, JPEG, GIF, WebP, SVG, AVIF, HEIF, HEIC, TIFF, BMP
  *
- * @param file - 検証するファイル
- * @returns 検証結果
+ * @param file - File to validate
+ * @returns Validation result
  */
 export async function validateImageFileType (file: File): Promise<FileValidationResult> {
   try {
-    // ファイルの最初の16バイトを読み込み（すべての形式をカバー）
+    // Read first 16 bytes of file (covers all formats)
     const buffer = await file.slice(0, 16).arrayBuffer()
     const bytes = new Uint8Array(buffer)
 
-    // マジックナンバーをチェック
+    // Check magic number
     const detectedType = detectImageType(bytes)
 
     if (detectedType) {
@@ -49,7 +49,7 @@ export async function validateImageFileType (file: File): Promise<FileValidation
 }
 
 /**
- * バイト配列から画像タイプを検出
+ * Detect image type from byte array
  */
 function detectImageType (bytes: Uint8Array): SupportedImageType | null {
   // PNG: 89 50 4E 47 0D 0A 1A 0A
@@ -154,13 +154,13 @@ function detectImageType (bytes: Uint8Array): SupportedImageType | null {
     return 'bmp'
   }
 
-  // SVG: テキストベースなので先頭をチェック
-  // < (0x3C) で始まる、またはUTF-8 BOM + <
+  // SVG: Text-based so check beginning
+  // Starts with < (0x3C), or UTF-8 BOM + <
   if (bytes.length >= 1 && bytes[0] === 0x3C) {
     return 'svg'
   }
 
-  // UTF-8 BOM (EF BB BF) の後に <
+  // UTF-8 BOM (EF BB BF) followed by <
   if (bytes.length >= 4 &&
       bytes[0] === 0xEF &&
       bytes[1] === 0xBB &&
@@ -173,7 +173,7 @@ function detectImageType (bytes: Uint8Array): SupportedImageType | null {
 }
 
 /**
- * 基本的なファイルバリデーション（サイズ、MIMEタイプ）
+ * Basic file validation (size, MIME type)
  */
 export function validateFileBasic (
   file: File,
@@ -190,7 +190,7 @@ export function validateFileBasic (
     return `ファイルサイズが大きすぎます（最大${maxSizeMB}MB）`
   }
 
-  // MIMEタイプチェック（第一段階）
+  // MIME type check (first stage)
   if (allowedMimeTypes && allowedMimeTypes.length > 0) {
     const isAllowed = allowedMimeTypes.some(type => {
       if (type.endsWith('/*')) {
@@ -209,8 +209,8 @@ export function validateFileBasic (
 }
 
 /**
- * 画像ファイルの完全なバリデーション
- * 基本チェック + マジックナンバーチェック
+ * Complete validation of image files
+ * Basic check + magic number check
  */
 export async function validateImageFile (
   file: File,
@@ -235,7 +235,7 @@ export async function validateImageFile (
     return typeValidation.error || 'サポートされていない画像形式です'
   }
 
-  // 画像サイズチェック（オプション）
+  // Image dimensions check (optional)
   if (options.maxDimensions) {
     try {
       const dimensions = await getImageDimensions(file)
@@ -244,7 +244,7 @@ export async function validateImageFile (
         return `画像サイズが大きすぎます（最大${options.maxDimensions.width}×${options.maxDimensions.height}px）`
       }
     } catch {
-      // 画像を読み込めない場合はエラー
+      // Error if image cannot be loaded
       return '画像の読み込みに失敗しました'
     }
   }
@@ -253,7 +253,7 @@ export async function validateImageFile (
 }
 
 /**
- * 画像の寸法を取得
+ * Get image dimensions
  */
 async function getImageDimensions (file: File): Promise<{ width: number, height: number }> {
   return new Promise((resolve, reject) => {
