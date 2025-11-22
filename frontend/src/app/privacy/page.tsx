@@ -123,11 +123,25 @@ export default function PrivacyPage () {
         </section>
 
         <section>
-          <h2 className='mb-4 text-xl font-semibold'>6. セキュリティ</h2>
-          <p className='leading-relaxed'>
-            本サイトは、情報の漏洩、紛失、改ざんなどを防ぐため、適切なセキュリティ対策を実施しています。
-            すべての通信はHTTPSで暗号化されています。
-          </p>
+          <h2 className='mb-4 text-xl font-semibold'>6. セキュリティと透明性</h2>
+          <div className='space-y-4 leading-relaxed'>
+            <p>
+              本サイトは、情報の漏洩、紛失、改ざんなどを防ぐため、適切なセキュリティ対策を実施しています。
+              すべての通信はHTTPSで暗号化されています。
+            </p>
+            <p>
+              本サイトはオープンソースで開発されており、ソースコードは
+              <a
+                href={siteConfig.links.github || '#'}
+                target='_blank'
+                rel='noopener noreferrer'
+                className='font-medium text-blue-600 underline hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300'
+              >
+                GitHub
+              </a>
+              で公開されています。データの取り扱いに関するコードを誰でも確認できます。
+            </p>
+          </div>
         </section>
 
         <section>

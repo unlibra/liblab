@@ -8,7 +8,6 @@ import { useCallback, useRef, useState } from 'react'
 import { siteConfig } from '@/config/site'
 import { categories } from '@/config/tools'
 
-import { GitHubIcon } from './icons/github-icon'
 import { LogoIcon } from './icons/logo-icon'
 import { ThemeToggle } from './theme-toggle'
 
@@ -42,7 +41,7 @@ function CategoryPopover ({ category }: { category: typeof categories[number] })
                 href={`/${tool.id}`}
                 className='flex w-full items-center gap-3 rounded-md px-3 py-2 outline-none transition-colors hover:bg-gray-100 focus-visible:bg-gray-100 dark:hover:bg-atom-one-dark-lighter focus-visible:dark:bg-atom-one-dark-lighter'
               >
-                <div className='flex flex-col items-start'>
+                <div className='space-y-0.5'>
                   <span className='text-sm font-medium'>{tool.name}</span>
                   <span className='line-clamp-2 break-keep text-xs text-gray-500'>
                     {tool.shortDescription || tool.description}
@@ -95,17 +94,6 @@ export function Header () {
               <CategoryPopover key={category.id} category={category} />
             ))}
           </div>
-
-          {/* GitHub Link */}
-          <a
-            href={siteConfig.links.github}
-            target='_blank'
-            rel='noopener noreferrer'
-            className='flex items-center justify-center rounded-full p-2 outline-none transition-colors hover:bg-gray-100 focus-visible:bg-gray-100 dark:hover:bg-atom-one-dark-lighter focus-visible:dark:bg-atom-one-dark-lighter'
-            aria-label='GitHub'
-          >
-            <GitHubIcon className='size-5' />
-          </a>
 
           {/* Theme Toggle */}
           <ThemeToggle />
@@ -179,15 +167,6 @@ export function Header () {
                         ))}
                       </div>
                     ))}
-                    <div className='my-2 border-t border-gray-200 dark:border-gray-700' />
-                    <a
-                      href={siteConfig.links.github}
-                      target='_blank'
-                      rel='noopener noreferrer'
-                      className='block rounded-lg px-3 py-2 text-base font-medium transition-colors hover:bg-gray-100 dark:hover:bg-atom-one-dark-lighter'
-                    >
-                      GitHub
-                    </a>
                   </div>
                 </div>
               </DialogPanel>

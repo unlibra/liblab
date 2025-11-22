@@ -44,7 +44,7 @@ export const tools: Tool[] = [
     id: 'iromide',
     name: '推し色生成 イロマイド',
     description: '好きな写真からカラーパレットを生成。人間の知覚に近い画像解析であなたの「推し色」を取り出せます。推し色をみんなにシェアしましょう！',
-    shortDescription: '画像からカラーパレットを生成',
+    shortDescription: '写真から推し色チェキを作ろう！',
     icon: '/icons/tools/iromide.svg',
     category: 'toys',
   },
@@ -62,6 +62,14 @@ export const tools: Tool[] = [
     description: '肥大化しがちなSVGファイルを、品質を保ったまま軽量化。Webサイトのパフォーマンス向上に役立つシンプルで確実な最適化ツールです。',
     shortDescription: 'SVGファイルを最適化・圧縮',
     icon: '/icons/tools/svg-optimizer.svg',
+    category: 'tools'
+  },
+  {
+    id: 'password-generator',
+    name: 'パスワードジェネレーター',
+    description: 'シンプルなパスワードジェネレーター。パスワードの長さと文字種を指定して、簡単にパスワードを生成できます。',
+    shortDescription: 'シンプルなパスワードジェネレーター',
+    icon: '/icons/tools/password-generator.svg',
     category: 'tools'
   }
 ]

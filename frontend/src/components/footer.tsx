@@ -8,8 +8,6 @@ import { LogoIcon } from './icons/logo-icon'
 export function Footer () {
   const githubRepoUrl = siteConfig.links.github
   const issuesUrl = githubRepoUrl ? `${githubRepoUrl}/issues` : ''
-  const ideasUrl = githubRepoUrl ? `${githubRepoUrl}/discussions/categories/ideas` : ''
-  const generalUrl = githubRepoUrl ? `${githubRepoUrl}/discussions/categories/general` : ''
   const sponsorUrl = siteConfig.links.sponsor
 
   return (
@@ -71,27 +69,27 @@ export function Footer () {
                   </a>
                 </li>
               )}
-              {ideasUrl && (
+              {githubRepoUrl && (
                 <li>
                   <a
-                    href={ideasUrl}
+                    href={`${githubRepoUrl}/discussions`}
                     target='_blank'
                     rel='noopener noreferrer'
                     className='text-sm text-gray-600 transition-all hover:underline dark:text-gray-400'
                   >
-                    機能要望
+                    ディスカッション
                   </a>
                 </li>
               )}
-              {generalUrl && (
+              {githubRepoUrl && (
                 <li>
                   <a
-                    href={generalUrl}
+                    href={githubRepoUrl}
                     target='_blank'
                     rel='noopener noreferrer'
                     className='text-sm text-gray-600 transition-all hover:underline dark:text-gray-400'
                   >
-                    問い合わせ
+                    GitHub
                   </a>
                 </li>
               )}

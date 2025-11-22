@@ -1,7 +1,7 @@
 export const siteConfig = {
   name: '8px.app',
   url: 'https://8px.app',
-  description: 'その色も、そのアイコンも、思い通りに。カラーパレット生成からファビコン作成まで、Web・UI開発者のためのツールセット。',
+  description: 'その色も、そのアイコンも、思い通りに。Web・UI開発者のためのツールセット。すべて無料、すべてオープンソース。',
   author: '8px.app Project',
   title: {
     default: '8px.app | Web Developer Toolkit',

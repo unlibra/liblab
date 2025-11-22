@@ -30,7 +30,7 @@ export default function Home () {
           {siteConfig.name}
         </h1>
         <p className='whitespace-pre-line break-keep font-medium text-gray-600 dark:text-gray-400'>
-          {siteConfig.description}
+          {siteConfig.description.replaceAll('。', '。\n')}
         </p>
       </div>
 
