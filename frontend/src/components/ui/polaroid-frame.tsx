@@ -41,8 +41,6 @@ export function PolaroidFrame ({
   const paletteContainerStyle = chekiPadding
     ? {
         height: `${chekiPadding.bottom}px`,
-        paddingTop: `${Math.round(chekiPadding.bottom * 0.2)}px`, // 下余白の20%を上マージン
-        paddingBottom: `${Math.round(chekiPadding.bottom * 0.2)}px` // 下余白の20%を下マージン
       }
     : undefined
 
@@ -81,7 +79,7 @@ export function PolaroidFrame ({
         {/* Bottom margin content */}
         {children && (
           <div
-            className='absolute inset-x-0 bottom-2.5 flex items-center justify-center sm:bottom-14'
+            className='absolute inset-x-0 bottom-0 flex h-10 items-center justify-center sm:h-40'
             style={paletteContainerStyle}
           >
             {children}
