@@ -63,6 +63,14 @@ export const tools: Tool[] = [
     shortDescription: 'SVGファイルを最適化・圧縮',
     icon: '/icons/tools/svg-optimizer.svg',
     category: 'tools'
+  },
+  {
+    id: 'password-generator',
+    name: 'パスワード生成',
+    description: '安全で強力なパスワードをワンクリックで生成。長さや使用文字をカスタマイズして、あなたに最適なパスワードを作成します。',
+    shortDescription: '安全なパスワードを生成',
+    icon: '/icons/tools/password-generator.svg',
+    category: 'tools'
   }
 ]
 
