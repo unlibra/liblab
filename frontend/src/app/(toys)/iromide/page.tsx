@@ -14,7 +14,6 @@ import { siteConfig } from '@/config/site'
 import { getToolById } from '@/config/tools'
 import type { ExtractedColor } from '@/lib/api/colors'
 import { extractColorsFromImage, } from '@/lib/api/colors'
-import { generateWaffleChartBlob } from '@/lib/color/waffle-chart'
 import { validateImageFile } from '@/lib/file/file-validation'
 import type { ChekiPadding } from '@/lib/image/cheki-size'
 import { calculateChekiPadding, determineChekiSize } from '@/lib/image/cheki-size'
@@ -27,12 +26,10 @@ export default function ImagePalettePage () {
 
   // State
   const [imagePreview, setImagePreview] = useState<string | null>(null)
-  const [imageDimensions, setImageDimensions] = useState<{ width: number, height: number } | null>(null)
   const [chekiPadding, setChekiPadding] = useState<ChekiPadding | null>(null)
   const [thumbnailPadding, setThumbnailPadding] = useState<ChekiPadding | null>(null)
   const [extractedColors, setExtractedColors] = useState<ExtractedColor[]>([])
   const [isProcessing, setIsProcessing] = useState(false)
-  const [wafflePreview, setWafflePreview] = useState<string | null>(null)
   const [resultRotation, setResultRotation] = useState(0)
   const [message, setMessage] = useState('')
   const [isSharing, setIsSharing] = useState(false)
@@ -48,30 +45,6 @@ export default function ImagePalettePage () {
       }
     }
   }, [imagePreview])
-
-  useEffect(() => {
-    return () => {
-      if (wafflePreview) {
-        URL.revokeObjectURL(wafflePreview)
-      }
-    }
-  }, [wafflePreview])
-
-  // Generate waffle chart preview when colors are extracted
-  useEffect(() => {
-    if (extractedColors.length === 0 || !imageDimensions) {
-      setWafflePreview(null)
-      return
-    }
-
-    // Generate waffle chart with the same dimensions as the original image
-    generateWaffleChartBlob(extractedColors, imageDimensions.width, imageDimensions.height).then((blob) => {
-      if (blob) {
-        const url = URL.createObjectURL(blob)
-        setWafflePreview(url)
-      }
-    })
-  }, [extractedColors, imageDimensions])
 
   // Handle file drop/select and auto-extract
   const handleFileSelect = useCallback(async (file: File | null) => {
@@ -106,9 +79,6 @@ export default function ImagePalettePage () {
       )
       const previewUrl = URL.createObjectURL(normalizedBlob)
       setImagePreview(previewUrl)
-
-      // Store cheki dimensions for waffle chart generation
-      setImageDimensions({ width: chekiSize.width, height: chekiSize.height })
 
       // Calculate padding based on cheki format
       const padding = calculateChekiPadding(chekiSize.width, chekiSize.height, chekiSize.aspectRatio)
@@ -226,7 +196,6 @@ export default function ImagePalettePage () {
   // Reset
   const handleReset = useCallback(() => {
     setImagePreview(null)
-    setImageDimensions(null)
     setChekiPadding(null)
     setExtractedColors([])
     setMessage('')
@@ -334,9 +303,6 @@ export default function ImagePalettePage () {
                           }}
                           rotation={resultRotation}
                           chekiPadding={chekiPadding ?? undefined}
-                          style={{
-                            width: imageDimensions ? `${imageDimensions.width}px` : 'auto'
-                          }}
                         >
                           <div className='relative flex size-full flex-col items-center gap-2'>
                             <div className='absolute bottom-1/2 left-1/2 flex -translate-x-1/2 gap-2 '>
