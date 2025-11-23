@@ -12,6 +12,7 @@ import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { FullPageDropZone } from '@/components/ui/full-page-drop-zone'
 import { useToast } from '@/components/ui/toast'
 import { getToolById } from '@/config/tools'
+import { validateFileBasic, validateImageFileType } from '@/lib/file/file-validation'
 import type { PresetId, SvgoOptions } from '@/lib/image/svgo-optimizer'
 import { DEFAULT_SVGO_OPTIONS, optimizeSvg, PRESETS } from '@/lib/image/svgo-optimizer'
 
@@ -30,15 +31,17 @@ export default function SvgOptimizerPage () {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleFileSelect = useCallback(async (file: File) => {
-    // Validate file type
-    if (!file.type.includes('svg')) {
+    // Validate file type using magic number
+    const typeValidation = await validateImageFileType(file)
+    if (!typeValidation.isValid || typeValidation.detectedType !== 'svg') {
       toast.error('SVGファイルのみアップロードできます')
       return
     }
 
-    // Validate file size (max 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error('ファイルサイズが大きすぎます（最大10MB）')
+    // Validate file size
+    const basicError = validateFileBasic(file, { maxSize: 10 * 1024 * 1024 })
+    if (basicError) {
+      toast.error(basicError)
       return
     }
 
