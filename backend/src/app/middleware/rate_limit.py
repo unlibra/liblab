@@ -36,9 +36,12 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         super().__init__(app)
         settings = get_settings()
 
-        # Initialize Redis client
-        self.redis: Redis | None
-        if redis_client is not None:
+        # Disable rate limiting in development environment
+        if settings.ENVIRONMENT == "development":
+            self.redis = None
+            logger.info("Rate limiting disabled in development environment")
+        # Initialize Redis client for production
+        elif redis_client is not None:
             self.redis = redis_client
         else:
             redis_url = getattr(settings, "UPSTASH_REDIS_REST_URL", None)
