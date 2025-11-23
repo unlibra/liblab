@@ -11,5 +11,5 @@ RUN pip install --no-cache-dir "."
 # Expose port
 EXPOSE 8000
 
-# Run with hot reload
-CMD ["uvicorn", "src.app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# Run without reload for production
+CMD ["uvicorn", "src.app.main:app", "--host", "0.0.0.0", "--port", "8000"]
