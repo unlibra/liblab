@@ -44,11 +44,15 @@ function generatePassword (options: PasswordOptions): string {
     ? charsets.map(set => set.split('').filter(c => !AMBIGUOUS.includes(c)).join(''))
     : charsets
 
-  // Ensure at least one character from each selected charset
-  const password: string[] = []
-  const array = new Uint32Array(options.length)
+  // Allocate enough random values for: charset selection + filling + shuffling
+  // Need: options.length (for password chars) + options.length (for shuffle)
+  const randomCount = options.length * 2
+  const array = new Uint32Array(randomCount)
   crypto.getRandomValues(array)
   let arrayIndex = 0
+
+  // Ensure at least one character from each selected charset
+  const password: string[] = []
 
   // Add one character from each charset
   for (const charset of cleanCharsets) {
@@ -65,7 +69,7 @@ function generatePassword (options: PasswordOptions): string {
 
   // Shuffle the password to avoid predictable patterns
   for (let i = password.length - 1; i > 0; i--) {
-    const j = array[arrayIndex++ % array.length] % (i + 1);
+    const j = array[arrayIndex++] % (i + 1);
     [password[i], password[j]] = [password[j], password[i]]
   }
 

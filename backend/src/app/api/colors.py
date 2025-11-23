@@ -397,10 +397,32 @@ async def extract_colors(
         logger.warning("Invalid file type: %s", file.content_type)
         raise HTTPException(status_code=400, detail="File must be an image")
 
+    # Security limits (match frontend validation)
+    MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
+    MAX_DIMENSION = 4096  # 4096x4096 pixels
+    MAX_PIXELS = MAX_DIMENSION * MAX_DIMENSION  # ~16.7M pixels
+
     try:
-        # Read image
+        # Read image and check file size
         contents = await file.read()
+        if len(contents) > MAX_FILE_SIZE:
+            logger.warning("File too large: %d bytes", len(contents))
+            raise HTTPException(
+                status_code=400, detail=f"File size must be less than {MAX_FILE_SIZE // 1024 // 1024}MB"
+            )
+
+        # Set PIL decompression bomb protection
+        Image.MAX_IMAGE_PIXELS = MAX_PIXELS
+
+        # Open image (will raise DecompressionBombError if too large)
         image = Image.open(BytesIO(contents))
+
+        # Additional dimension check
+        if image.width > MAX_DIMENSION or image.height > MAX_DIMENSION:
+            logger.warning("Image dimensions too large: %dx%d", image.width, image.height)
+            raise HTTPException(
+                status_code=400, detail=f"Image dimensions must be {MAX_DIMENSION}x{MAX_DIMENSION} or smaller"
+            )
 
         logger.info(
             "Extracting %d colors from image (%dx%d)", num_colors, image.width, image.height
