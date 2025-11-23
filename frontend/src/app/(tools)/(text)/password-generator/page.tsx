@@ -49,12 +49,25 @@ function generatePassword (options: PasswordOptions): string {
     return '' // All charsets became empty after filtering
   }
 
+  // If there are more charsets than the requested length, randomly choose which
+  // charsets to guarantee so we don't always drop the same ones.
+  const selectedCharsets = [...cleanCharsets]
+  if (selectedCharsets.length > options.length) {
+    const shuffleOrder = new Uint32Array(selectedCharsets.length)
+    crypto.getRandomValues(shuffleOrder)
+    for (let i = selectedCharsets.length - 1; i > 0; i--) {
+      const j = shuffleOrder[i] % (i + 1);
+      [selectedCharsets[i], selectedCharsets[j]] = [selectedCharsets[j], selectedCharsets[i]]
+    }
+    selectedCharsets.length = options.length
+  }
+
   // Combine all characters
-  const allChars = cleanCharsets.join('')
+  const allChars = selectedCharsets.join('')
 
   // Calculate exact number of random values needed
-  // For guarantee mode: min(cleanCharsets.length, options.length) picks + remaining fills + shuffle
-  const guaranteeCount = Math.min(cleanCharsets.length, options.length)
+  // For guarantee mode: min(selectedCharsets.length, options.length) picks + remaining fills + shuffle
+  const guaranteeCount = Math.min(selectedCharsets.length, options.length)
   const fillCount = options.length - guaranteeCount
   const shuffleCount = options.length
   const randomCount = guaranteeCount + fillCount + shuffleCount
@@ -67,7 +80,7 @@ function generatePassword (options: PasswordOptions): string {
 
   // Add one character from each charset (up to password length)
   for (let i = 0; i < guaranteeCount; i++) {
-    const charset = cleanCharsets[i]
+    const charset = selectedCharsets[i]
     password.push(charset[array[arrayIndex++] % charset.length])
   }
 

@@ -9,7 +9,8 @@ export type ExtractedColor = {
   percentage: number
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+// NEXT_PUBLIC_API_URL is enforced and normalized at build time in next.config.ts
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL!
 
 /**
  * バックエンドAPIを使用して画像から色を抽出
