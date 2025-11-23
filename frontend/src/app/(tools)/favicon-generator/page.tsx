@@ -22,6 +22,9 @@ import {
 } from '@/lib/image/favicon-generator'
 import { downloadBlob, loadImageFromFile, processImage } from '@/lib/image/image-processing'
 
+const ACCEPTED_IMAGE_TYPES = 'image/png, image/jpeg, image/webp, image/svg+xml, image/gif, image/avif, image/tiff, image/bmp'
+const ACCEPTED_IMAGE_TYPES_SAFARI = 'image/png, image/jpeg, image/webp, image/svg+xml, image/gif, image/tiff, image/bmp, image/heic, image/heif'
+
 export default function FaviconGeneratorPage () {
   const tool = getToolById('favicon-generator')
   const toast = useToast()
@@ -37,7 +40,14 @@ export default function FaviconGeneratorPage () {
   const [backgroundColor, setBackgroundColor] = useState('#888888')
   const [useBackground, setUseBackground] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
+  const [isSafari, setIsSafari] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Detect Safari for HEIC/HEIF support
+  useEffect(() => {
+    const isSafari = typeof window.safari !== 'undefined'
+    setIsSafari(isSafari)
+  }, [])
 
   const validateImageFileWrapper = useCallback(async (file: File): Promise<string | null> => {
     return validateImageFile(file, {
@@ -191,7 +201,7 @@ export default function FaviconGeneratorPage () {
   return (
     <FullPageDropZone
       onFileDrop={handleFileSelect}
-      accept='image/*'
+      accept={isSafari ? ACCEPTED_IMAGE_TYPES_SAFARI : ACCEPTED_IMAGE_TYPES}
     >
       {/* Breadcrumb */}
       <Breadcrumb
@@ -221,7 +231,7 @@ export default function FaviconGeneratorPage () {
               <input
                 ref={fileInputRef}
                 type='file'
-                accept='image/*'
+                accept={isSafari ? ACCEPTED_IMAGE_TYPES_SAFARI : ACCEPTED_IMAGE_TYPES}
                 onChange={handleInputChange}
                 className='hidden'
               />

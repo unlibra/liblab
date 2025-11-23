@@ -1,229 +1,52 @@
 /**
  * File validation utilities
- * File type validation using magic numbers (file signatures)
+ * Simple MIME type validation (detailed validation is done on backend)
  */
-
-export type SupportedImageType = 'png' | 'jpeg' | 'gif' | 'webp' | 'svg' | 'avif' | 'heif' | 'heic' | 'tiff' | 'bmp'
 
 export interface FileValidationResult {
   isValid: boolean
-  detectedType?: SupportedImageType
   error?: string
 }
 
 /**
- * Validate file type using magic numbers
+ * Validate file type using MIME type and file extension
  *
- * Supported formats:
- * - PNG, JPEG, GIF, WebP, SVG, AVIF, HEIF, HEIC, TIFF, BMP
+ * Note: Detailed format validation (magic numbers, corruption check, etc.)
+ * is performed on the backend. This is just a quick pre-check for UX.
+ *
+ * Some browsers don't recognize HEIC/HEIF MIME types, so we also check extensions.
  *
  * @param file - File to validate
  * @returns Validation result
  */
-export async function validateImageFileType (file: File): Promise<FileValidationResult> {
-  try {
-    // Read first 16 bytes of file (covers all formats)
-    const buffer = await file.slice(0, 16).arrayBuffer()
-    const bytes = new Uint8Array(buffer)
-
-    // Check magic number
-    const detectedType = detectImageType(bytes)
-
-    if (detectedType) {
-      return {
-        isValid: true,
-        detectedType
-      }
-    }
-
+export function validateImageFileType (file: File): FileValidationResult {
+  // Check MIME type (set by browser based on file extension/content)
+  if (file.type.startsWith('image/')) {
     return {
-      isValid: false,
-      error: 'サポートされていない画像形式です'
+      isValid: true
     }
-  } catch (err) {
+  }
+
+  // Fallback: Check file extension for formats that browsers may not recognize
+  // (HEIC/HEIF often have no MIME type or application/octet-stream)
+  const extension = file.name.split('.').pop()?.toLowerCase()
+  const supportedExtensions = ['heic', 'heif', 'avif']
+
+  if (extension && supportedExtensions.includes(extension)) {
     return {
-      isValid: false,
-      error: 'ファイルの検証中にエラーが発生しました'
-    }
-  }
-}
-
-/**
- * Detect image type from byte array
- */
-function detectImageType (bytes: Uint8Array): SupportedImageType | null {
-  // PNG: 89 50 4E 47 0D 0A 1A 0A
-  if (bytes.length >= 8 &&
-      bytes[0] === 0x89 &&
-      bytes[1] === 0x50 &&
-      bytes[2] === 0x4E &&
-      bytes[3] === 0x47 &&
-      bytes[4] === 0x0D &&
-      bytes[5] === 0x0A &&
-      bytes[6] === 0x1A &&
-      bytes[7] === 0x0A) {
-    return 'png'
-  }
-
-  // JPEG: FF D8 FF
-  if (bytes.length >= 3 &&
-      bytes[0] === 0xFF &&
-      bytes[1] === 0xD8 &&
-      bytes[2] === 0xFF) {
-    return 'jpeg'
-  }
-
-  // GIF: 47 49 46 38 (GIF8)
-  if (bytes.length >= 4 &&
-      bytes[0] === 0x47 &&
-      bytes[1] === 0x49 &&
-      bytes[2] === 0x46 &&
-      bytes[3] === 0x38) {
-    return 'gif'
-  }
-
-  // WebP: 52 49 46 46 ... 57 45 42 50 (RIFF....WEBP)
-  if (bytes.length >= 12 &&
-      bytes[0] === 0x52 &&
-      bytes[1] === 0x49 &&
-      bytes[2] === 0x46 &&
-      bytes[3] === 0x46 &&
-      bytes[8] === 0x57 &&
-      bytes[9] === 0x45 &&
-      bytes[10] === 0x42 &&
-      bytes[11] === 0x50) {
-    return 'webp'
-  }
-
-  // AVIF: ... 66 74 79 70 61 76 69 66 (....ftypavif) at offset 4
-  if (bytes.length >= 12 &&
-      bytes[4] === 0x66 &&
-      bytes[5] === 0x74 &&
-      bytes[6] === 0x79 &&
-      bytes[7] === 0x70 &&
-      bytes[8] === 0x61 &&
-      bytes[9] === 0x76 &&
-      bytes[10] === 0x69 &&
-      bytes[11] === 0x66) {
-    return 'avif'
-  }
-
-  // HEIF: ... 66 74 79 70 68 65 69 66 (....ftypheif) at offset 4
-  // HEIC: ... 66 74 79 70 68 65 69 63 (....ftypheic) at offset 4
-  if (bytes.length >= 12 &&
-      bytes[4] === 0x66 &&
-      bytes[5] === 0x74 &&
-      bytes[6] === 0x79 &&
-      bytes[7] === 0x70) {
-    if (bytes[8] === 0x68 &&
-        bytes[9] === 0x65 &&
-        bytes[10] === 0x69 &&
-        bytes[11] === 0x66) {
-      return 'heif'
-    }
-    if (bytes[8] === 0x68 &&
-        bytes[9] === 0x65 &&
-        bytes[10] === 0x69 &&
-        bytes[11] === 0x63) {
-      return 'heic'
+      isValid: true
     }
   }
 
-  // TIFF (Little Endian): 49 49 2A 00
-  if (bytes.length >= 4 &&
-      bytes[0] === 0x49 &&
-      bytes[1] === 0x49 &&
-      bytes[2] === 0x2A &&
-      bytes[3] === 0x00) {
-    return 'tiff'
+  return {
+    isValid: false,
+    error: '画像ファイルを選択してください'
   }
-
-  // TIFF (Big Endian): 4D 4D 00 2A
-  if (bytes.length >= 4 &&
-      bytes[0] === 0x4D &&
-      bytes[1] === 0x4D &&
-      bytes[2] === 0x00 &&
-      bytes[3] === 0x2A) {
-    return 'tiff'
-  }
-
-  // BMP: 42 4D (BM)
-  if (bytes.length >= 2 &&
-      bytes[0] === 0x42 &&
-      bytes[1] === 0x4D) {
-    return 'bmp'
-  }
-
-  // SVG: Text-based so check beginning
-  // Starts with < (0x3C), or UTF-8 BOM + <, allowing leading whitespace
-  let offset = 0
-
-  // Skip UTF-8 BOM if present
-  if (bytes.length >= 3 &&
-      bytes[0] === 0xEF &&
-      bytes[1] === 0xBB &&
-      bytes[2] === 0xBF) {
-    offset = 3
-  }
-
-  // Skip leading whitespace (space, tab, newline, carriage return)
-  while (offset < bytes.length) {
-    const byte = bytes[offset]
-    // 0x20 = space, 0x09 = tab, 0x0A = newline, 0x0D = carriage return
-    if (byte === 0x20 || byte === 0x09 || byte === 0x0A || byte === 0x0D) {
-      offset++
-    } else {
-      break
-    }
-  }
-
-  // Check if we found '<' after skipping whitespace
-  if (offset < bytes.length && bytes[offset] === 0x3C) {
-    return 'svg'
-  }
-
-  return null
-}
-
-/**
- * Basic file validation (size, MIME type)
- */
-export function validateFileBasic (
-  file: File,
-  options: {
-    maxSize?: number // bytes
-    allowedMimeTypes?: string[]
-  } = {}
-): string | null {
-  const { maxSize, allowedMimeTypes } = options
-
-  // ファイルサイズチェック
-  if (maxSize && file.size > maxSize) {
-    const maxSizeMB = (maxSize / (1024 * 1024)).toFixed(0)
-    return `ファイルサイズが大きすぎます（最大${maxSizeMB}MB）`
-  }
-
-  // MIME type check (first stage)
-  if (allowedMimeTypes && allowedMimeTypes.length > 0) {
-    const isAllowed = allowedMimeTypes.some(type => {
-      if (type.endsWith('/*')) {
-        const category = type.split('/')[0]
-        return file.type.startsWith(`${category}/`)
-      }
-      return file.type === type
-    })
-
-    if (!isAllowed) {
-      return '許可されていないファイル形式です'
-    }
-  }
-
-  return null
 }
 
 /**
  * Complete validation of image files
- * Basic check + magic number check
+ * MIME type check + size check + optional dimension check
  */
 export async function validateImageFile (
   file: File,
@@ -232,23 +55,21 @@ export async function validateImageFile (
     maxDimensions?: { width: number, height: number }
   } = {}
 ): Promise<string | null> {
-  // 基本的なバリデーション
-  const basicError = validateFileBasic(file, {
-    maxSize: options.maxSize,
-    allowedMimeTypes: ['image/*']
-  })
-
-  if (basicError) {
-    return basicError
-  }
-
-  // マジックナンバーチェック
-  const typeValidation = await validateImageFileType(file)
+  // MIME type check
+  const typeValidation = validateImageFileType(file)
   if (!typeValidation.isValid) {
     return typeValidation.error || 'サポートされていない画像形式です'
   }
 
+  // File size check
+  if (options.maxSize && file.size > options.maxSize) {
+    const maxSizeMB = (options.maxSize / (1024 * 1024)).toFixed(0)
+    return `ファイルサイズが大きすぎます（最大${maxSizeMB}MB）`
+  }
+
   // Image dimensions check (optional)
+  // Skip for formats that browsers don't natively support (HEIC/HEIF/AVIF)
+  // Backend will validate dimensions for these formats
   if (options.maxDimensions) {
     try {
       const dimensions = await getImageDimensions(file)
@@ -257,7 +78,7 @@ export async function validateImageFile (
         return `画像サイズが大きすぎます（最大${options.maxDimensions.width}×${options.maxDimensions.height}px）`
       }
     } catch {
-      // Error if image cannot be loaded
+      // Error if image cannot be loaded (only for formats browser should support)
       return '画像の読み込みに失敗しました'
     }
   }

@@ -75,6 +75,24 @@ export async function processImage (
   ctx.imageSmoothingEnabled = true
   ctx.imageSmoothingQuality = 'high'
 
+  // Center crop (when preserveAspectRatio = false)
+  let sx = 0; let sy = 0; let sWidth = image.width; let sHeight = image.height
+
+  if (!options.preserveAspectRatio) {
+    const srcAspect = image.width / image.height
+    const targetAspect = width / height
+
+    if (srcAspect > targetAspect) {
+      // Long horizontally → Trim the sides
+      sWidth = image.height * targetAspect
+      sx = (image.width - sWidth) / 2
+    } else if (srcAspect < targetAspect) {
+      // Long vertically → Trim the top and bottom
+      sHeight = image.width / targetAspect
+      sy = (image.height - sHeight) / 2
+    }
+  }
+
   // Apply border radius (square only)
   let radius = 0
   let isCircle = false
@@ -130,7 +148,11 @@ export async function processImage (
     }
 
     // Draw image
-    ctx.drawImage(image, 0, 0, width, height)
+    ctx.drawImage(
+      image,
+      sx, sy, sWidth, sHeight,
+      0, 0, width, height
+    )
 
     ctx.restore()
   } else {
@@ -142,7 +164,11 @@ export async function processImage (
     }
 
     // Draw image
-    ctx.drawImage(image, 0, 0, width, height)
+    ctx.drawImage(
+      image,
+      sx, sy, sWidth, sHeight,
+      0, 0, width, height
+    )
   }
 
   // Convert to PNG blob

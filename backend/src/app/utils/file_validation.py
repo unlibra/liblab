@@ -1,82 +1,62 @@
 """File validation utilities for image files."""
 
+SUPPORTED_FORMATS = ["PNG", "JPEG", "GIF", "WebP", "AVIF", "HEIF", "HEIC", "TIFF", "BMP"]
+
 
 def validate_image_magic_number(data: bytes) -> str | None:
     """
     Validate that the file is a real image by checking magic numbers.
-
-    Supported formats:
-    - PNG, JPEG, GIF, WebP, SVG, AVIF, HEIF, HEIC, TIFF, BMP
-
-    Args:
-        data: First 16+ bytes of the file
-
     Returns:
-        Error message if validation fails, None if valid
+        None if valid, otherwise an error message.
     """
+
     if len(data) < 2:
         return "File is too small to be a valid image"
 
-    # PNG: 89 50 4E 47 0D 0A 1A 0A
+    # PNG ---------------------------------------------------
     if len(data) >= 8 and data[:8] == b"\x89PNG\r\n\x1a\n":
         return None
 
-    # JPEG: FF D8 FF
-    if len(data) >= 3 and data[:3] == b"\xff\xd8\xff":
+    # JPEG (SOI = FF D8) -------------------------------------
+    if data.startswith(b"\xff\xd8"):
         return None
 
-    # GIF: 47 49 46 38 (GIF8)
+    # GIF ----------------------------------------------------
     if len(data) >= 4 and data[:4] == b"GIF8":
         return None
 
-    # WebP: RIFF....WEBP
+    # WebP (RIFF....WEBP) ------------------------------------
     if len(data) >= 12 and data[:4] == b"RIFF" and data[8:12] == b"WEBP":
         return None
 
-    # AVIF: ....ftypavif at offset 4
-    if len(data) >= 12 and data[4:12] == b"ftypavif":
-        return None
+    # AVIF / HEIF / HEIC (ISOBMFF) ---------------------------
+    if len(data) >= 12 and data[4:8] == b"ftyp":
+        brand = data[8:12]
 
-    # HEIF: ....ftypheif at offset 4
-    if len(data) >= 12 and data[4:12] == b"ftypheif":
-        return None
+        # AVIF
+        if brand == b"avif":
+            return None
 
-    # HEIC: ....ftypheic at offset 4
-    if len(data) >= 12 and data[4:12] == b"ftypheic":
-        return None
+        # HEIF / HEIC variants (including HEVC-branded)
+        heif_brands = {b"heif", b"heic", b"heix", b"hevc", b"hevx", b"heim", b"heis"}
+        if brand in heif_brands:
+            return None
 
-    # TIFF (Little Endian): 49 49 2A 00
-    if len(data) >= 4 and data[:4] == b"II*\x00":
-        return None
+        # HEIF Image Sequence (general brands)
+        if brand in {b"mif1", b"msf1"}:
+            return None
 
-    # TIFF (Big Endian): 4D 4D 00 2A
-    if len(data) >= 4 and data[:4] == b"MM\x00*":
-        return None
+    # TIFF ---------------------------------------------------
+    if len(data) >= 4:
+        if data[:4] == b"II*\x00":  # Little-endian
+            return None
+        if data[:4] == b"MM\x00*":  # Big-endian
+            return None
 
-    # BMP: 42 4D (BM)
+    # BMP ----------------------------------------------------
     if len(data) >= 2 and data[:2] == b"BM":
         return None
 
-    # SVG: Starts with <, allowing leading whitespace and UTF-8 BOM
-    offset = 0
-
-    # Skip UTF-8 BOM if present
-    if len(data) >= 3 and data[:3] == b"\xef\xbb\xbf":
-        offset = 3
-
-    # Skip leading whitespace (space, tab, newline, carriage return)
-    while offset < len(data):
-        byte = data[offset]
-        # 0x20 = space, 0x09 = tab, 0x0A = newline, 0x0D = carriage return
-        if byte in (0x20, 0x09, 0x0A, 0x0D):
-            offset += 1
-        else:
-            break
-
-    # Check if we found '<' after skipping whitespace
-    if offset < len(data) and data[offset] == ord("<"):
-        return None
-
-    # No valid magic number found
-    supported = "PNG, JPEG, GIF, WebP, SVG, AVIF, HEIF, HEIC, TIFF, or BMP"
-    return f"File is not a valid image format (expected {supported})"
+    # ----------------------------------------------------------
+    supported = ", ".join(SUPPORTED_FORMATS)
+    return f"File is not a valid image format (expected one of: {supported})"

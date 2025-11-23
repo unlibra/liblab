@@ -19,6 +19,9 @@ import type { ChekiPadding } from '@/lib/image/cheki-size'
 import { calculateChekiPadding, determineChekiSize } from '@/lib/image/cheki-size'
 import { loadImageFromFile, processImageForCheki } from '@/lib/image/image-processing'
 
+const ACCEPTED_IMAGE_TYPES = 'image/png, image/jpeg, image/webp, image/svg+xml, image/gif, image/avif, image/tiff, image/bmp'
+const ACCEPTED_IMAGE_TYPES_SAFARI = 'image/png, image/jpeg, image/webp, image/svg+xml, image/gif, image/tiff, image/bmp, image/heic, image/heif'
+
 export default function ImagePalettePage () {
   const tool = getToolById('iromide')
   const toast = useToast()
@@ -33,6 +36,13 @@ export default function ImagePalettePage () {
   const [resultRotation, setResultRotation] = useState(0)
   const [message, setMessage] = useState('')
   const [isSharing, setIsSharing] = useState(false)
+  const [isSafari, setIsSafari] = useState(false)
+
+  // Detect Safari for HEIC/HEIF support
+  useEffect(() => {
+    const isSafari = typeof window.safari !== 'undefined'
+    setIsSafari(isSafari)
+  }, [])
 
   // Fixed color count for simplicity
   const colorCount = 6
@@ -77,6 +87,7 @@ export default function ImagePalettePage () {
         chekiSize.width,
         chekiSize.height
       )
+
       const previewUrl = URL.createObjectURL(normalizedBlob)
       setImagePreview(previewUrl)
 
@@ -209,7 +220,7 @@ export default function ImagePalettePage () {
   return (
     <FullPageDropZone
       onFileDrop={handleFileSelect}
-      accept='image/*'
+      accept={isSafari ? ACCEPTED_IMAGE_TYPES_SAFARI : ACCEPTED_IMAGE_TYPES}
     >
       <CorkBoardBackground className='left-1/2 -mb-12 -mt-6 w-screen -translate-x-1/2 border-b border-gray-200 px-4 py-12 dark:border-gray-700 sm:px-6 sm:py-20 lg:px-8'>
         <div className='mx-auto flex min-h-[calc(100vh-160px)] max-w-screen-md flex-col px-4'>
@@ -259,7 +270,7 @@ export default function ImagePalettePage () {
                   </p>
                   <input
                     type='file'
-                    accept='image/*'
+                    accept={isSafari ? ACCEPTED_IMAGE_TYPES_SAFARI : ACCEPTED_IMAGE_TYPES}
                     onChange={(e) => handleFileSelect(e.target.files?.[0] ?? null)}
                     className='hidden'
                   />

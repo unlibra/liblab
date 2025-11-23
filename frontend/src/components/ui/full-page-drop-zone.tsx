@@ -4,6 +4,8 @@ import { DocumentPlusIcon } from '@heroicons/react/24/outline'
 import type { DragEvent, ReactNode } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import { useToast } from './toast'
+
 export interface FullPageDropZoneProps {
   onFileDrop: (file: File) => void
   validateFile?: (file: File) => string | null | Promise<string | null>
@@ -19,6 +21,7 @@ export function FullPageDropZone ({
 }: FullPageDropZoneProps) {
   const [isDragging, setIsDragging] = useState(false)
   const dragCounterRef = useRef(0)
+  const toast = useToast()
 
   const handleDragEnter = useCallback((e: globalThis.DragEvent) => {
     e.preventDefault()
@@ -70,6 +73,7 @@ export function FullPageDropZone ({
 
     // Validate file type if accept prop is provided
     if (accept && !isFileTypeAccepted(file, accept)) {
+      toast.error('対応していないファイル形式です。')
       return
     }
 
@@ -78,17 +82,19 @@ export function FullPageDropZone ({
       try {
         const error = await validateFile(file)
         if (error) {
+          toast.error(error)
           return
         }
       } catch (err) {
         // Validator threw an error - treat as validation failure
         console.error('File validation error:', err)
+        toast.error('ファイルの検証中にエラーが発生しました。')
         return
       }
     }
 
     onFileDrop(file)
-  }, [accept, validateFile, onFileDrop])
+  }, [accept, validateFile, onFileDrop, toast])
 
   return (
     <div onDrop={handleDropOnDiv} className='relative'>
