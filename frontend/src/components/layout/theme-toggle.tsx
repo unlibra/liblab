@@ -25,7 +25,7 @@ function ThemePopoverContent ({
         className='flex items-center justify-center rounded-full p-2 outline-none transition-colors hover:bg-gray-100 focus-visible:bg-gray-100 dark:hover:bg-atom-one-dark-lighter focus-visible:dark:bg-atom-one-dark-lighter'
         aria-label='Toggle theme'
       >
-        {isLight ? <SunIcon className='size-6' /> : <MoonIcon className='size-6' />}
+        {isLight ? <SunIcon className='size-5' /> : <MoonIcon className='size-5' />}
       </PopoverButton>
       <Transition
         enter='transition duration-100 ease-out'
