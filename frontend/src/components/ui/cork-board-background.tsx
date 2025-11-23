@@ -8,7 +8,7 @@ type CorkBoardBackgroundProps = {
 export const CorkBoardBackground = forwardRef<HTMLDivElement, CorkBoardBackgroundProps>(
   function CorkBoardBackground ({ children, className = '' }, ref) {
     return (
-      <div ref={ref} className={`relative bg-stone-50 dark:bg-atom-one-dark ${className}`}>
+      <div ref={ref} className={`relative bg-stone-100 dark:bg-atom-one-dark ${className}`}>
         {/* Noise texture overlay */}
         <div
           className='pointer-events-none absolute inset-0 opacity-5'

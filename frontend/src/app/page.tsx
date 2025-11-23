@@ -9,7 +9,7 @@ export default function Home () {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: siteConfig.name,
-    description: siteConfig.description,
+    description: siteConfig.description.replace(/\r?\n/g, ''),
     url: siteConfig.url
   }
 
@@ -29,8 +29,8 @@ export default function Home () {
         <h1 className='mb-6 font-[Outfit] text-4xl font-semibold'>
           {siteConfig.name}
         </h1>
-        <p className='whitespace-pre-line break-keep font-medium text-gray-600 dark:text-gray-400'>
-          {siteConfig.description.replaceAll('。', '。\n')}
+        <p className='whitespace-pre-line font-medium text-gray-600 dark:text-gray-400'>
+          {siteConfig.description}
         </p>
       </div>
 
