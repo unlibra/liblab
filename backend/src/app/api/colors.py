@@ -16,6 +16,74 @@ from app.schemas.colors import ColorExtractionResponse, ExtractedColor
 router = APIRouter()
 logger = get_logger(__name__)
 
+def validate_image_magic_number(data: bytes) -> str | None:
+    """
+    Validate that the file is a real image by checking magic numbers.
+
+    Supported formats:
+    - PNG, JPEG, GIF, WebP, SVG, AVIF, HEIF, HEIC, TIFF, BMP
+
+    Args:
+        data: First 16+ bytes of the file
+
+    Returns:
+        Error message if validation fails, None if valid
+    """
+    if len(data) < 2:
+        return "File is too small to be a valid image"
+
+    # PNG: 89 50 4E 47 0D 0A 1A 0A
+    if len(data) >= 8 and data[:8] == b"\x89PNG\r\n\x1a\n":
+        return None
+
+    # JPEG: FF D8 FF
+    if len(data) >= 3 and data[:3] == b"\xff\xd8\xff":
+        return None
+
+    # GIF: 47 49 46 38 (GIF8)
+    if len(data) >= 4 and data[:4] == b"GIF8":
+        return None
+
+    # WebP: RIFF....WEBP
+    if len(data) >= 12 and data[:4] == b"RIFF" and data[8:12] == b"WEBP":
+        return None
+
+    # AVIF: ....ftypavif at offset 4
+    if len(data) >= 12 and data[4:12] == b"ftypavif":
+        return None
+
+    # HEIF: ....ftypheif at offset 4
+    if len(data) >= 12 and data[4:12] == b"ftypheif":
+        return None
+
+    # HEIC: ....ftypheic at offset 4
+    if len(data) >= 12 and data[4:12] == b"ftypheic":
+        return None
+
+    # TIFF (Little Endian): 49 49 2A 00
+    if len(data) >= 4 and data[:4] == b"II*\x00":
+        return None
+
+    # TIFF (Big Endian): 4D 4D 00 2A
+    if len(data) >= 4 and data[:4] == b"MM\x00*":
+        return None
+
+    # BMP: 42 4D (BM)
+    if len(data) >= 2 and data[:2] == b"BM":
+        return None
+
+    # SVG: Starts with < or UTF-8 BOM + <
+    if data[0:1] == b"<":
+        return None
+
+    # UTF-8 BOM (EF BB BF) followed by <
+    if len(data) >= 4 and data[:4] == b"\xef\xbb\xbf<":
+        return None
+
+    # No valid magic number found
+    supported = "PNG, JPEG, GIF, WebP, SVG, AVIF, HEIF, HEIC, TIFF, or BMP"
+    return f"File is not a valid image format (expected {supported})"
+
 
 def srgb_to_linear(rgb: NDArray[np.float64]) -> NDArray[np.float64]:
     """Convert sRGB to linear RGB."""
@@ -415,6 +483,7 @@ async def extract_colors(
         contents = bytearray()
         chunk_size = 1024 * 1024  # 1MB chunks
         total_size = 0
+        first_chunk = True
 
         while chunk := await file.read(chunk_size):
             total_size += len(chunk)
@@ -422,9 +491,17 @@ async def extract_colors(
                 logger.warning("File too large: %d bytes (limit: %d)", total_size, MAX_FILE_SIZE)
                 raise HTTPException(
                     status_code=400,
-                    detail=f"File size must be less than {MAX_FILE_SIZE // 1024 // 1024}MB"
+                    detail=f"File size must be less than {MAX_FILE_SIZE // 1024 // 1024}MB",
                 )
             contents.extend(chunk)
+
+            # Validate magic number on first chunk
+            if first_chunk:
+                error = validate_image_magic_number(bytes(contents))
+                if error:
+                    logger.warning("Magic number validation failed: %s", error)
+                    raise HTTPException(status_code=400, detail=error)
+                first_chunk = False
 
         # Set PIL decompression bomb protection
         Image.MAX_IMAGE_PIXELS = MAX_PIXELS
