@@ -36,6 +36,7 @@ export default function ImagePalettePage () {
   const [wafflePreview, setWafflePreview] = useState<string | null>(null)
   const [resultRotation, setResultRotation] = useState(0)
   const [message, setMessage] = useState('')
+  const [isSharing, setIsSharing] = useState(false)
 
   // Fixed color count for simplicity
   const colorCount = 6
@@ -158,6 +159,7 @@ export default function ImagePalettePage () {
       return
     }
 
+    setIsSharing(true)
     try {
       // Wait for images to load
       const images = shareTargetRef.current.querySelectorAll('img')
@@ -214,6 +216,8 @@ export default function ImagePalettePage () {
     } catch (err) {
       toast.error('画像の生成に失敗しました')
       console.error('Image capture failed:', err)
+    } finally {
+      setIsSharing(false)
     }
   }, [toast, message, tool])
 
@@ -349,7 +353,7 @@ export default function ImagePalettePage () {
                             {message && (
                               <div className='absolute left-1/2 top-1/2 w-full -translate-x-1/2 p-1'>
                                 <p
-                                  className='line-clamp-1 text-center font-medium text-gray-800 antialiased' style={{
+                                  className='line-clamp-1 text-center font-medium text-gray-700 antialiased' style={{
                                     fontSize: chekiPadding ? `${Math.round(chekiPadding.bottom * 0.25)}px` : '24px'
                                   }}
                                 >
@@ -396,7 +400,7 @@ export default function ImagePalettePage () {
                         {message && (
                           <div className='absolute left-1/2 top-1/2 w-full -translate-x-1/2 p-1'>
                             <p
-                              className='line-clamp-1 text-center font-medium text-gray-800 antialiased' style={{
+                              className='line-clamp-1 text-center font-medium text-gray-700 antialiased' style={{
                                 fontSize: thumbnailPadding ? `${Math.round(thumbnailPadding.bottom * 0.25)}px` : '24px'
                               }}
                             >
@@ -423,13 +427,15 @@ export default function ImagePalettePage () {
                   <div className='flex flex-col items-center gap-8'>
                     <button
                       onClick={handleSharePalette}
-                      className='rounded-full bg-sky-500 px-6 py-3 font-medium text-white transition-colors hover:bg-sky-600'
+                      disabled={isSharing}
+                      className='flex w-40 items-center justify-center gap-2 rounded-full bg-sky-500 py-3 font-medium text-white transition-colors hover:bg-sky-600 disabled:opacity-50'
                     >
-                      シェアする
+                      {isSharing && <Spinner className='size-5' />}
+                      {isSharing ? '発行中...' : 'シェアする'}
                     </button>
                     <button
                       onClick={handleReset}
-                      className='rounded-lg bg-stone-200 px-6 py-3 font-medium text-gray-600 transition-colors hover:bg-stone-300 dark:bg-atom-one-dark-light dark:text-gray-400 dark:hover:bg-atom-one-dark-lighter'
+                      className='w-40 rounded-lg bg-stone-200 py-3 font-medium text-gray-600 transition-colors hover:bg-stone-300 dark:bg-atom-one-dark-light dark:text-gray-400 dark:hover:bg-atom-one-dark-lighter'
                     >
                       別の画像で試す
                     </button>
