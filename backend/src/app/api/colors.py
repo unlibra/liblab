@@ -503,19 +503,31 @@ async def extract_colors(
                     raise HTTPException(status_code=400, detail=error)
                 first_chunk = False
 
-        # Set PIL decompression bomb protection
-        Image.MAX_IMAGE_PIXELS = MAX_PIXELS
+        # Decode and validate image in threadpool to avoid blocking event loop
+        # (Pillow decode is CPU-heavy for multi-MB images)
+        def decode_and_validate_image(
+            image_data: bytes, max_pixels: int, max_dimension: int
+        ) -> Image.Image:
+            """Decode and validate image (runs in threadpool)."""
+            # Set PIL decompression bomb protection
+            Image.MAX_IMAGE_PIXELS = max_pixels
 
-        # Open image (will raise DecompressionBombError if too large)
-        image = Image.open(BytesIO(contents))
+            # Open image (will raise DecompressionBombError if too large)
+            img = Image.open(BytesIO(image_data))
 
-        # Additional dimension check
-        if image.width > MAX_DIMENSION or image.height > MAX_DIMENSION:
-            logger.warning("Image dimensions too large: %dx%d", image.width, image.height)
-            raise HTTPException(
-                status_code=400,
-                detail=f"Image dimensions must be {MAX_DIMENSION}x{MAX_DIMENSION} or smaller",
-            )
+            # Additional dimension check
+            if img.width > max_dimension or img.height > max_dimension:
+                logger.warning("Image dimensions too large: %dx%d", img.width, img.height)
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Image dimensions must be {max_dimension}x{max_dimension} or smaller",
+                )
+
+            return img
+
+        image = await run_in_threadpool(
+            decode_and_validate_image, bytes(contents), MAX_PIXELS, MAX_DIMENSION
+        )
 
         logger.info(
             "Extracting %d colors from image (%dx%d)", num_colors, image.width, image.height

@@ -1,6 +1,7 @@
 """Rate limiting middleware using Upstash Redis."""
 
 import time
+import uuid
 from collections.abc import Awaitable, Callable
 from typing import Any
 
@@ -159,26 +160,64 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             # Create unique key for this client + path
             key = f"ratelimit:{client_ip}:{path}"
 
-            # Remove old entries outside the window
-            self.redis.zremrangebyscore(key, 0, window_start)
+            # Lua script for atomic rate limit check
+            # Returns: {allowed (0/1), retry_after, oldest_timestamp}
+            lua_script = """
+            local key = KEYS[1]
+            local current_time = tonumber(ARGV[1])
+            local window_start = tonumber(ARGV[2])
+            local limit = tonumber(ARGV[3])
+            local window = tonumber(ARGV[4])
+            local member = ARGV[5]
 
-            # Count requests in current window
-            request_count: int = self.redis.zcard(key)
+            -- Remove old entries outside the window
+            redis.call('ZREMRANGEBYSCORE', key, 0, window_start)
 
-            if request_count >= limit:
-                # Get oldest request timestamp to calculate retry time
-                oldest: Any = self.redis.zrange(key, 0, 0, withscores=True)
-                if oldest:
-                    oldest_timestamp = int(oldest[0][1])
-                    retry_after = max(1, oldest_timestamp + window - current_time)
-                    return False, retry_after
-                return False, window
+            -- Count requests in current window
+            local request_count = redis.call('ZCARD', key)
 
-            # Add current request
-            self.redis.zadd(key, {str(current_time): current_time})
+            if request_count >= limit then
+                -- Get oldest request timestamp to calculate retry time
+                local oldest = redis.call('ZRANGE', key, 0, 0, 'WITHSCORES')
+                if #oldest > 0 then
+                    return {0, oldest[2]}
+                end
+                return {0, -1}
+            end
 
-            # Set expiry on the key (cleanup)
-            self.redis.expire(key, window)
+            -- Add current request with unique member (timestamp:uuid)
+            redis.call('ZADD', key, current_time, member)
+
+            -- Set expiry on the key (cleanup)
+            redis.call('EXPIRE', key, window)
+
+            return {1, 0}
+            """
+
+            # Generate unique member to avoid collisions in same second
+            unique_member = f"{current_time}:{uuid.uuid4()}"
+
+            # Execute Lua script atomically
+            result: Any = self.redis.eval(
+                lua_script,
+                keys=[key],
+                args=[
+                    str(current_time),
+                    str(window_start),
+                    str(limit),
+                    str(window),
+                    unique_member,
+                ],
+            )
+
+            allowed = bool(result[0])
+            if not allowed:
+                oldest_timestamp = result[1]
+                if oldest_timestamp != -1:
+                    retry_after = max(1, int(oldest_timestamp) + window - current_time)
+                else:
+                    retry_after = window
+                return False, retry_after
 
             return True, 0
 
