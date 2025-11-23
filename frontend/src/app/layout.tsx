@@ -3,7 +3,7 @@ import './globals.css'
 import { GoogleAnalytics } from '@next/third-parties/google'
 import type { Metadata } from 'next'
 // eslint-disable-next-line camelcase
-import { IBM_Plex_Sans_JP, Roboto_Flex, Roboto_Mono, Zen_Maru_Gothic } from 'next/font/google'
+import { IBM_Plex_Sans_JP, Outfit, Roboto_Flex, Roboto_Mono, Zen_Maru_Gothic } from 'next/font/google'
 import type { ReactNode } from 'react'
 
 import { Footer } from '@/components/footer'
@@ -35,6 +35,13 @@ const fontZenMaru = Zen_Maru_Gothic({
   variable: '--font-zen-maru',
   display: 'swap',
   preload: false
+})
+
+const fontOutfit = Outfit({
+  weight: '600',
+  subsets: ['latin'],
+  variable: '--font-logo',
+  display: 'swap'
 })
 
 export const metadata: Metadata = {
@@ -86,7 +93,7 @@ export default function RootLayout ({
   const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
 
   return (
-    <html lang='ja' className={`${fontASCII.variable} ${fontJP.variable} ${fontMono.variable} ${fontZenMaru.variable}`} suppressHydrationWarning>
+    <html lang='ja' className={`${fontASCII.variable} ${fontJP.variable} ${fontMono.variable} ${fontZenMaru.variable} ${fontOutfit.variable}`} suppressHydrationWarning>
       <body className='bg-white text-gray-700 antialiased dark:bg-atom-one-dark dark:text-gray-300'>
         <Providers>
           <div className='flex min-h-screen flex-col overflow-x-hidden'>

@@ -10,7 +10,8 @@ const config: Config = {
     extend: {
       fontFamily: {
         sans: ['var(--font-ascii)', 'var(--font-jp)', 'sans-serif'],
-        mono: ['var(--font-mono)', 'monospace']
+        mono: ['var(--font-mono)', 'monospace'],
+        logo: ['var(--font-logo)', 'sans-serif']
       },
       colors: {
         'atom-one-dark': {

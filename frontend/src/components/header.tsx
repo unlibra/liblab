@@ -83,7 +83,7 @@ export function Header () {
         {/* Logo */}
         <Link href='/' className='flex items-center gap-2 outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sky-500'>
           <LogoIcon className='size-6' />
-          <h1 className='font-[Outfit] text-xl font-semibold'>{siteConfig.name}</h1>
+          <h1 className='font-logo text-xl font-semibold'>{siteConfig.name}</h1>
         </Link>
 
         {/* Desktop Navigation */}
@@ -132,7 +132,7 @@ export function Header () {
             >
               <DialogPanel className='fixed inset-y-0 left-0 w-[85vw] max-w-sm overflow-y-auto bg-white px-4 py-4 shadow-xl dark:bg-atom-one-dark-light'>
                 <div className='flex items-center justify-between'>
-                  <Link href='/' className='flex items-center gap-2 font-[Outfit] text-xl font-semibold' onClick={handleCloseMobileMenu}>
+                  <Link href='/' className='flex items-center gap-2 font-logo text-xl font-semibold' onClick={handleCloseMobileMenu}>
                     <LogoIcon className='size-6' />
                     {siteConfig.name}
                   </Link>

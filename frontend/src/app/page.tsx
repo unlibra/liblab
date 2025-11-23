@@ -26,7 +26,7 @@ export default function Home () {
         <div className='mb-4 flex justify-center'>
           <LogoIcon className='size-16' />
         </div>
-        <h1 className='mb-6 font-[Outfit] text-4xl font-semibold'>
+        <h1 className='mb-6 font-logo text-4xl font-semibold'>
           {siteConfig.name}
         </h1>
         <p className='whitespace-pre-line font-medium text-gray-600 dark:text-gray-400'>

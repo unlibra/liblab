@@ -18,7 +18,7 @@ export function Footer () {
           <div>
             <Link href='/' className='inline-flex items-center gap-2 transition-all hover:underline'>
               <LogoIcon className='size-6' />
-              <span className='font-[Outfit] text-xl font-semibold'>{siteConfig.name}</span>
+              <span className='font-logo text-xl font-semibold'>{siteConfig.name}</span>
             </Link>
             <p className='mt-3 whitespace-pre-line text-sm text-gray-600 dark:text-gray-400'>
               {siteConfig.description}
