@@ -5,10 +5,10 @@ import { Bars3Icon, ChevronDownIcon, XMarkIcon } from '@heroicons/react/24/outli
 import Link from 'next/link'
 import { useCallback, useRef, useState } from 'react'
 
+import { LogoIcon } from '@/components/icons/logo-icon'
 import { siteConfig } from '@/config/site'
 import { categories } from '@/config/tools'
 
-import { LogoIcon } from './icons/logo-icon'
 import { ThemeToggle } from './theme-toggle'
 
 function CategoryPopover ({ category }: { category: typeof categories[number] }) {

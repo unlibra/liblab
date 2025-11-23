@@ -6,6 +6,7 @@ import { PhotoIcon, PlusIcon, ShieldCheckIcon } from '@heroicons/react/24/outlin
 import type { ChangeEvent } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import { FaviconOptionsPanel } from '@/components/favicon-generator/favicon-options-panel'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { FullPageDropZone } from '@/components/ui/full-page-drop-zone'
 import { useToast } from '@/components/ui/toast'
@@ -20,8 +21,6 @@ import {
   OUTPUT_SETS
 } from '@/lib/image/favicon-generator'
 import { downloadBlob, loadImageFromFile, processImage } from '@/lib/image/image-processing'
-
-import { FaviconOptionsPanel } from './favicon-options-panel'
 
 export default function FaviconGeneratorPage () {
   const tool = getToolById('favicon-generator')

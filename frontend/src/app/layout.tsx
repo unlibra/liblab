@@ -6,8 +6,8 @@ import type { Metadata } from 'next'
 import { IBM_Plex_Sans_JP, Outfit, Roboto_Flex, Roboto_Mono, Zen_Maru_Gothic } from 'next/font/google'
 import type { ReactNode } from 'react'
 
-import { Footer } from '@/components/footer'
-import { Header } from '@/components/header'
+import { Footer } from '@/components/layout/footer'
+import { Header } from '@/components/layout/header'
 import { siteConfig } from '@/config/site'
 import { Providers } from '@/lib/providers'
 

@@ -7,14 +7,13 @@ import type { ChangeEvent } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { CheckerboardPreview } from '@/components/checkerboard-preview'
+import { SvgOptionsPanel } from '@/components/svg-optimizer/svg-options-panel'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { FullPageDropZone } from '@/components/ui/full-page-drop-zone'
 import { useToast } from '@/components/ui/toast'
 import { getToolById } from '@/config/tools'
 import type { PresetId, SvgoOptions } from '@/lib/image/svgo-optimizer'
 import { DEFAULT_SVGO_OPTIONS, optimizeSvg, PRESETS } from '@/lib/image/svgo-optimizer'
-
-import { SvgOptionsPanel } from './svg-options-panel'
 
 export default function SvgOptimizerPage () {
   const tool = getToolById('svg-optimizer')

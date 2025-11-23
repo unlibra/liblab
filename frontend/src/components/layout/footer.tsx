@@ -1,9 +1,8 @@
 import Link from 'next/link'
 
+import { LogoIcon } from '@/components/icons/logo-icon'
 import { siteConfig } from '@/config/site'
 import { categories } from '@/config/tools'
-
-import { LogoIcon } from './icons/logo-icon'
 
 export function Footer () {
   const githubRepoUrl = siteConfig.links.github

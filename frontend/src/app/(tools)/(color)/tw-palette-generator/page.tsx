@@ -4,10 +4,10 @@ import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/re
 import { ChevronDownIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline'
 import { useCallback, useEffect, useState } from 'react'
 
+import { HueSlider } from '@/components/tw-palette-generator/hue-slider'
+import { LightnessSlider } from '@/components/tw-palette-generator/lightness-slider'
+import { SaturationSlider } from '@/components/tw-palette-generator/saturation-slider'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
-import { HueSlider } from '@/components/ui/hue-slider'
-import { LightnessSlider } from '@/components/ui/lightness-slider'
-import { SaturationSlider } from '@/components/ui/saturation-slider'
 import { useToast } from '@/components/ui/toast'
 import { getToolById } from '@/config/tools'
 import { useColorHistory } from '@/contexts/color-history-context'
