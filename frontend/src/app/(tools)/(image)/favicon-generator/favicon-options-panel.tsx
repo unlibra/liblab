@@ -176,25 +176,25 @@ export function FaviconOptionsPanel ({
               背景色を追加する
             </label>
           </div>
-          {useBackground && (
-            <div className='flex items-center gap-3'>
-              <input
-                type='color'
-                value={backgroundColor}
-                onChange={(e) => onBackgroundColorChange(e.target.value)}
-                className='h-10 w-20 cursor-pointer bg-transparent outline-none focus-visible:ring-2 focus-visible:ring-sky-500'
-                aria-label='背景色を選択'
-              />
-              <input
-                type='text'
-                value={backgroundColor}
-                onChange={(e) => onBackgroundColorChange(e.target.value)}
-                placeholder='#ffffff'
-                className='flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none transition-colors focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-gray-600 dark:bg-atom-one-dark-light'
-                aria-label='背景色のカラーコード'
-              />
-            </div>
-          )}
+          <div className='flex items-center gap-3'>
+            <input
+              type='color'
+              value={backgroundColor}
+              onChange={(e) => onBackgroundColorChange(e.target.value)}
+              disabled={!useBackground}
+              className='h-10 w-20 cursor-pointer rounded bg-transparent outline-none transition-opacity focus-visible:ring-2 focus-visible:ring-sky-500 disabled:cursor-default disabled:opacity-20'
+              aria-label='背景色を選択'
+            />
+            <input
+              type='text'
+              value={backgroundColor}
+              onChange={(e) => onBackgroundColorChange(e.target.value)}
+              disabled={!useBackground}
+              placeholder='#000000'
+              className='flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 outline-none transition-colors focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-sky-500 disabled:opacity-40 dark:border-gray-600 dark:bg-atom-one-dark-light'
+              aria-label='背景色のカラーコード'
+            />
+          </div>
         </div>
       </div>
     </div>

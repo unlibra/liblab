@@ -160,8 +160,8 @@ export default function PasswordGeneratorPage () {
       <div className='mx-auto max-w-screen-sm'>
         <div className='mb-8 space-y-4'>
           <h1 className='text-2xl font-semibold'>{tool?.name ?? 'パスワードジェネレーター'}</h1>
-          <p className='break-keep text-gray-600 dark:text-gray-400'>
-            {tool?.description ?? 'シンプルなパスワードジェネレーター'}
+          <p className='whitespace-pre-line text-gray-600 dark:text-gray-400'>
+            {tool?.description ?? ''}
           </p>
         </div>
 

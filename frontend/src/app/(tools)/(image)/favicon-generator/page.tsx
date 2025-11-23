@@ -35,7 +35,7 @@ export default function FaviconGeneratorPage () {
     new Set(DEFAULT_SIZES)
   )
   const [borderRadius, setBorderRadius] = useState(0)
-  const [backgroundColor, setBackgroundColor] = useState('#ffffff')
+  const [backgroundColor, setBackgroundColor] = useState('#888888')
   const [useBackground, setUseBackground] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -205,7 +205,7 @@ export default function FaviconGeneratorPage () {
       <div className='mx-auto max-w-screen-lg'>
         <div className='mb-8 space-y-4'>
           <h1 className='text-2xl font-semibold'>{tool?.name ?? 'Faviconジェネレーター'}</h1>
-          <p className='break-keep text-gray-600 dark:text-gray-400'>
+          <p className='whitespace-pre-line text-gray-600 dark:text-gray-400'>
             {tool?.description ?? ''}
           </p>
         </div>

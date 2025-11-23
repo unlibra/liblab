@@ -43,7 +43,7 @@ function CategoryPopover ({ category }: { category: typeof categories[number] })
               >
                 <div className='space-y-0.5'>
                   <span className='text-sm font-medium'>{tool.name}</span>
-                  <span className='line-clamp-2 break-keep text-xs text-gray-500'>
+                  <span className='line-clamp-2 text-xs text-gray-500'>
                     {tool.shortDescription || tool.description}
                   </span>
                 </div>
@@ -77,7 +77,7 @@ export function Header () {
           onClick={handleOpenMobileMenu}
           aria-label='Open menu'
         >
-          <Bars3Icon className='size-5' />
+          <Bars3Icon className='size-6' />
         </button>
 
         {/* Logo */}
@@ -142,7 +142,7 @@ export function Header () {
                     onClick={handleCloseMobileMenu}
                     aria-label='Close menu'
                   >
-                    <XMarkIcon className='size-5' />
+                    <XMarkIcon className='size-6' />
                   </button>
                 </div>
                 <div className='mt-6 flow-root'>

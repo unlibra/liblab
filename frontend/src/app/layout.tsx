@@ -39,7 +39,7 @@ const fontZenMaru = Zen_Maru_Gothic({
 
 export const metadata: Metadata = {
   title: siteConfig.title,
-  description: siteConfig.description,
+  description: siteConfig.description.replace(/\r?\n/g, ''),
   metadataBase: new URL(siteConfig.url),
   alternates: {
     canonical: '/'
@@ -49,13 +49,13 @@ export const metadata: Metadata = {
     locale: siteConfig.locale,
     url: '/',
     title: siteConfig.title.default,
-    description: siteConfig.description,
+    description: siteConfig.description.replace(/\r?\n/g, ''),
     siteName: siteConfig.name
   },
   twitter: {
     card: 'summary_large_image',
     title: siteConfig.title.default,
-    description: siteConfig.description
+    description: siteConfig.description.replace(/\r?\n/g, '')
   },
   robots: {
     index: true,
