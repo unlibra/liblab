@@ -16,14 +16,7 @@ function ThemePopoverContent ({
   systemTheme: string | undefined
   handleThemeChange: (newTheme: string) => void
 }) {
-  const [open, setOpen] = useState(false)
   const buttonRef = useRef<HTMLButtonElement>(null)
-
-  useEffect(() => {
-    if (!open && buttonRef.current) {
-      buttonRef.current.blur()
-    }
-  }, [open])
 
   return (
     <>
@@ -31,12 +24,10 @@ function ThemePopoverContent ({
         ref={buttonRef}
         className='flex items-center justify-center rounded-full p-2 outline-none transition-colors hover:bg-gray-100 focus-visible:bg-gray-100 dark:hover:bg-atom-one-dark-lighter focus-visible:dark:bg-atom-one-dark-lighter'
         aria-label='Toggle theme'
-        onClick={() => setOpen(!open)}
       >
-        {isLight ? <SunIcon className='size-5' /> : <MoonIcon className='size-5' />}
+        {isLight ? <SunIcon className='size-6' /> : <MoonIcon className='size-6' />}
       </PopoverButton>
       <Transition
-        show={open}
         enter='transition duration-100 ease-out'
         enterFrom='transform scale-95 opacity-0'
         enterTo='transform scale-100 opacity-100'
@@ -47,10 +38,8 @@ function ThemePopoverContent ({
         <PopoverPanel className='absolute right-0 z-50 mt-2'>
           <div className='w-32 overflow-hidden rounded-lg border border-gray-200 bg-white p-1 shadow-lg dark:border-gray-700 dark:bg-atom-one-dark-light'>
             <CloseButton
-              as='button'
               onClick={() => {
                 handleThemeChange('light')
-                setOpen(false)
               }}
               className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm outline-none transition-colors ${theme === 'light' ? 'bg-sky-50 dark:bg-atom-one-dark-lighter' : 'hover:bg-gray-100 focus-visible:bg-gray-100 dark:hover:bg-atom-one-dark-lighter focus-visible:dark:bg-atom-one-dark-lighter'}`}
             >
@@ -58,10 +47,8 @@ function ThemePopoverContent ({
               ライト
             </CloseButton>
             <CloseButton
-              as='button'
               onClick={() => {
                 handleThemeChange('dark')
-                setOpen(false)
               }}
               className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm outline-none transition-colors ${theme === 'dark' ? 'bg-sky-50 dark:bg-atom-one-dark-lighter' : 'hover:bg-gray-100 focus-visible:bg-gray-100 dark:hover:bg-atom-one-dark-lighter focus-visible:dark:bg-atom-one-dark-lighter'}`}
             >
@@ -69,10 +56,8 @@ function ThemePopoverContent ({
               ダーク
             </CloseButton>
             <CloseButton
-              as='button'
               onClick={() => {
                 handleThemeChange('system')
-                setOpen(false)
               }}
               className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm outline-none transition-colors ${theme === 'system' ? 'bg-sky-50 dark:bg-atom-one-dark-lighter' : 'hover:bg-gray-100 focus-visible:bg-gray-100 dark:hover:bg-atom-one-dark-lighter focus-visible:dark:bg-atom-one-dark-lighter'}`}
             >

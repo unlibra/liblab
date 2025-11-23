@@ -31,7 +31,7 @@ export function ToolCard ({ tool, iconBgColor }: ToolCardProps) {
 
       {/* Description */}
       <p className='text-sm text-gray-600 dark:text-gray-400'>
-        {tool.description}
+        {tool.description.replace(/\r?\n/g, '')}
       </p>
     </Link>
   )

@@ -9,7 +9,7 @@ const tool = getToolById('svg-optimizer')
 export const metadata: Metadata = tool
   ? {
       title: tool.name,
-      description: tool.description,
+      description: tool.description.replace(/\r?\n/g, ''),
       alternates: {
         canonical: `/${tool.id}`
       },
@@ -17,13 +17,13 @@ export const metadata: Metadata = tool
         type: 'website',
         url: `/${tool.id}`,
         title: `${tool.name} - ${siteConfig.name}`,
-        description: tool.description,
+        description: tool.description.replace(/\r?\n/g, ''),
         siteName: siteConfig.name
       },
       twitter: {
         card: 'summary',
         title: `${tool.name} - ${siteConfig.name}`,
-        description: tool.description
+        description: tool.description.replace(/\r?\n/g, '')
       }
     }
   : {}

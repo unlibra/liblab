@@ -217,7 +217,7 @@ export default function TailwindPaletteGeneratorPage () {
       <div className='mx-auto max-w-screen-sm lg:max-w-screen-xl'>
         <div className='mb-8 space-y-4'>
           <h1 className='text-2xl font-semibold'>{tool?.name ?? 'TWパレットジェネレーター'}</h1>
-          <p className='break-keep text-gray-600 dark:text-gray-400'>
+          <p className='whitespace-pre-line text-gray-600 dark:text-gray-400'>
             {tool?.description ?? ''}
           </p>
         </div>
@@ -234,7 +234,7 @@ export default function TailwindPaletteGeneratorPage () {
                   type='color'
                   value={normalizedInputColor}
                   onChange={handleInputChange}
-                  className='h-10 w-20 cursor-pointer bg-transparent outline-none focus-visible:ring-2 focus-visible:ring-sky-500'
+                  className='h-10 w-20 cursor-pointer rounded bg-transparent outline-none focus-visible:ring-2 focus-visible:ring-sky-500'
                   aria-label='色を選択'
                 />
                 <input
@@ -242,7 +242,7 @@ export default function TailwindPaletteGeneratorPage () {
                   value={inputColor}
                   onChange={handleInputChange}
                   placeholder='#3b82f6'
-                  className='flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none transition-colors focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-gray-600 dark:bg-atom-one-dark-light'
+                  className='flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 outline-none transition-colors focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-gray-600 dark:bg-atom-one-dark-light'
                   aria-label='カラーコード'
                 />
               </div>
