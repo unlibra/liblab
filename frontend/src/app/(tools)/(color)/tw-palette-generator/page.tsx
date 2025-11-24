@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowPathIcon, BookmarkIcon, ClipboardDocumentIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { ArrowPathIcon, ClipboardDocumentIcon, PlusIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useCallback, useEffect, useState } from 'react'
 
 import { HueSlider } from '@/components/tw-palette-generator/hue-slider'
@@ -387,7 +387,7 @@ export default function TailwindPaletteGeneratorPage () {
                   title='ヒストリーに保存'
                   aria-label='ヒストリーに保存'
                 >
-                  <BookmarkIcon className='size-5' />
+                  <PlusIcon className='size-5' />
                 </button>
               </div>
 
