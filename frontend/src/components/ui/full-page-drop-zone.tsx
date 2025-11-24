@@ -4,9 +4,11 @@ import { DocumentPlusIcon } from '@heroicons/react/24/outline'
 import type { DragEvent, ReactNode } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import { useToast } from './toast'
+
 export interface FullPageDropZoneProps {
   onFileDrop: (file: File) => void
-  validateFile?: (file: File) => string | null
+  validateFile?: (file: File) => string | null | Promise<string | null>
   accept?: string // e.g., "image/*"
   children: ReactNode
 }
@@ -19,8 +21,22 @@ export function FullPageDropZone ({
 }: FullPageDropZoneProps) {
   const [isDragging, setIsDragging] = useState(false)
   const dragCounterRef = useRef(0)
+  const toast = useToast()
 
-  const handleDragEnter = useCallback(() => {
+  const handleDragEnter = useCallback((e: globalThis.DragEvent) => {
+    e.preventDefault()
+
+    // Ignore drag events from interactive elements (sliders, inputs, etc.)
+    const target = e.target as HTMLElement
+    if (target.tagName === 'INPUT' || target.closest('input[type="range"]')) {
+      return
+    }
+
+    // Check if dragged content includes files
+    if (!e.dataTransfer?.types.includes('Files')) {
+      return
+    }
+
     dragCounterRef.current++
     setIsDragging(true)
   }, [])
@@ -32,7 +48,8 @@ export function FullPageDropZone ({
     }
   }, [])
 
-  const handleDrop = useCallback(() => {
+  const handleDrop = useCallback((e: globalThis.DragEvent) => {
+    e.preventDefault()
     dragCounterRef.current = 0
     setIsDragging(false)
   }, [])
@@ -55,7 +72,7 @@ export function FullPageDropZone ({
     }
   }, [handleDragEnter, handleDragLeave, handleDrop, handleDragOver])
 
-  const handleDropOnDiv = useCallback((e: DragEvent<HTMLDivElement>) => {
+  const handleDropOnDiv = useCallback(async (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault()
     e.stopPropagation()
 
@@ -68,19 +85,28 @@ export function FullPageDropZone ({
 
     // Validate file type if accept prop is provided
     if (accept && !isFileTypeAccepted(file, accept)) {
+      toast.error('対応していないファイル形式です。')
       return
     }
 
     // Validate file with custom validator
     if (validateFile) {
-      const error = validateFile(file)
-      if (error) {
+      try {
+        const error = await validateFile(file)
+        if (error) {
+          toast.error(error)
+          return
+        }
+      } catch (err) {
+        // Validator threw an error - treat as validation failure
+        console.error('File validation error:', err)
+        toast.error('ファイルの検証中にエラーが発生しました。')
         return
       }
     }
 
     onFileDrop(file)
-  }, [accept, validateFile, onFileDrop])
+  }, [accept, validateFile, onFileDrop, toast])
 
   return (
     <div onDrop={handleDropOnDiv} className='relative'>

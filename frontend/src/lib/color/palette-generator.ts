@@ -205,8 +205,8 @@ function isInGamut (l: number, c: number, h: number): boolean {
   const linear = oklabToLinearRgb(oklab)
 
   return linear.r >= -0.001 && linear.r <= 1.001 &&
-         linear.g >= -0.001 && linear.g <= 1.001 &&
-         linear.b >= -0.001 && linear.b <= 1.001
+    linear.g >= -0.001 && linear.g <= 1.001 &&
+    linear.b >= -0.001 && linear.b <= 1.001
 }
 
 /**
@@ -347,76 +347,50 @@ export function generatePalette (
 }
 
 /**
- * Adjust hue of an existing palette
+ * Adjust a single color's hue, lightness, and saturation
  */
-export function adjustPaletteHue (palette: ColorPalette, hueShift: number): ColorPalette {
-  const adjusted: Partial<ColorPalette> = {}
+export function adjustColor (hex: string, hueShift: number, lightnessShift: number, saturationShift: number): string | null {
+  const oklch = hexToOklch(hex)
+  if (!oklch) return null
 
-  for (const shade of SHADES) {
-    const hex = palette[shade]
-    const oklch = hexToOklch(hex)
+  // Adjust hue
+  if (hueShift !== 0) {
+    oklch.h = normalizeHue(oklch.h + hueShift)
+  }
 
-    if (oklch) {
-      oklch.h = normalizeHue(oklch.h + hueShift)
-      adjusted[shade] = oklchToHex(oklch)
+  // Adjust lightness
+  if (lightnessShift !== 0) {
+    oklch.l = Math.max(0, Math.min(100, oklch.l + lightnessShift))
+  }
+
+  // Adjust saturation (chroma)
+  if (saturationShift !== 0) {
+    oklch.c = Math.max(0, oklch.c + saturationShift)
+  }
+
+  // Ensure chroma stays in gamut
+  if (lightnessShift !== 0 || saturationShift !== 0 || hueShift !== 0) {
+    if (!isInGamut(oklch.l, oklch.c, oklch.h)) {
+      const maxChroma = findMaxChromaInGamut(oklch.l, oklch.h)
+      oklch.c = Math.min(oklch.c, maxChroma * 0.99)
     }
   }
 
-  return adjusted as ColorPalette
+  return oklchToHex(oklch)
 }
 
 /**
- * Adjust lightness of an existing palette
- * @param lightnessShift - Lightness adjustment (-50 to +50)
+ * Adjust an entire palette's hue, lightness, and saturation
+ * Applies the same adjustments to all shades
  */
-export function adjustPaletteLightness (palette: ColorPalette, lightnessShift: number): ColorPalette {
+export function adjustPalette (palette: ColorPalette, hueShift: number, lightnessShift: number, saturationShift: number): ColorPalette {
   const adjusted: Partial<ColorPalette> = {}
 
   for (const shade of SHADES) {
     const hex = palette[shade]
-    const oklch = hexToOklch(hex)
-
-    if (oklch) {
-      // Clamp lightness between 0 and 100
-      oklch.l = Math.max(0, Math.min(100, oklch.l + lightnessShift))
-
-      // Ensure chroma stays in gamut after lightness change
-      if (!isInGamut(oklch.l, oklch.c, oklch.h)) {
-        const maxChroma = findMaxChromaInGamut(oklch.l, oklch.h)
-        oklch.c = Math.min(oklch.c, maxChroma * 0.99)
-      }
-
-      adjusted[shade] = oklchToHex(oklch)
-    }
-  }
-
-  return adjusted as ColorPalette
-}
-
-/**
- * Adjust saturation (chroma) of an existing palette
- * @param saturationShift - Saturation adjustment (-150 to +150)
- */
-export function adjustPaletteSaturation (palette: ColorPalette, saturationShift: number): ColorPalette {
-  const adjusted: Partial<ColorPalette> = {}
-
-  for (const shade of SHADES) {
-    const hex = palette[shade]
-    const oklch = hexToOklch(hex)
-
-    if (oklch) {
-      // Add shift to chroma, clamp to valid range
-      const newChroma = Math.max(0, oklch.c + saturationShift)
-
-      // Ensure chroma stays in gamut
-      if (isInGamut(oklch.l, newChroma, oklch.h)) {
-        oklch.c = newChroma
-      } else {
-        const maxChroma = findMaxChromaInGamut(oklch.l, oklch.h)
-        oklch.c = Math.min(newChroma, maxChroma * 0.99)
-      }
-
-      adjusted[shade] = oklchToHex(oklch)
+    const adjustedHex = adjustColor(hex, hueShift, lightnessShift, saturationShift)
+    if (adjustedHex) {
+      adjusted[shade] = adjustedHex
     }
   }
 

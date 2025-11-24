@@ -14,6 +14,10 @@ export default [
   {
     ignores: [
       '.next/**',
+      'out/**',
+      'dist/**',
+      'node_modules/**',
+      'build/**',
       'next-env.d.ts',
       'eslint.config.mjs',
       'next.config.ts',

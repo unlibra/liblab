@@ -6,72 +6,20 @@ import numpy as np
 from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
 from numpy.typing import NDArray
 from PIL import Image
+from pillow_heif import register_heif_opener  # type: ignore[import-untyped]
+from starlette.concurrency import run_in_threadpool
 
 from app.core.config import Settings
 from app.core.logging import get_logger
 from app.dependencies import get_settings_dependency
 from app.schemas.colors import ColorExtractionResponse, ExtractedColor
+from app.utils.color_conversion import oklab_to_rgb, rgb_to_oklab
+from app.utils.file_validation import validate_image_magic_number
 
 router = APIRouter()
 logger = get_logger(__name__)
 
-
-def srgb_to_linear(rgb: NDArray[np.float64]) -> NDArray[np.float64]:
-    """Convert sRGB to linear RGB."""
-    return np.where(rgb <= 0.04045, rgb / 12.92, ((rgb + 0.055) / 1.055) ** 2.4)
-
-
-def linear_to_srgb(rgb: NDArray[np.float64]) -> NDArray[np.float64]:
-    """Convert linear RGB to sRGB."""
-    return np.where(rgb <= 0.0031308, rgb * 12.92, 1.055 * (rgb ** (1 / 2.4)) - 0.055)
-
-
-def rgb_to_oklab(rgb: NDArray[np.float64]) -> NDArray[np.float64]:
-    """Convert RGB (0-255) to Oklab color space."""
-    # Normalize to 0-1 and convert to linear RGB
-    rgb_normalized = rgb / 255.0
-    linear = srgb_to_linear(rgb_normalized)
-
-    # Linear RGB to LMS
-    lms_l = 0.4122214708 * linear[:, 0] + 0.5363325363 * linear[:, 1] + 0.0514459929 * linear[:, 2]
-    lms_m = 0.2119034982 * linear[:, 0] + 0.6806995451 * linear[:, 1] + 0.1073969566 * linear[:, 2]
-    lms_s = 0.0883024619 * linear[:, 0] + 0.2817188376 * linear[:, 1] + 0.6299787005 * linear[:, 2]
-
-    # LMS to Oklab
-    l_ = np.cbrt(lms_l)
-    m_ = np.cbrt(lms_m)
-    s_ = np.cbrt(lms_s)
-
-    L = 0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * s_
-    a = 1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_
-    b = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_
-
-    return np.column_stack([L, a, b])
-
-
-def oklab_to_rgb(lab: NDArray[np.float64]) -> NDArray[np.float64]:
-    """Convert Oklab to RGB (0-255)."""
-    L, a, b = lab[:, 0], lab[:, 1], lab[:, 2]
-
-    # Oklab to LMS
-    l_ = L + 0.3963377774 * a + 0.2158037573 * b
-    m_ = L - 0.1055613458 * a - 0.0638541728 * b
-    s_ = L - 0.0894841775 * a - 1.2914855480 * b
-
-    lms_l = l_**3
-    lms_m = m_**3
-    lms_s = s_**3
-
-    # LMS to linear RGB
-    r = 4.0767416621 * lms_l - 3.3077115913 * lms_m + 0.2309699292 * lms_s
-    g = -1.2684380046 * lms_l + 2.6097574011 * lms_m - 0.3413193965 * lms_s
-    b_out = -0.0041960863 * lms_l - 0.7034186147 * lms_m + 1.7076147010 * lms_s
-
-    linear = np.column_stack([r, g, b_out])
-
-    # Convert to sRGB and scale to 0-255
-    srgb = linear_to_srgb(np.clip(linear, 0, 1))
-    return srgb * 255.0
+register_heif_opener()
 
 
 def kmeans_plusplus_init(
@@ -98,10 +46,10 @@ def kmeans_plusplus_init(
         total_dist = distances.sum()
         if total_dist == 0:
             # All pixels are identical to existing centers, pick randomly
-            next_idx = rng.integers(n_samples)
+            next_idx = int(rng.integers(n_samples))
         else:
             probabilities = distances / total_dist
-            next_idx = rng.choice(n_samples, p=probabilities)
+            next_idx = int(rng.choice(n_samples, p=probabilities))
         centers.append(pixels[next_idx])
 
     return np.array(centers)
@@ -151,13 +99,13 @@ def kmeans(
                 new_centers.append(new_center)
             else:
                 new_centers.append(centers[k])
-        new_centers = np.array(new_centers)
+        new_centers_array: NDArray[np.float64] = np.array(new_centers)
 
         # Check convergence
-        if np.allclose(centers, new_centers):
+        if np.allclose(centers, new_centers_array):
             break
 
-        centers = new_centers
+        centers = new_centers_array
 
     return centers, labels
 
@@ -224,22 +172,22 @@ def mean_shift(
 
         modes.append(point)
 
-    modes = np.array(modes)
+    modes_array: NDArray[np.float64] = np.array(modes)
 
     # Merge nearby modes
     merged_modes: list[NDArray[np.float64]] = []
-    used = np.zeros(len(modes), dtype=bool)
+    used = np.zeros(len(modes_array), dtype=bool)
 
-    for i in range(len(modes)):
+    for i in range(len(modes_array)):
         if used[i]:
             continue
 
         # Find all modes within bandwidth
-        distances = np.sqrt(np.sum((modes - modes[i]) ** 2, axis=1))
+        distances = np.sqrt(np.sum((modes_array - modes_array[i]) ** 2, axis=1))
         nearby = distances < bandwidth
 
         # Average nearby modes
-        merged_mode = modes[nearby].mean(axis=0)
+        merged_mode = modes_array[nearby].mean(axis=0)
         merged_modes.append(merged_mode)
         used[nearby] = True
 
@@ -362,6 +310,13 @@ def extract_colors_from_image(
             selected.append(ExtractedColor(hex=cluster["hex"], percentage=cluster["percentage"]))
             selected_oklab.append(cluster["oklab"])
 
+    # Re-normalize percentages after filtering
+    if selected:
+        total_percentage = sum(color.percentage for color in selected)
+        if total_percentage > 0:
+            for color in selected:
+                color.percentage = round((color.percentage / total_percentage) * 100, 1)
+
     return selected
 
 
@@ -397,17 +352,53 @@ async def extract_colors(
         logger.warning("Invalid file type: %s", file.content_type)
         raise HTTPException(status_code=400, detail="File must be an image")
 
+    # Security limits (match frontend validation)
+    # Note: File size is validated by UploadSizeLimitMiddleware
+    MAX_DIMENSION = 4096  # 4096x4096 pixels
+    MAX_PIXELS = MAX_DIMENSION * MAX_DIMENSION  # ~16.7M pixels
+
     try:
-        # Read image
+        # Read file contents (size already validated by middleware)
         contents = await file.read()
-        image = Image.open(BytesIO(contents))
+
+        # Validate magic number (security: defense in depth)
+        error = validate_image_magic_number(contents)
+        if error:
+            logger.warning("Magic number validation failed: %s", error)
+            raise HTTPException(status_code=400, detail=error)
+
+        # Decode and validate image in threadpool to avoid blocking event loop
+        # (Pillow decode is CPU-heavy for multi-MB images)
+        def decode_and_validate_image(
+            image_data: bytes, max_pixels: int, max_dimension: int
+        ) -> Image.Image:
+            """Decode and validate image (runs in threadpool)."""
+            # Set PIL decompression bomb protection
+            Image.MAX_IMAGE_PIXELS = max_pixels
+
+            # Open image (will raise DecompressionBombError if too large)
+            img = Image.open(BytesIO(image_data))
+
+            # Additional dimension check
+            if img.width > max_dimension or img.height > max_dimension:
+                logger.warning("Image dimensions too large: %dx%d", img.width, img.height)
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Image dimensions must be {max_dimension}x{max_dimension} or smaller",
+                )
+
+            return img
+
+        image = await run_in_threadpool(
+            decode_and_validate_image, bytes(contents), MAX_PIXELS, MAX_DIMENSION
+        )
 
         logger.info(
             "Extracting %d colors from image (%dx%d)", num_colors, image.width, image.height
         )
 
-        # Extract colors
-        colors = extract_colors_from_image(image, num_colors)
+        # Extract colors (run in threadpool to avoid blocking event loop)
+        colors = await run_in_threadpool(extract_colors_from_image, image, num_colors)
 
         return ColorExtractionResponse(colors=colors)
 

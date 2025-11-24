@@ -3,8 +3,6 @@
  * Uses JSZip for creating ZIP archives
  */
 
-import JSZip from 'jszip'
-
 export interface ZipFile {
   name: string
   blob: Blob
@@ -14,6 +12,8 @@ export interface ZipFile {
  * Create a ZIP file from multiple blobs
  */
 export async function createZip (files: ZipFile[]): Promise<Blob> {
+  // Lazy-load JSZip only when actually creating a ZIP (~100KB)
+  const JSZip = (await import('jszip')).default
   const zip = new JSZip()
 
   // Add each file to the ZIP

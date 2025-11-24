@@ -1,6 +1,3 @@
-/* Logo font - only load necessary characters */
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@600&text=8pxa.&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

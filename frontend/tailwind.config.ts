@@ -1,5 +1,6 @@
 import type { Config } from 'tailwindcss'
 import containerQueries from '@tailwindcss/container-queries'
+import plugin from 'tailwindcss/plugin';
 
 const config: Config = {
   content: [
@@ -10,7 +11,8 @@ const config: Config = {
     extend: {
       fontFamily: {
         sans: ['var(--font-ascii)', 'var(--font-jp)', 'sans-serif'],
-        mono: ['var(--font-mono)', 'monospace']
+        mono: ['var(--font-mono)', 'monospace'],
+        logo: ['var(--font-logo)', 'sans-serif']
       },
       colors: {
         'atom-one-dark': {
@@ -35,7 +37,18 @@ const config: Config = {
     }
   },
   plugins: [
-    containerQueries
+    containerQueries,
+    plugin(function ({ addUtilities }) {
+			addUtilities({
+				'.drag-none': {
+					'-webkit-user-drag': 'none',
+					'-khtml-user-drag': 'none',
+					'-moz-user-drag': 'none',
+					'-o-user-drag': 'none',
+					'user-drag': 'none'
+				}
+			});
+		})
   ]
 }
 

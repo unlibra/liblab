@@ -1,42 +1,48 @@
 'use client'
 
 import { PhotoIcon } from '@heroicons/react/24/outline'
-import { domToBlob } from 'modern-screenshot'
 import Image from 'next/image'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { CorkBoardBackground } from '@/components/ui/cork-board-background'
+import { CorkBoardBackground } from '@/components/iromide/cork-board-background'
+import { MaskingTape } from '@/components/iromide/masking-tape'
+import { PolaroidFrame } from '@/components/iromide/polaroid-frame'
 import { FullPageDropZone } from '@/components/ui/full-page-drop-zone'
-import { MaskingTape } from '@/components/ui/masking-tape'
-import { PolaroidFrame } from '@/components/ui/polaroid-frame'
 import { Spinner } from '@/components/ui/spinner'
 import { useToast } from '@/components/ui/toast'
 import { siteConfig } from '@/config/site'
 import { getToolById } from '@/config/tools'
 import type { ExtractedColor } from '@/lib/api/colors'
 import { extractColorsFromImage, } from '@/lib/api/colors'
-import { generateWaffleChartBlob } from '@/lib/color/waffle-chart'
 import { validateImageFile } from '@/lib/file/file-validation'
 import type { ChekiPadding } from '@/lib/image/cheki-size'
 import { calculateChekiPadding, determineChekiSize } from '@/lib/image/cheki-size'
 import { loadImageFromFile, processImageForCheki } from '@/lib/image/image-processing'
+import { getHeicSupport } from '@/lib/image/media-support'
 
-export default function ImagePalettePage () {
+const ACCEPTED_IMAGE_TYPES = 'image/png, image/jpeg, image/webp, image/gif, image/avif, image/tiff, image/bmp'
+const HEIC_TYPES = 'image/heic, image/heif'
+
+export default function IromidePage () {
   const tool = getToolById('iromide')
   const toast = useToast()
   const shareTargetRef = useRef<HTMLDivElement>(null)
 
   // State
   const [imagePreview, setImagePreview] = useState<string | null>(null)
-  const [imageDimensions, setImageDimensions] = useState<{ width: number, height: number } | null>(null)
   const [chekiPadding, setChekiPadding] = useState<ChekiPadding | null>(null)
   const [thumbnailPadding, setThumbnailPadding] = useState<ChekiPadding | null>(null)
   const [extractedColors, setExtractedColors] = useState<ExtractedColor[]>([])
   const [isProcessing, setIsProcessing] = useState(false)
-  const [wafflePreview, setWafflePreview] = useState<string | null>(null)
   const [resultRotation, setResultRotation] = useState(0)
   const [message, setMessage] = useState('')
   const [isSharing, setIsSharing] = useState(false)
+  const [isHeicSupport, setIsHeicSupport] = useState(false)
+
+  // Detect HEIC/HEIF support
+  useEffect(() => {
+    setIsHeicSupport(getHeicSupport())
+  }, [])
 
   // Fixed color count for simplicity
   const colorCount = 6
@@ -49,30 +55,6 @@ export default function ImagePalettePage () {
       }
     }
   }, [imagePreview])
-
-  useEffect(() => {
-    return () => {
-      if (wafflePreview) {
-        URL.revokeObjectURL(wafflePreview)
-      }
-    }
-  }, [wafflePreview])
-
-  // Generate waffle chart preview when colors are extracted
-  useEffect(() => {
-    if (extractedColors.length === 0 || !imageDimensions) {
-      setWafflePreview(null)
-      return
-    }
-
-    // Generate waffle chart with the same dimensions as the original image
-    generateWaffleChartBlob(extractedColors, imageDimensions.width, imageDimensions.height).then((blob) => {
-      if (blob) {
-        const url = URL.createObjectURL(blob)
-        setWafflePreview(url)
-      }
-    })
-  }, [extractedColors, imageDimensions])
 
   // Handle file drop/select and auto-extract
   const handleFileSelect = useCallback(async (file: File | null) => {
@@ -105,11 +87,9 @@ export default function ImagePalettePage () {
         chekiSize.width,
         chekiSize.height
       )
+
       const previewUrl = URL.createObjectURL(normalizedBlob)
       setImagePreview(previewUrl)
-
-      // Store cheki dimensions for waffle chart generation
-      setImageDimensions({ width: chekiSize.width, height: chekiSize.height })
 
       // Calculate padding based on cheki format
       const padding = calculateChekiPadding(chekiSize.width, chekiSize.height, chekiSize.aspectRatio)
@@ -144,7 +124,9 @@ export default function ImagePalettePage () {
       const colors = await extractColorsFromImage(file, colorCount)
       setExtractedColors(colors)
     } catch (err) {
-      toast.error('色の抽出に失敗しました')
+      // Display detailed error message from API
+      const errorMessage = err instanceof Error ? err.message : '色の抽出に失敗しました'
+      toast.error(errorMessage)
       console.error('Failed to extract colors:', err)
     } finally {
       setIsProcessing(false)
@@ -176,6 +158,9 @@ export default function ImagePalettePage () {
             })
         )
       )
+
+      // Lazy-load modern-screenshot only when sharing (~50KB)
+      const { domToBlob } = await import('modern-screenshot')
 
       // Capture the element
       const blob = await domToBlob(shareTargetRef.current, {})
@@ -209,7 +194,7 @@ export default function ImagePalettePage () {
         const url = URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
-        a.download = 'palette.png'
+        a.download = 'cheki.png'
         a.click()
         URL.revokeObjectURL(url)
       }
@@ -224,7 +209,6 @@ export default function ImagePalettePage () {
   // Reset
   const handleReset = useCallback(() => {
     setImagePreview(null)
-    setImageDimensions(null)
     setChekiPadding(null)
     setExtractedColors([])
     setMessage('')
@@ -238,7 +222,7 @@ export default function ImagePalettePage () {
   return (
     <FullPageDropZone
       onFileDrop={handleFileSelect}
-      accept='image/*'
+      accept={isHeicSupport ? `${ACCEPTED_IMAGE_TYPES}, ${HEIC_TYPES}` : ACCEPTED_IMAGE_TYPES}
     >
       <CorkBoardBackground className='left-1/2 -mb-12 -mt-6 w-screen -translate-x-1/2 border-b border-gray-200 px-4 py-12 dark:border-gray-700 sm:px-6 sm:py-20 lg:px-8'>
         <div className='mx-auto flex min-h-[calc(100vh-160px)] max-w-screen-md flex-col px-4'>
@@ -268,7 +252,7 @@ export default function ImagePalettePage () {
                         width={500}
                         height={600}
                         unoptimized
-                        className='max-h-[60vh] w-auto max-w-[60vw]'
+                        className='max-h-[60vh] w-auto max-w-[60vw] drag-none'
                         style={{ transform: `rotate(${index === 0 ? 2 : index === 1 ? -2 : 1}deg)` }}
                       />
                     ))}
@@ -276,28 +260,33 @@ export default function ImagePalettePage () {
                 </div>
 
                 {/* Upload Area */}
-                <label className='group flex w-full max-w-lg cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-300 bg-white px-6 py-12 transition-colors hover:border-gray-400 dark:border-gray-600 dark:bg-atom-one-dark dark:hover:border-gray-500'>
-                  <div className='mb-4 rounded-full bg-gray-100 p-4 transition-colors group-hover:bg-gray-200 dark:bg-atom-one-dark-light dark:group-hover:bg-atom-one-dark-lighter'>
-                    <PhotoIcon className='size-8 text-gray-600 dark:text-gray-400' />
-                  </div>
-                  <span className='mb-2 font-semibold'>
+                <div className='flex w-full max-w-lg flex-col items-center justify-center gap-6 rounded-2xl border-2 border-dashed border-gray-300 bg-white px-6 py-12 dark:border-gray-600 dark:bg-atom-one-dark'>
+                  <PhotoIcon className='size-10 text-gray-500' />
+                  <span className='font-semibold'>
                     あなたの画像で試す
                   </span>
-                  <p className='text-center text-sm text-gray-500'>
+                  <label>
+                    <input
+                      type='file'
+                      accept={isHeicSupport ? `${ACCEPTED_IMAGE_TYPES}, ${HEIC_TYPES}` : ACCEPTED_IMAGE_TYPES}
+                      onChange={(e) => handleFileSelect(e.target.files?.[0] ?? null)}
+                      className='hidden'
+                    />
+                    <span className='inline-block cursor-pointer rounded-full bg-sky-500 px-8 py-3 font-medium text-white transition-colors hover:bg-sky-600 dark:bg-sky-600 dark:hover:bg-sky-500'>
+                      画像を選択
+                    </span>
+                  </label>
+                </div>
+
+                <div className='space-y-2'>
+                  <p className='text-center text-sm text-gray-600 dark:text-gray-400'>
                     推奨: 縦長 (3:4) / 正方形 (1:1) / 横長 (8:5)
                   </p>
-                  <input
-                    type='file'
-                    accept='image/*'
-                    onChange={(e) => handleFileSelect(e.target.files?.[0] ?? null)}
-                    className='hidden'
-                  />
-                </label>
-
-                {/* Privacy Notice */}
-                <p className='text-center text-sm text-gray-500'>
-                  ※ 画像は処理のみに使用され、保存されません
-                </p>
+                  {/* Privacy Notice */}
+                  <p className='text-center text-sm text-gray-600 dark:text-gray-400'>
+                    画像は処理のみに使用され、保存されません
+                  </p>
+                </div>
               </div>
               )
             : isProcessing
@@ -332,9 +321,6 @@ export default function ImagePalettePage () {
                           }}
                           rotation={resultRotation}
                           chekiPadding={chekiPadding ?? undefined}
-                          style={{
-                            width: imageDimensions ? `${imageDimensions.width}px` : 'auto'
-                          }}
                         >
                           <div className='relative flex size-full flex-col items-center gap-2'>
                             <div className='absolute bottom-1/2 left-1/2 flex -translate-x-1/2 gap-2 '>
@@ -418,7 +404,7 @@ export default function ImagePalettePage () {
                       type='text'
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
-                      placeholder='メッセージを追加'
+                      placeholder='メッセージを追加 (任意)'
                       className='w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-center outline-none transition-colors focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-gray-600 dark:bg-atom-one-dark-light'
                     />
                   </div>

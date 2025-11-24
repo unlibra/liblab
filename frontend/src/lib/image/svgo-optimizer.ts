@@ -1,5 +1,4 @@
 import type { Config } from 'svgo/browser'
-import { optimize } from 'svgo/browser'
 
 /**
  * SVGO plugin options
@@ -43,8 +42,10 @@ export type SvgoOptions = {
   convertShapeToPath: boolean
   sortAttrs: boolean
   removeDimensions: boolean
-  removeStyleElement: boolean
-  removeScriptElement: boolean
+
+  // Dangerous options (inverted flags - default: false = safe)
+  keepScripts: boolean
+  keepStyleElement: boolean
 }
 
 /**
@@ -89,8 +90,10 @@ export const PRESET_SAFE: SvgoOptions = {
   convertShapeToPath: true,
   sortAttrs: false,
   removeDimensions: false,
-  removeStyleElement: false,
-  removeScriptElement: false
+
+  // Security (safe defaults)
+  keepScripts: false,
+  keepStyleElement: false
 }
 
 export const PRESET_SVGO_DEFAULT: SvgoOptions = {
@@ -132,8 +135,10 @@ export const PRESET_SVGO_DEFAULT: SvgoOptions = {
   convertShapeToPath: true,
   sortAttrs: false,
   removeDimensions: false,
-  removeStyleElement: false,
-  removeScriptElement: false
+
+  // Security (safe defaults)
+  keepScripts: false,
+  keepStyleElement: false
 }
 
 export const PRESET_MAXIMUM: SvgoOptions = {
@@ -175,8 +180,10 @@ export const PRESET_MAXIMUM: SvgoOptions = {
   convertShapeToPath: true,
   sortAttrs: true,
   removeDimensions: true, // Remove width/height
-  removeStyleElement: true, // Remove style elements
-  removeScriptElement: true // Remove scripts
+
+  // Security (safe defaults)
+  keepScripts: false,
+  keepStyleElement: false
 }
 
 export const DEFAULT_SVGO_OPTIONS = PRESET_SAFE
@@ -205,7 +212,7 @@ export const PRESETS = [
  * Convert our custom options format to SVGO config
  */
 export function buildSvgoConfig (options: SvgoOptions): Config {
-  // Build plugins array with overrides
+  // Build plugins array with overrides for preset-default plugins
   const plugins: any[] = [
     // Start with preset-default but customize specific plugins
     {
@@ -223,18 +230,14 @@ export function buildSvgoConfig (options: SvgoOptions): Config {
           removeDoctype: options.removeDoctype,
           removeComments: options.removeComments,
           removeMetadata: options.removeMetadata,
-          removeTitle: options.removeTitle,
-          removeDesc: options.removeDesc,
           removeUselessDefs: options.removeUselessDefs,
           removeEditorsNSData: options.removeEditorsNSData,
           removeEmptyAttrs: options.removeEmptyAttrs,
           removeHiddenElems: options.removeHiddenElems,
           removeEmptyText: options.removeEmptyText,
           removeEmptyContainers: options.removeEmptyContainers,
-          removeViewBox: options.removeViewBox,
           cleanupEnableBackground: options.cleanupEnableBackground,
           minifyStyles: options.minifyStyles,
-          convertStyleToAttrs: options.convertStyleToAttrs,
           convertColors: options.convertColors,
           convertPathData: options.convertPathData,
           removeUnknownsAndDefaults: options.removeUnknownsAndDefaults,
@@ -242,21 +245,34 @@ export function buildSvgoConfig (options: SvgoOptions): Config {
           removeUselessStrokeAndFill: options.removeUselessStrokeAndFill,
           removeUnusedNS: options.removeUnusedNS,
           cleanupIds: options.cleanupIds,
-          cleanupListOfValues: options.cleanupListOfValues,
           moveElemsAttrsToGroup: options.moveElemsAttrsToGroup,
           moveGroupAttrsToElems: options.moveGroupAttrsToElems,
           collapseGroups: options.collapseGroups,
-          removeRasterImages: options.removeRasterImages,
           mergePaths: options.mergePaths,
           convertShapeToPath: options.convertShapeToPath,
-          sortAttrs: options.sortAttrs,
-          removeDimensions: options.removeDimensions,
-          removeStyleElement: options.removeStyleElement,
-          removeScriptElement: options.removeScriptElement
+          sortAttrs: options.sortAttrs
         }
       }
     }
   ]
+
+  // Standalone plugins (not part of preset-default)
+  const standalonePlugins: Array<{ name: string, active: boolean }> = [
+    { name: 'removeViewBox', active: options.removeViewBox },
+    { name: 'convertStyleToAttrs', active: options.convertStyleToAttrs },
+    { name: 'cleanupListOfValues', active: options.cleanupListOfValues },
+    { name: 'removeTitle', active: options.removeTitle },
+    { name: 'removeDesc', active: options.removeDesc },
+    { name: 'removeDimensions', active: options.removeDimensions },
+    { name: 'removeRasterImages', active: options.removeRasterImages },
+    // Security plugins (inverted logic: keepScripts=false means remove)
+    { name: 'removeScripts', active: !options.keepScripts },
+    { name: 'removeStyleElement', active: !options.keepStyleElement }
+  ]
+
+  standalonePlugins.forEach(plugin => {
+    plugins.push(plugin.active ? { name: plugin.name } : { name: plugin.name, active: false })
+  })
 
   return {
     plugins,
@@ -267,10 +283,12 @@ export function buildSvgoConfig (options: SvgoOptions): Config {
 /**
  * Optimize SVG using SVGO with the given options
  */
-export function optimizeSvg (svgString: string, options: SvgoOptions): string {
+export async function optimizeSvg (svgString: string, options: SvgoOptions): Promise<string> {
   const config = buildSvgoConfig(options)
 
   try {
+    // Lazy-load SVGO only when needed (~200KB)
+    const { optimize } = await import('svgo/browser')
     const result = optimize(svgString, config)
     return result.data
   } catch (error) {
