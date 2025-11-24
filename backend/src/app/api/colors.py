@@ -6,7 +6,6 @@ import numpy as np
 from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
 from numpy.typing import NDArray
 from PIL import Image
-from pillow_heif import register_heif_opener  # type: ignore[import-untyped]
 from starlette.concurrency import run_in_threadpool
 
 from app.core.config import Settings
@@ -18,8 +17,6 @@ from app.utils.file_validation import validate_image_magic_number
 
 router = APIRouter()
 logger = get_logger(__name__)
-
-register_heif_opener()
 
 
 def kmeans_plusplus_init(
