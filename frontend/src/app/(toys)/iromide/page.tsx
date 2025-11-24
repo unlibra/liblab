@@ -38,6 +38,8 @@ export default function IromidePage () {
   const [message, setMessage] = useState('')
   const [isSharing, setIsSharing] = useState(false)
   const [isHeicSupport, setIsHeicSupport] = useState(false)
+  const [loadedSamples, setLoadedSamples] = useState<Set<number>>(new Set())
+  const [isPolaroidLoaded, setIsPolaroidLoaded] = useState(false)
 
   // Detect HEIC/HEIF support
   useEffect(() => {
@@ -251,8 +253,11 @@ export default function IromidePage () {
                         alt={`Sample ${index + 1}`}
                         width={500}
                         height={600}
+                        onLoad={() => {
+                          setLoadedSamples(prev => new Set(prev).add(index))
+                        }}
                         unoptimized
-                        className='max-h-[60vh] w-auto max-w-[60vw] drag-none'
+                        className={`h-[calc(min(60vh,60vw*6/5))] max-h-[60vh] w-auto max-w-[60vw] transition-opacity drag-none ${loadedSamples.has(index) ? 'opacity-100' : 'opacity-0'}`}
                         style={{ transform: `rotate(${index === 0 ? 2 : index === 1 ? -2 : 1}deg)` }}
                       />
                     ))}
@@ -354,7 +359,7 @@ export default function IromidePage () {
                   </div>
 
                   {/* Visible Display Polaroid */}
-                  <div className='relative mb-8'>
+                  <div className={`relative mb-8 transition-opacity ${isPolaroidLoaded ? 'opacity-100' : 'opacity-0'}`}>
                     <MaskingTape
                       className='absolute left-1/2 top-0 z-10 -translate-x-1/2 -translate-y-1/2'
                       width={thumbnailPadding ? Math.round(thumbnailPadding.top * 2) : undefined}
@@ -364,7 +369,8 @@ export default function IromidePage () {
                       image={{
                         src: imagePreview!,
                         alt: 'Uploaded',
-                        className: 'max-w-[80vw] max-h-[50vh]',
+                        onLoad: () => setIsPolaroidLoaded(true),
+                        className: 'max-w-[80vw] max-h-[50vh]'
                       }}
                       rotation={resultRotation}
                       chekiPadding={thumbnailPadding ?? undefined}

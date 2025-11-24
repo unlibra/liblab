@@ -13,6 +13,7 @@ type PolaroidFrameProps = {
     alt: string
     className?: string
     style?: React.CSSProperties
+    onLoad?: () => void
   }
   style?: React.CSSProperties
   children?: React.ReactNode
@@ -44,6 +45,8 @@ export function PolaroidFrame ({
       }
     : undefined
 
+  const { onLoad } = image
+
   return (
     <div
       // Root element: handles positioning and rotation only
@@ -70,6 +73,7 @@ export function PolaroidFrame ({
             crossOrigin='anonymous'
             className={`drag-none ${image.className ?? 'max-w-[160px] sm:max-w-[640px]'}`}
             style={image.style}
+            onLoad={onLoad}
           />
 
           {/* Film gloss effect */}
