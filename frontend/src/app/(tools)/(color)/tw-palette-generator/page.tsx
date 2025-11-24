@@ -1,7 +1,6 @@
 'use client'
 
-import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react'
-import { ChevronDownIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline'
+import { ClipboardDocumentIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useCallback, useEffect, useState } from 'react'
 
 import { HueSlider } from '@/components/tw-palette-generator/hue-slider'
@@ -11,7 +10,7 @@ import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { useToast } from '@/components/ui/toast'
 import { getToolById } from '@/config/tools'
 import { useColorHistory } from '@/contexts/color-history-context'
-import { hexToCmyk, hexToHsl, hexToOklch, hexToRgb } from '@/lib/color/color-utils'
+import { hexToOklch } from '@/lib/color/color-utils'
 import type { ColorPalette } from '@/lib/color/palette-generator'
 import {
   adjustColor,
@@ -26,6 +25,14 @@ export default function TailwindPaletteGeneratorPage () {
   const tool = getToolById('tw-palette-generator')
   const toast = useToast()
   const { addColor } = useColorHistory()
+
+  // Palette history type
+  type PaletteHistoryItem = {
+    id: string
+    baseColor: string
+    palette: ColorPalette
+    timestamp: number
+  }
 
   // State
   const [inputColor, setInputColor] = useState('#0ea5e9') // Default: Tailwind blue-500
@@ -50,10 +57,32 @@ export default function TailwindPaletteGeneratorPage () {
   const [baseSaturation, setBaseSaturation] = useState(19) // Input color's C value
   const [targetSaturation, setTargetSaturation] = useState(19) // Current slider value
   const [basePalette, setBasePalette] = useState<ColorPalette | null>(null)
-  const [selectedFormat, setSelectedFormat] = useState<'hex' | 'rgb' | 'hsl' | 'cmyk'>('hex')
+  const [paletteHistory, setPaletteHistory] = useState<PaletteHistoryItem[]>([])
 
   // Normalize color: add # prefix if missing
   const normalizedInputColor = inputColor.startsWith('#') ? inputColor : `#${inputColor}`
+
+  // Load history from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('tw-palette-history')
+      if (saved) {
+        const parsed = JSON.parse(saved) as PaletteHistoryItem[]
+        setPaletteHistory(parsed)
+      }
+    } catch (err) {
+      console.error('Failed to load palette history:', err)
+    }
+  }, [])
+
+  // Save history to localStorage when it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem('tw-palette-history', JSON.stringify(paletteHistory))
+    } catch (err) {
+      console.error('Failed to save palette history:', err)
+    }
+  }, [paletteHistory])
 
   // Auto-generate palette with debounce when inputColor changes
   useEffect(() => {
@@ -141,37 +170,12 @@ export default function TailwindPaletteGeneratorPage () {
     setBaseColor(inputColor)
   }, [baseHue, baseLightness, baseSaturation, basePalette, inputColor])
 
-  // Select format
-  const handleSelectFormat = useCallback((format: 'hex' | 'rgb' | 'hsl' | 'cmyk') => {
-    setSelectedFormat(format)
-  }, [])
-
-  // Get formatted color string
-  const getFormattedColor = useCallback((hex: string) => {
-    switch (selectedFormat) {
-      case 'hex':
-        return hex.toUpperCase()
-      case 'rgb': {
-        const rgb = hexToRgb(hex)
-        return rgb ? `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})` : hex.toUpperCase()
-      }
-      case 'hsl': {
-        const hsl = hexToHsl(hex)
-        return hsl ? `hsl(${hsl.h}°, ${hsl.s}%, ${hsl.l}%)` : hex.toUpperCase()
-      }
-      case 'cmyk': {
-        const cmyk = hexToCmyk(hex)
-        return cmyk ? `cmyk(${cmyk.c}%, ${cmyk.m}%, ${cmyk.y}%, ${cmyk.k}%)` : hex.toUpperCase()
-      }
-    }
-  }, [selectedFormat])
-
   // Copy color to clipboard
   const handleCopyColor = useCallback(async (hex: string) => {
     try {
       await navigator.clipboard.writeText(hex.toUpperCase())
       addColor(hex)
-      toast.success('クリップボードにコピーしました')
+      toast.success('カラーコードをコピーしました')
     } catch (err) {
       toast.error('コピーに失敗しました')
       console.error('Failed to copy:', err)
@@ -192,6 +196,33 @@ export default function TailwindPaletteGeneratorPage () {
       console.error(err)
     }
   }, [palette, toast])
+
+  // Add current palette to history
+  const handleAddToHistory = useCallback(() => {
+    const MAX_HISTORY = 30
+    const newItem: PaletteHistoryItem = {
+      id: Date.now().toString(),
+      baseColor,
+      palette,
+      timestamp: Date.now()
+    }
+    setPaletteHistory(prev => {
+      const updated = [...prev, newItem]
+      // Keep only the latest MAX_HISTORY items (remove oldest)
+      return updated.slice(-MAX_HISTORY)
+    })
+    toast.success('ヒストリーに追加しました')
+  }, [baseColor, palette, toast])
+
+  // Remove palette from history
+  const handleRemoveFromHistory = useCallback((id: string) => {
+    setPaletteHistory(prev => prev.filter(item => item.id !== id))
+  }, [])
+
+  // Remove All palette from history
+  const handleClearHistory = useCallback(() => {
+    setPaletteHistory([])
+  }, [])
 
   return (
     <>
@@ -348,93 +379,106 @@ export default function TailwindPaletteGeneratorPage () {
             <section>
               <div className='mb-4 flex items-center justify-between'>
                 <h6 className='text-sm font-semibold'>生成されたパレット</h6>
-                <Popover className='relative'>
-                  {({ open }) => (
-                    <>
-                      <PopoverButton className='flex items-center gap-1 rounded-lg px-2 py-1 text-sm font-medium uppercase outline-none transition-colors hover:bg-gray-100 focus-visible:bg-gray-100 dark:hover:bg-atom-one-dark-lighter focus-visible:dark:bg-atom-one-dark-lighter'>
-                        {selectedFormat}
-                        <ChevronDownIcon className={`size-4 transition-transform ${open ? 'rotate-180' : ''}`} />
-                      </PopoverButton>
-                      <Transition
-                        enter='transition duration-100 ease-out'
-                        enterFrom='transform scale-95 opacity-0'
-                        enterTo='transform scale-100 opacity-100'
-                        leave='transition duration-100 ease-out'
-                        leaveFrom='transform scale-100 opacity-100'
-                        leaveTo='transform scale-95 opacity-0'
-                      >
-                        <PopoverPanel className='absolute right-0 z-50 mt-2 w-32'>
-                          <div className='overflow-hidden rounded-lg border border-gray-200 bg-white p-1 shadow-lg dark:border-gray-700 dark:bg-atom-one-dark-light'>
-                            {(['hex', 'rgb', 'hsl', 'cmyk'] as const).map((format) => (
-                              <button
-                                key={format}
-                                onClick={() => handleSelectFormat(format)}
-                                className={`block w-full rounded-lg px-3 py-1.5 text-left text-sm uppercase outline-none transition-colors ${selectedFormat === format ? 'bg-sky-50 font-medium dark:bg-atom-one-dark-lighter' : 'hover:bg-gray-100 focus-visible:bg-gray-100 dark:hover:bg-atom-one-dark-lighter dark:focus-visible:bg-atom-one-dark-lighter'
-                                }`}
-                              >
-                                {format}
-                              </button>
-                            ))}
-                          </div>
-                        </PopoverPanel>
-                      </Transition>
-                    </>
-                  )}
-                </Popover>
+                <button
+                  onClick={handleAddToHistory}
+                  className='rounded-lg px-2 py-1 text-sm font-medium uppercase outline-none transition-colors hover:bg-gray-100 focus-visible:bg-gray-100 dark:hover:bg-atom-one-dark-lighter focus-visible:dark:bg-atom-one-dark-lighter'
+                >
+                  Save
+                </button>
               </div>
 
-              {/* Color Swatches */}
-              <div className='space-y-1'>
-                <div className='flex items-center gap-2 rounded px-1 py-1'>
-                  {/* Color Preview */}
+              {/* Color Swatches - Horizontal Layout */}
+              <div className='flex items-center gap-1'>
+                {/* BASE Color */}
+                <div className='flex flex-1 flex-col items-center gap-1 truncate'>
                   <button
                     onClick={() => handleCopyColor(baseColor)}
-                    className='size-12 flex-shrink-0 cursor-pointer rounded shadow-sm outline-none transition-transform hover:scale-110 focus-visible:scale-110 active:scale-95'
+                    className='aspect-square w-full cursor-pointer rounded transition-transform hover:scale-110 focus:outline-none focus-visible:scale-110 active:scale-95'
                     style={{ backgroundColor: baseColor }}
-                    title='クリックでコピー'
-                    aria-label={`BASE ${getFormattedColor(baseColor)} をコピー`}
-                  />
-
-                  {/* Shade Label */}
-                  <div className='w-12 font-mono text-sm'>
-                    BASE
-                  </div>
-
-                  {/* Formatted Color Value */}
-                  <div className='font-mono text-sm font-medium'>
-                    {getFormattedColor(baseColor)}
-                  </div>
+                    title={`BASE - ${baseColor.toUpperCase()}`}
+                    aria-label={`BASE ${baseColor.toUpperCase()} をコピー`}
+                  >
+                    <span className='sr-only'>BASE</span>
+                  </button>
+                  <div className='font-mono text-xs font-medium text-gray-600 dark:text-gray-400'>BASE</div>
                 </div>
+                {/* Palette Colors */}
                 {getShadeLabels().map((shade) => {
                   const hex = palette[shade]
-
                   return (
-                    <div
-                      key={shade}
-                      className='flex items-center gap-2 rounded px-1 py-1'
-                    >
-                      {/* Color Preview */}
+                    <div key={shade} className='flex flex-1 flex-col items-center gap-1'>
                       <button
                         onClick={() => handleCopyColor(hex)}
-                        className='size-12 flex-shrink-0 cursor-pointer rounded shadow-sm outline-none transition-transform hover:scale-110 focus-visible:scale-110 active:scale-95'
+                        className='aspect-square w-full cursor-pointer rounded transition-transform hover:scale-110 focus:outline-none focus-visible:scale-110 active:scale-95'
                         style={{ backgroundColor: hex }}
-                        title='クリックでコピー'
-                        aria-label={`${shade} ${getFormattedColor(hex)} をコピー`}
-                      />
-
-                      {/* Shade Label */}
-                      <div className='w-12 font-mono text-sm'>
-                        {shade}
-                      </div>
-
-                      {/* Formatted Color Value */}
-                      <div className='font-mono text-sm font-medium'>
-                        {getFormattedColor(hex)}
-                      </div>
+                        title={`${shade} - ${hex.toUpperCase()}`}
+                        aria-label={`${shade} ${hex.toUpperCase()} をコピー`}
+                      >
+                        <span className='sr-only'>{shade}</span>
+                      </button>
+                      <div className='font-mono text-xs font-medium text-gray-600 dark:text-gray-400'>{shade}</div>
                     </div>
                   )
                 })}
               </div>
+            </section>
+
+            {/* Palette History */}
+            <section>
+              <div className='mb-4 flex items-center justify-between'>
+                <h6 className='text-sm font-semibold'>パレットヒストリー</h6>
+                <button
+                  onClick={handleClearHistory}
+                  className='rounded-lg px-2 py-1 text-sm font-medium uppercase outline-none transition-colors hover:bg-gray-100 focus-visible:bg-gray-100 dark:hover:bg-atom-one-dark-lighter focus-visible:dark:bg-atom-one-dark-lighter'
+                >
+                  Clear
+                </button>
+              </div>
+              {paletteHistory.length > 0
+                ? (
+                  <div className='flex flex-col-reverse gap-4'>
+                    {paletteHistory.map((item) => (
+                      <div key={item.id} className='flex items-center gap-1'>
+                        {/* BASE Color */}
+                        <button
+                          onClick={() => handleCopyColor(item.baseColor)}
+                          className='aspect-square w-full cursor-pointer rounded transition-transform hover:scale-110 focus:outline-none focus-visible:scale-110 active:scale-95'
+                          style={{ backgroundColor: item.baseColor }}
+                          title={`BASE - ${item.baseColor}`}
+                          aria-label={`BASE ${item.baseColor} をコピー`}
+                        >
+                          <span className='sr-only'>BASE</span>
+                        </button>
+                        <div className='mx-1 h-6 w-px bg-gray-200 dark:bg-gray-700' />
+                        {/* Palette Colors */}
+                        {getShadeLabels().map((shade) => {
+                          const hex = item.palette[shade]
+                          return (
+                            <button
+                              key={shade}
+                              onClick={() => handleCopyColor(hex)}
+                              className='aspect-square w-full cursor-pointer rounded transition-transform hover:scale-110 focus:outline-none focus-visible:scale-110 active:scale-95'
+                              style={{ backgroundColor: hex }}
+                              title={`${shade} - ${hex}`}
+                              aria-label={`${shade} ${hex} をコピー`}
+                            >
+                              <span className='sr-only'>{shade}</span>
+                            </button>
+                          )
+                        })}
+                        <button
+                          onClick={() => handleRemoveFromHistory(item.id)}
+                          className='rounded p-1 text-gray-600 transition-colors hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-600'
+                          title='履歴から削除'
+                          aria-label='履歴から削除'
+                        >
+                          <XMarkIcon className='size-4' />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  )
+                : <p className='text-center text-sm text-gray-600 dark:text-gray-400'>作成したカラーパレットを履歴に追加することができます</p>}
             </section>
 
             {/* Tailwind Config Snippet */}
