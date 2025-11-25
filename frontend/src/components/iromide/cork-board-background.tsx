@@ -1,5 +1,7 @@
 import { forwardRef } from 'react'
 
+import noiseSvg from '@/assets/images/noise.svg'
+
 type CorkBoardBackgroundProps = {
   children: React.ReactNode
   className?: string
@@ -13,7 +15,7 @@ export const CorkBoardBackground = forwardRef<HTMLDivElement, CorkBoardBackgroun
         <div
           className='pointer-events-none absolute inset-0 opacity-5'
           style={{
-            backgroundImage: 'url("/images/noise.svg")',
+            backgroundImage: `url("${noiseSvg.src}")`,
             backgroundRepeat: 'repeat',
             backgroundSize: '200px 200px',
           }}

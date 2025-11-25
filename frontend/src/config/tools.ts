@@ -1,3 +1,11 @@
+import type { StaticImageData } from 'next/image'
+
+import faviconGeneratorIcon from '@/assets/icons/favicon-generator.svg'
+import iromideIcon from '@/assets/icons/iromide.svg'
+import passwordGeneratorIcon from '@/assets/icons/password-generator.svg'
+import svgOptimizerIcon from '@/assets/icons/svg-optimizer.svg'
+import twPaletteGeneratorIcon from '@/assets/icons/tw-palette-generator.svg'
+
 // Category definition type
 type CategoryDefinition = {
   readonly id: string
@@ -19,7 +27,7 @@ export type Tool = {
   name: string
   description: string
   shortDescription?: string // For popovers and compact displays
-  icon: string // Path to icon file
+  icon: StaticImageData // Imported icon with hash
   category: CategoryId
 }
 
@@ -38,7 +46,7 @@ export const tools: Tool[] = [
     description: `コーポレートカラーなど指定した色をベースに、TailwindCSSのカラーパレットに馴染む美しいパレットを自動生成。
 デザインシステムへの統合をスムーズにします。`,
     shortDescription: '選んだ色からカラーパレットを生成',
-    icon: '/icons/tools/tw-palette-generator.svg',
+    icon: twPaletteGeneratorIcon,
     category: 'tools'
   },
   {
@@ -48,7 +56,7 @@ export const tools: Tool[] = [
 人間の知覚に近い画像解析であなたの「推し色」を取り出せます。
 推し色をみんなにシェアしましょう！`,
     shortDescription: '写真から推し色チェキを作ろう！',
-    icon: '/icons/tools/iromide.svg',
+    icon: iromideIcon,
     category: 'toys',
   },
   {
@@ -57,7 +65,7 @@ export const tools: Tool[] = [
     description: `JPEG、PNG、WEBPなどの画像やSVGをアップロードするだけで、モダンなWebサイトに必要なFaviconとApple Touch Iconを一括生成。
 角丸加工、背景色設定も一発で完了します。`,
     shortDescription: '画像からfaviconファイルを生成',
-    icon: '/icons/tools/favicon-generator.svg',
+    icon: faviconGeneratorIcon,
     category: 'tools'
   },
   {
@@ -66,7 +74,7 @@ export const tools: Tool[] = [
     description: `SVGファイルを、品質を保ったまま軽量化。
 Webサイトのパフォーマンス向上に役立つシンプルで確実な最適化ツールです。`,
     shortDescription: 'SVGファイルを最適化・圧縮',
-    icon: '/icons/tools/svg-optimizer.svg',
+    icon: svgOptimizerIcon,
     category: 'tools'
   },
   {
@@ -75,7 +83,7 @@ Webサイトのパフォーマンス向上に役立つシンプルで確実な�
     description: `シンプルなパスワードジェネレーター。
 パスワードの長さと文字種を指定して、簡単にパスワードを生成できます。`,
     shortDescription: 'シンプルなパスワードジェネレーター',
-    icon: '/icons/tools/password-generator.svg',
+    icon: passwordGeneratorIcon,
     category: 'tools'
   }
 ]
