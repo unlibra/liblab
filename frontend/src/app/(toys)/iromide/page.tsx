@@ -4,6 +4,9 @@ import { PhotoIcon } from '@heroicons/react/24/outline'
 import Image from 'next/image'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import sampleCheki1 from '@/assets/images/iromide/sample-cheki-1.webp'
+import sampleCheki2 from '@/assets/images/iromide/sample-cheki-2.webp'
+import sampleCheki3 from '@/assets/images/iromide/sample-cheki-3.webp'
 import { CorkBoardBackground } from '@/components/iromide/cork-board-background'
 import { MaskingTape } from '@/components/iromide/masking-tape'
 import { PolaroidFrame } from '@/components/iromide/polaroid-frame'
@@ -19,10 +22,6 @@ import type { ChekiPadding, ChekiSize } from '@/lib/image/cheki-size'
 import { calculateChekiPadding, determineChekiSize } from '@/lib/image/cheki-size'
 import { loadImageFromFile, processImageForCheki } from '@/lib/image/image-processing'
 import { getHeicSupport } from '@/lib/image/media-support'
-
-import sampleCheki1 from '@/assets/images/iromide/sample-cheki-1.webp'
-import sampleCheki2 from '@/assets/images/iromide/sample-cheki-2.webp'
-import sampleCheki3 from '@/assets/images/iromide/sample-cheki-3.webp'
 
 const sampleChekiImages = [sampleCheki1, sampleCheki2, sampleCheki3]
 
@@ -267,7 +266,6 @@ export default function IromidePage () {
                         onLoad={() => {
                           setLoadedSamples(prev => new Set(prev).add(index))
                         }}
-                        unoptimized
                         className={`h-[calc(min(60vh,60vw*6/5))] max-h-[60vh] w-auto max-w-[60vw] transition-opacity drag-none ${loadedSamples.has(index) ? 'opacity-100' : 'opacity-0'}`}
                         style={{ transform: `rotate(${index === 0 ? 2 : index === 1 ? -2 : 1}deg)` }}
                       />
