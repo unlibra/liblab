@@ -28,11 +28,17 @@ export async function extractColorsFromImage (
   const formData = new FormData()
   formData.append('file', resizedFile)
 
+  const headers: HeadersInit = {}
+  if (process.env.NEXT_PUBLIC_API_BYPASS_SECRET) {
+    headers['x-vercel-protection-bypass'] = process.env.NEXT_PUBLIC_API_BYPASS_SECRET
+  }
+
   const response = await fetch(
     `${API_BASE_URL}/api/colors/extract?num_colors=${numColors}`,
     {
       method: 'POST',
-      body: formData
+      body: formData,
+      headers
     }
   )
 

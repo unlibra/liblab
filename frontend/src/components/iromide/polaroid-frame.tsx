@@ -58,7 +58,7 @@ export function PolaroidFrame ({
     >
       {/* Inner element: handles Polaroid appearance and internal coordinates */}
       <div
-        className='relative overflow-hidden rounded bg-white px-3 pb-10 pt-5 shadow-xl dark:bg-gray-100 sm:px-12 sm:pb-40 sm:pt-20'
+        className='relative overflow-hidden rounded bg-white px-3 pb-10 pt-5 drop-shadow-xl dark:bg-gray-100 sm:px-12 sm:pb-40 sm:pt-20'
         style={paddingStyle}
       >
 

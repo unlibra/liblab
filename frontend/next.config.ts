@@ -7,8 +7,6 @@ if (!apiUrl) {
 const normalizedApiUrl = apiUrl.replace(/\/+$/, '')
 
 const nextConfig: NextConfig = {
-  // Static export for Vercel
-  output: 'export',
   reactStrictMode: true,
   env: {
     // Ensure clients get a normalized value (no trailing slash)
@@ -22,6 +20,7 @@ const nextConfig: NextConfig = {
   // remove 'output: export' and these headers will automatically apply.
   async headers() {
     return [
+      // Security headers (all paths)
       {
         source: '/:path*',
         headers: [
@@ -52,6 +51,25 @@ const nextConfig: NextConfig = {
           {
             key: 'Content-Security-Policy',
             value: `default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' blob: ${normalizedApiUrl} https://www.google-analytics.com https://region1.google-analytics.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'`
+          }
+        ]
+      },
+      // Cache headers for static assets
+      {
+        source: '/(favicon.ico|apple-touch-icon.png|icon-192.png|icon-512.png|icon.svg|manifest.json)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=0, s-maxage=86400, stale-while-revalidate=60'
+          }
+        ]
+      },
+      {
+        source: '/(robots.txt|sitemap.xml)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=0, s-maxage=3600, stale-while-revalidate=60'
           }
         ]
       }
