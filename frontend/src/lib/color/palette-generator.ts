@@ -3,7 +3,10 @@
  * Generates 50-950 color scales in the style of Tailwind CSS
  *
  * Color space: OKLCh (perceptually uniform, better than CIELCh for yellows)
- * Algorithm: Hue-based anchor matching → interpolation → gamut mapping
+ * Algorithm: Hue-based interpolation between anchors → gamut mapping
+ *
+ * Key improvement: Always interpolates between adjacent anchors (no anchor matching)
+ * This preserves subtle color variations (e.g., cyan-ish blue vs indigo-ish blue)
  *
  * Performance: ~0.032ms/palette (31,000 palettes/sec)
  * - Binary search precision: 0.5 (40% faster than 0.1)
@@ -11,7 +14,6 @@
  *
  * @see docs/palette-generation-algorithm.md for detailed explanation
  * @see scripts/extract-anchor-colors.ts to regenerate anchor curves data
- * @see scripts/test-10-anchors.ts for uniformity tests
  */
 
 import type { AnchorColorName } from '@/config/anchor-curves'
@@ -40,39 +42,7 @@ function angleDist (h1: number, h2: number): number {
   return diff
 }
 
-/**
- * Estimate the intended base hue for colors with large hue shifts
- * Reverse-engineers the base hue from the input's lightness and hue
- */
-function estimateAnchorBaseHue (
-  inputOklch: OKLCh,
-  anchorName: AnchorColorName
-): number {
-  const { l, h } = inputOklch
-  const anchor = ANCHOR_CURVES[anchorName]
-
-  // Find which shade's lightness is closest to the input
-  let closestShade: TailwindShade = 500
-  let minLDiff = Infinity
-
-  for (const shade of SHADES) {
-    const shadeL = anchor.lightness[shade]
-    const diff = Math.abs(shadeL - l)
-    if (diff < minLDiff) {
-      minLDiff = diff
-      closestShade = shade
-    }
-  }
-
-  // Get the hue shift that would be applied at this shade
-  const expectedHueShift = anchor.hueShift[closestShade]
-
-  // Reverse-engineer the base hue
-  // If input is H=101.5° and expected shift is +15.5°, then base should be 86°
-  const estimatedBaseHue = normalizeHue(h - expectedHueShift)
-
-  return estimatedBaseHue
-}
+// Removed estimateAnchorBaseHue function - no longer needed without anchor matching
 
 /**
  * Linear interpolation for angles (handles 360° wraparound)
@@ -138,25 +108,74 @@ function findAdjacentAnchors (hue: number): [AnchorColorName, AnchorColorName, n
 }
 
 /**
+ * Calculate yellow influence factor with Gaussian falloff
+ * Yellow is visually special - human eyes are most sensitive to hue changes around yellow
+ * This gives yellow more influence in its surrounding range to prevent unwanted amber/lime mixing
+ *
+ * Uses Gaussian distribution for smooth, natural falloff:
+ * - SIGMA=22 provides good balance (significant influence up to ~20°, gradual fade to ~35°)
+ * - Mathematically smooth (no discontinuities)
+ * - Perceptually natural (mimics human color perception)
+ */
+function getYellowInfluence (distanceToYellow: number): number {
+  const SIGMA = 22 // Standard deviation (controls spread of influence)
+
+  // Gaussian function: e^(-(distance²) / (2σ²))
+  // At distance=0: influence=1.0 (100%)
+  // At distance≈σ: influence≈0.6 (60%)
+  // At distance≈2σ: influence≈0.14 (14%)
+  return Math.exp(-(distanceToYellow ** 2) / (2 * SIGMA ** 2))
+}
+
+/**
  * Get blended curve value by interpolating between two anchor colors
+ * Special handling for yellow due to its unique perceptual properties
  */
 function getBlendedValue (
   hue: number,
   shade: TailwindShade,
   curveType: 'lightness' | 'chroma' | 'hueShift'
 ): number {
-  const [anchor1, anchor2, ratio] = findAdjacentAnchors(hue)
+  // Yellow-specific processing
+  // Yellow is perceptually special - it's one of the four unique hues in human vision
+  // and we're most sensitive to hue variations around yellow
+  const YELLOW_HUE = ANCHOR_CURVES.yellow.centerHue // 86°
+  const YELLOW_RANGE_START = 70  // Amber side
+  const YELLOW_RANGE_END = 110   // Lime side
 
+  // Get normal interpolation between adjacent anchors
+  const [anchor1, anchor2, ratio] = findAdjacentAnchors(hue)
   const value1 = ANCHOR_CURVES[anchor1][curveType][shade]
   const value2 = ANCHOR_CURVES[anchor2][curveType][shade]
 
-  // For hue shift, use angle interpolation
+  let normalValue: number
   if (curveType === 'hueShift') {
-    return lerpAngle(value1, value2, ratio)
+    normalValue = lerpAngle(value1, value2, ratio)
+  } else {
+    normalValue = lerp(value1, value2, ratio)
   }
 
-  // For lightness and chroma, use linear interpolation
-  return lerp(value1, value2, ratio)
+  // Apply yellow influence if in yellow's range
+  if (hue >= YELLOW_RANGE_START && hue <= YELLOW_RANGE_END) {
+    const distanceToYellow = Math.abs(hue - YELLOW_HUE)
+    const yellowInfluence = getYellowInfluence(distanceToYellow)
+
+    if (yellowInfluence > 0) {
+      const yellowValue = ANCHOR_CURVES.yellow[curveType][shade]
+
+      // Blend normal interpolation with yellow value
+      // Use 65% strength for stronger yellow preservation
+      const blendStrength = yellowInfluence * 0.65
+
+      if (curveType === 'hueShift') {
+        return lerpAngle(normalValue, yellowValue, blendStrength)
+      } else {
+        return lerp(normalValue, yellowValue, blendStrength)
+      }
+    }
+  }
+
+  return normalValue
 }
 
 /**
@@ -255,68 +274,23 @@ export function generatePalette (
   if (!inputOklch) return null
 
   // Always use full chroma from anchor curves for Tailwind-style vibrant palettes
-  // This ensures all inputs (red-200, red-500, red-900) produce equally vibrant palettes
-  // Only the hue matters for determining the color family, not the input's saturation
+  // This ensures all inputs produce equally vibrant palettes
   const chromaScale = 1.0
 
-  // Check if input closely matches ANY anchor's specific shade
-  // This ensures uniform output even when colors have large hue shifts (e.g., orange, amber)
-  // We check ALL anchors, not just adjacent ones, because hue shifts can move shades far from centerHue
-  let matchedAnchor: AnchorColorName | null = null
-  let bestMatchDist = Infinity
-
-  const allAnchors = Object.keys(ANCHOR_CURVES) as AnchorColorName[]
-
-  for (const anchorName of allAnchors) {
-    const anchor = ANCHOR_CURVES[anchorName]
-
-    for (const shade of SHADES) {
-      const shadeL = anchor.lightness[shade]
-      const expectedH = normalizeHue(anchor.centerHue + anchor.hueShift[shade])
-      const lDiff = Math.abs(inputOklch.l - shadeL)
-      const hDiff = angleDist(inputOklch.h, expectedH)
-      const totalDist = lDiff + hDiff
-
-      // Use tight thresholds for precise matching
-      if (lDiff < 5 && hDiff < 5 && totalDist < bestMatchDist) {
-        matchedAnchor = anchorName
-        bestMatchDist = totalDist
-      }
-    }
-  }
-
-  // Determine base hue for palette generation
-  let baseHue: number
-
-  if (matchedAnchor) {
-    // Input matches a specific anchor shade - use that anchor's centerHue
-    const estimatedBase = estimateAnchorBaseHue(inputOklch, matchedAnchor)
-    baseHue = normalizeHue(estimatedBase + hueShift)
-  } else {
-    // Use input hue directly as base
-    baseHue = normalizeHue(inputOklch.h + hueShift)
-  }
+  // Always use input hue directly as base - no anchor matching
+  // This preserves the subtle color variations in the input
+  // (e.g., cyan-ish blue vs indigo-ish blue will produce different palettes)
+  const baseHue = normalizeHue(inputOklch.h + hueShift)
 
   // Generate all shades
   const palette: Partial<ColorPalette> = {}
 
   for (const shade of SHADES) {
-    // If input matched a specific anchor, use that anchor's curves directly
-    // Otherwise, blend between adjacent anchors
-    let targetL: number, standardChroma: number, hShift: number
-
-    if (matchedAnchor) {
-      // Use matched anchor directly for uniform output
-      const anchor = ANCHOR_CURVES[matchedAnchor]
-      targetL = anchor.lightness[shade]
-      standardChroma = anchor.chroma[shade]
-      hShift = anchor.hueShift[shade]
-    } else {
-      // Blend between adjacent anchors
-      targetL = getBlendedValue(inputOklch.h, shade, 'lightness')
-      standardChroma = getBlendedValue(inputOklch.h, shade, 'chroma')
-      hShift = getBlendedValue(inputOklch.h, shade, 'hueShift')
-    }
+    // Always blend between adjacent anchors based on input hue
+    // This preserves subtle color variations in the input
+    const targetL = getBlendedValue(inputOklch.h, shade, 'lightness')
+    const standardChroma = getBlendedValue(inputOklch.h, shade, 'chroma')
+    const hShift = getBlendedValue(inputOklch.h, shade, 'hueShift')
 
     // Calculate final values
     const l = targetL
