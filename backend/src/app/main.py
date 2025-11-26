@@ -11,7 +11,6 @@ from fastapi.responses import JSONResponse
 from app.api import colors, health, ping
 from app.core.config import get_settings
 from app.core.logging import configure_logging, get_logger
-from app.middleware.rate_limit import RateLimitMiddleware
 from app.middleware.request_id import RequestIDMiddleware
 from app.middleware.upload_size import UploadSizeLimitMiddleware
 
@@ -102,7 +101,6 @@ async def global_exception_handler(request: Request, exc: Exception) -> JSONResp
 
 # Add middleware (order matters - first added = outermost layer)
 app.add_middleware(RequestIDMiddleware)
-app.add_middleware(RateLimitMiddleware)
 app.add_middleware(UploadSizeLimitMiddleware)  # Check upload size before processing
 app.add_middleware(
     CORSMiddleware,
