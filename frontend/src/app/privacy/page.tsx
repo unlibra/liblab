@@ -50,9 +50,10 @@ export default function PrivacyPage () {
             <div>
               <h3 className='mb-2 font-semibold'>2.1 アクセス情報</h3>
               <p>
-                本サイトではサービス改善のため、Google Analytics 4（以下「GA4」）を使用してアクセス情報を収集します。
-                収集される情報には、IP アドレス（匿名化処理を含む）、ブラウザの種類、アクセス日時、閲覧ページなどが含まれます。
-                Google によるデータ収集方法については Google のポリシーに従います。
+                本サイトではユーザー体験の改善のため、第三者のアクセス解析サービスを利用しています。
+                本サービスは匿名化されたアクセスデータのみを収集しており、Cookieは使用していません。
+                収集される情報にはページの閲覧回数・滞在時間・リファラー等が含まれますが、
+                個人を特定できる情報は含まれていません。
               </p>
             </div>
 
@@ -68,7 +69,7 @@ export default function PrivacyPage () {
             <div>
               <h3 className='mb-2 font-semibold'>2.3 ローカルストレージ</h3>
               <p>
-                本サイトでは、テーマ設定をブラウザのローカルストレージに保存します。
+                本サイトでは、カラーパレットやテーマ設定をブラウザのローカルストレージに保存します。
                 この情報はお使いのデバイスにのみ保存され、サーバーには送信されません。
               </p>
             </div>
@@ -76,7 +77,7 @@ export default function PrivacyPage () {
             <div>
               <h3 className='mb-2 font-semibold'>2.4 クッキー（Cookie）</h3>
               <p>
-                本サイトでは、GA4 によるアクセス解析のためにクッキーを使用します。
+                当サイトではCookieを使用していません。
               </p>
             </div>
           </div>
@@ -103,7 +104,7 @@ export default function PrivacyPage () {
           <ul className='ml-6 mt-2 list-disc space-y-1 leading-relaxed'>
             <li>ユーザーの同意がある場合</li>
             <li>法令に基づく場合</li>
-            <li>GA4などサービス提供に必要な外部サービスへの情報提供（匿名化された統計情報のみ）</li>
+            <li>サービス提供に必要な外部サービスへの情報提供（匿名化された統計情報のみ）</li>
           </ul>
         </section>
 
@@ -117,7 +118,7 @@ export default function PrivacyPage () {
               <strong className='font-semibold'>ローカルストレージ：</strong>ユーザーがブラウザから削除するまで保持されます。
             </p>
             <p>
-              <strong className='font-semibold'>クッキー（GA4）：</strong>Googleのデータ保持ポリシーに従います。
+              <strong className='font-semibold'>アクセス解析データ：</strong>各サービスのデータ保持ポリシーに従います。
             </p>
           </div>
         </section>

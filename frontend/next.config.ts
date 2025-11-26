@@ -13,6 +13,12 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_API_URL: normalizedApiUrl
   },
 
+  // Image optimization configuration
+  images: {
+    loader: 'custom',
+    loaderFile: './src/lib/cloudflare-loader.ts'
+  },
+
   // Security headers
   // NOTE: These are currently ignored due to 'output: export' above.
   // Currently applied via vercel.json instead.
@@ -50,7 +56,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: `default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' blob: ${normalizedApiUrl} https://www.google-analytics.com https://region1.google-analytics.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'`
+            value: `default-src 'self'; script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com https://vitals.vercel-insights.com https://cdn.vercel-insights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' blob: ${normalizedApiUrl} https://vitals.vercel-insights.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'`
           }
         ]
       },
