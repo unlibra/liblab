@@ -42,6 +42,11 @@ export async function handleApiFetchError (
   response: Response,
   fallbackMessage: string
 ): Promise<string> {
+  // Handle rate limit error (429) with dedicated message
+  if (response.status === 429) {
+    return 'アクセスが集中しています。しばらく待ってから再度お試しください。'
+  }
+
   const detailedMessage = await extractApiErrorMessage(response, fallbackMessage)
   return detailedMessage
 }
