@@ -74,6 +74,16 @@ if (curveType === 'hueShift') {
       maxShift = hue > 105° ? +2° : +4°
       finalValue = min(finalValue, maxShift)  // レモン色/純黄色の緑化防止
     }
+
+    // 知覚的最適化：純黄色のAmber warming
+    // sRGB純黄色（#ffff00, H≈110°）は人工的・刺激的に見える
+    // 自然界の黄色（太陽光、卵黄、蜂蜜）は暖色寄り
+    // Super-Gaussian分布（指数4）で純黄色にAmber方向の補正を適用
+    // 標準ガウシアン（指数2）より鋭い減衰で局所的に作用
+    distToPureYellow = |hue - 110°|
+    normalizedDist = distToPureYellow / 8
+    influence = exp(-(normalizedDist^4))
+    finalValue += -4 * influence  // 最大-4°（H=110°で）
   } else if (hue < 86° && yellowValue < 0 && shade >= 600) {
     // Amber寄りで茶色化を防ぐ
     baseStrength *= 0.4  // 60%削減
@@ -111,6 +121,7 @@ finalValue = lerp(normalValue, yellowValue, yellowInfluence * baseStrength)
 - **非対称ガウシアン**: Lime方向のドリフトを大幅削減（σ Amber=28, Lime=12）
 - **拡張黄色範囲**: 70-115°（純黄色#ffff00≈110°を含む）
 - **hueShift保護**: Lime側で+2-4°キャップ（H>105°でより厳格）、Amber側で-6°クランプ
+- **純黄色Amber warming**: H≈110°に最大-4°のSuper-Gaussian補正（指数4、知覚的最適化）
 - **Cusp-aware lightness**: シェードごとのL下限で茶色化/暗色化を防止
 - **Cusp-based chroma**: 無効化（anchor色の過飽和を防止）
 
@@ -269,6 +280,7 @@ const rotated = generatePalette('#3B82F6', { hueShift: 30 })
 | **Cusp-aware lightness**   | 黄色のcusp（L≈80）を考慮した明度下限で茶色化を防止                   |
 | **Cusp-based chroma**      | maxChromaの80%フロアで彩度を維持、色相補正前に適用                   |
 | **両側hueShift保護**       | Lime側で+2-4°キャップ（純黄色H>105°でより厳格）、Amber側-6°クランプ |
+| **純黄色Amber warming**    | H≈110°にSuper-Gaussian補正（最大-4°、指数4）で自然な暖かみ（知覚的最適化） |
 | **高速**                   | 早期終了とバイナリサーチ最適化で0.032ms/パレット                     |
 | **正確性**                 | OKLCh色空間で知覚的に均一な明度・彩度                                |
 | **科学的正当性**           | 人間の視覚システム（反対色理論）とOKLab cusp理論に基づく処理         |
@@ -307,6 +319,12 @@ if (curveType === 'hueShift') {
   // Amber側
   baseStrength *= 0.4  // hueShift削減率: 0.3-0.5
   MIN_HUE_SHIFT = -6   // 暗シェードクランプ: -4 to -8°
+
+  // 純黄色Amber warming（知覚的最適化）
+  PURE_YELLOW_HUE = 110            // sRGB純黄色の色相
+  PURE_YELLOW_SIGMA = 8            // 影響範囲: より広く 9-12, より狭く 5-7
+  GAUSSIAN_EXPONENT = 4            // Super-Gaussian指数: より鋭く 6-8, より緩く 2-3
+  MAX_AMBER_CORRECTION = -4        // 最大補正: より強く -5 to -6, より弱く -2 to -3
 }
 if (curveType === 'chroma') {
   baseStrength *= 0.3      // chroma削減率: 0.2-0.4

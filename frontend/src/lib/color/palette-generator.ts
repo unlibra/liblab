@@ -238,6 +238,23 @@ function getBlendedValue (
           const MAX_HUE_SHIFT = hue > 105 ? 2 : 4
           finalValue = Math.min(finalValue, MAX_HUE_SHIFT)
         }
+
+        // Perceptual optimization: Pure yellow amber warming
+        // Pure sRGB yellow (#ffff00, H≈110°) appears artificial and overly bright.
+        // Natural yellows (sunlight, egg yolks, honey) are warmer (amber-leaning).
+        // This Super-Gaussian correction adds warmth to pure yellows for more
+        // natural, pleasant appearance - a perceptual optimization for UI design.
+        const PURE_YELLOW_HUE = 110  // sRGB pure yellow (#ffff00)
+        const PURE_YELLOW_SIGMA = 8  // Influence range
+        const GAUSSIAN_EXPONENT = 4  // Super-Gaussian: sharper falloff than standard Gaussian
+        const MAX_AMBER_CORRECTION = -4  // Maximum shift toward amber (negative = warmer)
+
+        const distanceToPureYellow = Math.abs(hue - PURE_YELLOW_HUE)
+        const normalizedDist = distanceToPureYellow / PURE_YELLOW_SIGMA
+        const pureYellowInfluence = Math.exp(-(normalizedDist ** GAUSSIAN_EXPONENT))
+        const amberCorrection = MAX_AMBER_CORRECTION * pureYellowInfluence
+
+        finalValue += amberCorrection
       } else {
         finalValue = lerp(normalValue, yellowValue, blendStrength)
       }
