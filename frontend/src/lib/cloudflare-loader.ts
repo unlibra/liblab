@@ -12,7 +12,7 @@ export default function cloudflareLoader ({
 }: ImageLoaderProps): string {
   // Only use Cloudflare Images in production environment
   // Skip transformation in development and preview environments
-  const isProduction = process.env.VERCEL_ENV === 'production'
+  const isProduction = process.env.NEXT_PUBLIC_VERCEL_ENV === 'production'
 
   if (!isProduction) {
     // Return original path for local development and preview deployments
