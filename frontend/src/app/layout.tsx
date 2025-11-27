@@ -9,7 +9,6 @@ import type { ReactNode } from 'react'
 
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
-import { SupportSection } from '@/components/layout/support-section'
 import { siteConfig } from '@/config/site'
 import { CloudflareAnalytics } from '@/lib/analytics/cloudflare-analytics'
 import { Providers } from '@/lib/providers'
@@ -60,12 +59,22 @@ export const metadata: Metadata = {
     url: '/',
     title: siteConfig.title.default,
     description: siteConfig.description.replace(/\r?\n/g, ''),
-    siteName: siteConfig.name
+    siteName: siteConfig.name,
+    images: [{
+      url: 'https://8px.app/opengraph-image.png',
+      width: 1200,
+      height: 630
+    }]
   },
   twitter: {
-    card: 'summary_large_image',
+    card: 'summary',
     title: siteConfig.title.default,
-    description: siteConfig.description.replace(/\r?\n/g, '')
+    description: siteConfig.description.replace(/\r?\n/g, ''),
+    images: [{
+      url: 'https://8px.app/opengraph-image.png',
+      width: 1200,
+      height: 630
+    }]
   },
   robots: {
     index: true,
@@ -108,7 +117,6 @@ export default function RootLayout ({
             <main className='mx-auto w-full max-w-screen-xl flex-1 px-4 pb-12 pt-6 sm:px-6 lg:px-8'>
               {children}
             </main>
-            <SupportSection />
             <Footer />
           </div>
         </Providers>

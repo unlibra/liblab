@@ -18,12 +18,22 @@ export const metadata: Metadata = tool
         url: `/${tool.id}`,
         title: `${tool.name} - ${siteConfig.name}`,
         description: tool.description.replace(/\r?\n/g, ''),
-        siteName: siteConfig.name
+        siteName: siteConfig.name,
+        images: [{
+          url: 'https://8px.app/opengraph-image-iromide.png',
+          width: 1200,
+          height: 630
+        }]
       },
       twitter: {
         card: 'summary',
         title: `${tool.name} - ${siteConfig.name}`,
-        description: tool.description.replace(/\r?\n/g, '')
+        description: tool.description.replace(/\r?\n/g, ''),
+        images: [{
+          url: 'https://8px.app/opengraph-image-iromide.png',
+          width: 1200,
+          height: 630
+        }]
       }
     }
   : {}
