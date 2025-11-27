@@ -3,7 +3,7 @@ import { XShareButton } from '@/components/ui/x-share-button'
 
 export function SupportSection () {
   return (
-    <div className='relative mx-auto my-24 flex max-w-screen-md flex-col items-center gap-12'>
+    <div className='relative mx-auto my-32 flex max-w-screen-md flex-col items-center gap-12'>
 
       {/* タイトル＋左右線 */}
       <div className='flex w-full items-center justify-center'>

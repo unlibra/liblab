@@ -82,7 +82,7 @@ export default function PasswordGeneratorPage () {
 
         {/* Password Display */}
         <div className='mb-8 space-y-3'>
-          <div className='relative overflow-hidden rounded-lg border border-gray-200 bg-white'>
+          <div className='relative overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-600 dark:bg-atom-one-dark-light'>
             <div
               className='w-full truncate bg-transparent py-3 pl-4 pr-28 font-mono text-lg text-gray-900 outline-none dark:text-gray-100'
             >

@@ -1,5 +1,4 @@
 import { LogoIcon } from '@/components/icons/logo-icon'
-import { SupportSection } from '@/components/layout/support-section'
 import { ToolCard } from '@/components/tool-card'
 import { siteConfig } from '@/config/site'
 import { categories } from '@/config/tools'
@@ -55,7 +54,7 @@ export default function Home () {
       </div>
 
       {/* Tools by Category */}
-      <div className='space-y-12'>
+      <div className='mb-12 space-y-12'>
         {categories.map((category) => (
           <div key={category.id} id={category.id}>
             {/* Category Header */}
@@ -74,7 +73,6 @@ export default function Home () {
           </div>
         ))}
       </div>
-      <SupportSection />
     </>
   )
 }
