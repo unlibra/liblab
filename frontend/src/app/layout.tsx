@@ -9,6 +9,7 @@ import type { ReactNode } from 'react'
 
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
+import { SupportSection } from '@/components/layout/support-section'
 import { siteConfig } from '@/config/site'
 import { CloudflareAnalytics } from '@/lib/analytics/cloudflare-analytics'
 import { Providers } from '@/lib/providers'
@@ -107,6 +108,7 @@ export default function RootLayout ({
             <main className='mx-auto w-full max-w-screen-xl flex-1 px-4 pb-12 pt-6 sm:px-6 lg:px-8'>
               {children}
             </main>
+            <SupportSection />
             <Footer />
           </div>
         </Providers>
