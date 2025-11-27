@@ -4,7 +4,7 @@ export const siteConfig = {
   description: `その色も、そのアイコンも、思い通りに。
 Web・UI開発者のためのツールセット。
 すべて無料、すべてオープンソース。`,
-  author: '8px.app Project',
+  author: 'unlibra',
   title: {
     default: '8px.app - Developer Toolkit',
     template: '%s - 8px.app'

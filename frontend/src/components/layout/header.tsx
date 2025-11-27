@@ -64,8 +64,8 @@ export function Header () {
   }, [])
 
   return (
-    <header className='border-b border-gray-200 dark:border-gray-700'>
-      <nav className='mx-auto flex h-16 max-w-screen-xl items-center justify-between px-4 sm:px-6 lg:px-8'>
+    <header>
+      <nav className='mx-auto flex h-16 max-w-screen-xl items-center justify-between bg-transparent px-4 sm:px-6 lg:px-8'>
         {/* Mobile menu button */}
         <button
           type='button'

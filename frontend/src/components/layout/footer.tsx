@@ -1,5 +1,6 @@
 import Link from 'next/link'
 
+import { GitHubIcon } from '@/components/icons/github-icon'
 import { LogoIcon } from '@/components/icons/logo-icon'
 import { siteConfig } from '@/config/site'
 import { categories } from '@/config/tools'
@@ -22,9 +23,17 @@ export function Footer () {
             <p className='mt-3 whitespace-pre-line text-sm text-gray-600 dark:text-gray-400'>
               {siteConfig.description}
             </p>
-            <p className='mt-12 text-sm text-gray-600 dark:text-gray-400'>
-              © {new Date().getFullYear()} {siteConfig.author}
-            </p>
+            {githubRepoUrl && (
+              <a
+                href={githubRepoUrl}
+                target='_blank'
+                rel='noopener noreferrer'
+                className='mt-4 inline-flex items-center gap-2 text-sm text-gray-600 transition-all hover:underline dark:text-gray-400'
+              >
+                <GitHubIcon className='size-5' />
+                GitHub
+              </a>
+            )}
           </div>
 
           {/* Center: Tools by Category (dynamic columns) */}
@@ -76,19 +85,7 @@ export function Footer () {
                     rel='noopener noreferrer'
                     className='text-sm text-gray-600 transition-all hover:underline dark:text-gray-400'
                   >
-                    ディスカッション
-                  </a>
-                </li>
-              )}
-              {githubRepoUrl && (
-                <li>
-                  <a
-                    href={githubRepoUrl}
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='text-sm text-gray-600 transition-all hover:underline dark:text-gray-400'
-                  >
-                    GitHub
+                    問い合わせ等
                   </a>
                 </li>
               )}
@@ -114,6 +111,11 @@ export function Footer () {
               </li>
             </ul>
           </div>
+        </div>
+
+        {/* Copyright */}
+        <div className='mt-8 text-sm text-gray-600 dark:text-gray-400'>
+          © {new Date().getFullYear()} {siteConfig.author}
         </div>
       </div>
     </footer>

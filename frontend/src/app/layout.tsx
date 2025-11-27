@@ -10,6 +10,7 @@ import type { ReactNode } from 'react'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
 import { siteConfig } from '@/config/site'
+import { CloudflareAnalytics } from '@/lib/analytics/cloudflare-analytics'
 import { Providers } from '@/lib/providers'
 
 const fontASCII = Roboto_Flex({
@@ -58,12 +59,22 @@ export const metadata: Metadata = {
     url: '/',
     title: siteConfig.title.default,
     description: siteConfig.description.replace(/\r?\n/g, ''),
-    siteName: siteConfig.name
+    siteName: siteConfig.name,
+    images: [{
+      url: 'https://8px.app/opengraph-image.png',
+      width: 1200,
+      height: 630
+    }]
   },
   twitter: {
-    card: 'summary_large_image',
+    card: 'summary',
     title: siteConfig.title.default,
-    description: siteConfig.description.replace(/\r?\n/g, '')
+    description: siteConfig.description.replace(/\r?\n/g, ''),
+    images: [{
+      url: 'https://8px.app/opengraph-image.png',
+      width: 1200,
+      height: 630
+    }]
   },
   robots: {
     index: true,
@@ -92,8 +103,14 @@ export default function RootLayout ({
   children: ReactNode
 }>) {
   return (
-    <html lang='ja' className={`${fontASCII.variable} ${fontJP.variable} ${fontMono.variable} ${fontZenMaru.variable} ${fontOutfit.variable}`} suppressHydrationWarning>
-      <body className='bg-white text-gray-700 antialiased dark:bg-atom-one-dark dark:text-gray-300'>
+    <html
+      lang='ja'
+      className={`${fontASCII.variable} ${fontJP.variable} ${fontMono.variable} ${fontZenMaru.variable} ${fontOutfit.variable}`}
+      suppressHydrationWarning
+    >
+      <body
+        className='bg-white text-gray-700 antialiased dark:bg-atom-one-dark dark:text-gray-300'
+      >
         <Providers>
           <div className='flex min-h-screen flex-col overflow-x-hidden'>
             <Header />
@@ -105,6 +122,7 @@ export default function RootLayout ({
         </Providers>
         <Analytics />
         <SpeedInsights />
+        <CloudflareAnalytics />
       </body>
     </html>
   )

@@ -22,6 +22,7 @@ export function ToolCard ({ tool, iconBgColor }: ToolCardProps) {
             alt={tool.name}
             width={40}
             height={40}
+            sizes='40px'
           />
         </div>
         <h3 className='font-semibold'>

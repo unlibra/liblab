@@ -10,6 +10,7 @@ import sampleCheki3 from '@/assets/images/iromide/sample-cheki-3.webp'
 import { CorkBoardBackground } from '@/components/iromide/cork-board-background'
 import { MaskingTape } from '@/components/iromide/masking-tape'
 import { PolaroidFrame } from '@/components/iromide/polaroid-frame'
+import { SupportSection } from '@/components/layout/support-section'
 import { FullPageDropZone } from '@/components/ui/full-page-drop-zone'
 import { Spinner } from '@/components/ui/spinner'
 import { useToast } from '@/components/ui/toast'
@@ -236,7 +237,7 @@ export default function IromidePage () {
       onFileDrop={handleFileSelect}
       accept={isHeicSupport ? `${ACCEPTED_IMAGE_TYPES}, ${HEIC_TYPES}` : ACCEPTED_IMAGE_TYPES}
     >
-      <CorkBoardBackground className='left-1/2 -mb-12 -mt-6 w-screen -translate-x-1/2 border-b border-gray-200 px-4 py-12 dark:border-gray-700 sm:px-6 sm:py-20 lg:px-8'>
+      <CorkBoardBackground className='left-1/2 -mb-12 -mt-6 w-screen -translate-x-1/2 px-4 py-12 shadow-inner sm:px-6 sm:py-20 lg:px-8'>
         <div className='mx-auto flex min-h-[calc(100vh-160px)] max-w-screen-md flex-col px-4'>
           {/* Header */}
           <div className='mb-16 text-center'>
@@ -263,6 +264,7 @@ export default function IromidePage () {
                         alt={`Sample ${index + 1}`}
                         width={500}
                         height={600}
+                        sizes='(max-width: 833px) 60vw, 500px'
                         onLoad={() => {
                           setLoadedSamples(prev => new Set(prev).add(index))
                         }}
@@ -444,6 +446,7 @@ export default function IromidePage () {
                 </div>
                 )}
         </div>
+        <SupportSection />
       </CorkBoardBackground>
     </FullPageDropZone>
   )

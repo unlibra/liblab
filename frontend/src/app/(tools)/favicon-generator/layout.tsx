@@ -21,7 +21,6 @@ export const metadata: Metadata = tool
         siteName: siteConfig.name
       },
       twitter: {
-        card: 'summary',
         title: `${tool.name} - ${siteConfig.name}`,
         description: tool.description.replace(/\r?\n/g, '')
       }

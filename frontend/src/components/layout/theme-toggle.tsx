@@ -73,7 +73,7 @@ function ThemePopoverContent ({
 
 export function ThemeToggle () {
   const [mounted, setMounted] = useState(false)
-  const { theme, setTheme, systemTheme } = useTheme()
+  const { theme, setTheme, systemTheme, resolvedTheme } = useTheme()
 
   useEffect(() => {
     setMounted(true)
@@ -84,7 +84,7 @@ export function ThemeToggle () {
   }, [setTheme])
 
   // Determine if current display is light
-  const isLight = (theme === 'system' && systemTheme === 'light') || theme === 'light'
+  const isLight = resolvedTheme === 'light'
 
   // Show placeholder on server-side to avoid layout shift
   if (!mounted) {
