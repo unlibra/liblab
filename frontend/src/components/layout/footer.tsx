@@ -76,7 +76,7 @@ export function Footer () {
                     rel='noopener noreferrer'
                     className='text-sm text-gray-600 transition-all hover:underline dark:text-gray-400'
                   >
-                    ディスカッション
+                    問い合わせ等
                   </a>
                 </li>
               )}
