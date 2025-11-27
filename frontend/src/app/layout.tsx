@@ -12,8 +12,6 @@ import { Header } from '@/components/layout/header'
 import { siteConfig } from '@/config/site'
 import { CloudflareAnalytics } from '@/lib/analytics/cloudflare-analytics'
 import { Providers } from '@/lib/providers'
-import { ThemeColorInit } from '@/lib/theme/theme-color-init'
-import { ThemeColorSync } from '@/lib/theme/theme-color-sync'
 
 const fontASCII = Roboto_Flex({
   subsets: ['latin'],
@@ -101,12 +99,10 @@ export default function RootLayout ({
       suppressHydrationWarning
     >
       <body
-        className='bg-gray-100 text-gray-700 antialiased dark:bg-atom-one-dark-light dark:text-gray-300'
+        className='bg-white text-gray-700 antialiased dark:bg-atom-one-dark dark:text-gray-300'
       >
-        <ThemeColorInit />
         <Providers>
-          <ThemeColorSync />
-          <div className='flex min-h-screen flex-col overflow-x-hidden bg-white dark:bg-atom-one-dark'>
+          <div className='flex min-h-screen flex-col overflow-x-hidden'>
             <Header />
             <main className='mx-auto w-full max-w-screen-xl flex-1 px-4 pb-12 pt-6 sm:px-6 lg:px-8'>
               {children}

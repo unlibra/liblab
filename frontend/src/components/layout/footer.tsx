@@ -11,113 +11,117 @@ export function Footer () {
   const sponsorUrl = siteConfig.links.sponsor
 
   return (
-    <footer className='bg-gray-100 py-12 dark:bg-atom-one-dark-light'>
-      <div className='mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8'>
-        <div className='grid grid-cols-1 gap-8 md:grid-cols-[1fr_2fr_1fr] lg:gap-12'>
-          {/* Left: Logo and Site Name */}
-          <div>
-            <Link href='/' className='inline-flex items-center gap-2 transition-all hover:underline'>
-              <LogoIcon className='size-6' />
-              <span className='font-logo text-xl font-semibold'>{siteConfig.name}</span>
-            </Link>
-            <p className='mt-3 whitespace-pre-line text-sm text-gray-600 dark:text-gray-400'>
-              {siteConfig.description}
-            </p>
-            {githubRepoUrl && (
-              <a
-                href={githubRepoUrl}
-                target='_blank'
-                rel='noopener noreferrer'
-                className='mt-4 inline-flex items-center gap-2 text-sm text-gray-600 transition-all hover:underline dark:text-gray-400'
-              >
-                <GitHubIcon className='size-5' />
-                GitHub
-              </a>
-            )}
-          </div>
-
-          {/* Center: Tools by Category (dynamic columns) */}
-          <div className='grid grid-cols-1 gap-8 sm:grid-cols-2'>
-            {categories.map((category) => (
-              <div key={category.id}>
-                <h3 className='mb-3 text-sm font-semibold uppercase tracking-wider'>
-                  {category.name}
-                </h3>
-                <ul className='space-y-2'>
-                  {category.tools.map((tool) => (
-                    <li key={tool.id}>
-                      <Link
-                        href={`/${tool.id}`}
-                        className='text-sm text-gray-600 transition-all hover:underline dark:text-gray-400'
-                      >
-                        {tool.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-
-          {/* Right: Feedback Links */}
-          <div>
-            <h3 className='mb-3 text-sm font-semibold uppercase tracking-wider'>
-              Support
-            </h3>
-            <ul className='space-y-2'>
-              {issuesUrl && (
-                <li>
-                  <a
-                    href={issuesUrl}
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='text-sm text-gray-600 transition-all hover:underline dark:text-gray-400'
-                  >
-                    バグ報告
-                  </a>
-                </li>
-              )}
+    <>
+      <footer className='bg-gray-100 py-12 dark:bg-atom-one-dark-light'>
+        <div className='mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8'>
+          <div className='grid grid-cols-1 gap-8 md:grid-cols-[1fr_2fr_1fr] lg:gap-12'>
+            {/* Left: Logo and Site Name */}
+            <div>
+              <Link href='/' className='inline-flex items-center gap-2 transition-all hover:underline'>
+                <LogoIcon className='size-6' />
+                <span className='font-logo text-xl font-semibold'>{siteConfig.name}</span>
+              </Link>
+              <p className='mt-3 whitespace-pre-line text-sm text-gray-600 dark:text-gray-400'>
+                {siteConfig.description}
+              </p>
               {githubRepoUrl && (
-                <li>
-                  <a
-                    href={`${githubRepoUrl}/discussions`}
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='text-sm text-gray-600 transition-all hover:underline dark:text-gray-400'
-                  >
-                    問い合わせ等
-                  </a>
-                </li>
-              )}
-              {sponsorUrl && (
-                <li>
-                  <a
-                    href={sponsorUrl}
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='text-sm text-gray-600 transition-all hover:underline dark:text-gray-400'
-                  >
-                    寄付・支援
-                  </a>
-                </li>
-              )}
-              <li>
-                <Link
-                  href='/privacy'
-                  className='text-sm text-gray-600 transition-all hover:underline dark:text-gray-400'
+                <a
+                  href={githubRepoUrl}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='mt-4 inline-flex items-center gap-2 text-sm text-gray-600 transition-all hover:underline dark:text-gray-400'
                 >
-                  プライバシーポリシー
-                </Link>
-              </li>
-            </ul>
+                  <GitHubIcon className='size-5' />
+                  GitHub
+                </a>
+              )}
+            </div>
+
+            {/* Center: Tools by Category (dynamic columns) */}
+            <div className='grid grid-cols-1 gap-8 sm:grid-cols-2'>
+              {categories.map((category) => (
+                <div key={category.id}>
+                  <h3 className='mb-3 text-sm font-semibold uppercase tracking-wider'>
+                    {category.name}
+                  </h3>
+                  <ul className='space-y-2'>
+                    {category.tools.map((tool) => (
+                      <li key={tool.id}>
+                        <Link
+                          href={`/${tool.id}`}
+                          className='text-sm text-gray-600 transition-all hover:underline dark:text-gray-400'
+                        >
+                          {tool.name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+
+            {/* Right: Feedback Links */}
+            <div>
+              <h3 className='mb-3 text-sm font-semibold uppercase tracking-wider'>
+                Support
+              </h3>
+              <ul className='space-y-2'>
+                {issuesUrl && (
+                  <li>
+                    <a
+                      href={issuesUrl}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='text-sm text-gray-600 transition-all hover:underline dark:text-gray-400'
+                    >
+                      バグ報告
+                    </a>
+                  </li>
+                )}
+                {githubRepoUrl && (
+                  <li>
+                    <a
+                      href={`${githubRepoUrl}/discussions`}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='text-sm text-gray-600 transition-all hover:underline dark:text-gray-400'
+                    >
+                      問い合わせ等
+                    </a>
+                  </li>
+                )}
+                {sponsorUrl && (
+                  <li>
+                    <a
+                      href={sponsorUrl}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='text-sm text-gray-600 transition-all hover:underline dark:text-gray-400'
+                    >
+                      寄付・支援
+                    </a>
+                  </li>
+                )}
+                <li>
+                  <Link
+                    href='/privacy'
+                    className='text-sm text-gray-600 transition-all hover:underline dark:text-gray-400'
+                  >
+                    プライバシーポリシー
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Copyright */}
+          <div className='mt-8 text-sm text-gray-600 dark:text-gray-400'>
+            © {new Date().getFullYear()} {siteConfig.author}
           </div>
         </div>
-
-        {/* Copyright */}
-        <div className='mt-8 text-sm text-gray-600 dark:text-gray-400'>
-          © {new Date().getFullYear()} {siteConfig.author}
-        </div>
-      </div>
-    </footer>
+      </footer>
+      {/* Background Extension for iOS */}
+      <div className='fixed -bottom-96 left-0 right-0 h-96 bg-gray-100 dark:bg-atom-one-dark-light' />
+    </>
   )
 }
