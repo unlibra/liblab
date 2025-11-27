@@ -20,7 +20,7 @@ export const metadata: Metadata = tool
         description: tool.description.replace(/\r?\n/g, ''),
         siteName: siteConfig.name,
         images: [{
-          url: `${process.env.NEXT_PUBLIC_IMAGES_DOMAIN}/og.png`,
+          url: `${process.env.NEXT_PUBLIC_OG_IMAGE_URL}/og.png`,
           width: 1200,
           height: 630
         }]
@@ -30,7 +30,7 @@ export const metadata: Metadata = tool
         title: `${tool.name}`,
         description: tool.description.replace(/\r?\n/g, ''),
         images: [{
-          url: `${process.env.NEXT_PUBLIC_IMAGES_DOMAIN}/og.png`,
+          url: `${process.env.NEXT_PUBLIC_OG_IMAGE_URL}/og.png`,
           width: 1200,
           height: 630
         }]
