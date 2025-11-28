@@ -8,12 +8,13 @@ import { Breadcrumb } from '@/components/ui/breadcrumb'
 
 export async function generateMetadata (): Promise<Metadata> {
   const t = await getTranslations('privacy')
+  const locale = await getLocale()
 
   return {
     title: t('title'),
     description: t('description'),
     alternates: {
-      canonical: '/privacy'
+      canonical: locale === 'ja' ? '/privacy' : '/en/privacy'
     }
   }
 }

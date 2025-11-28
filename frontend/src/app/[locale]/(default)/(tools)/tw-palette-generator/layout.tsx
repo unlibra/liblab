@@ -1,49 +1,12 @@
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
 
-import { WebApplicationSchema } from '@/components/seo/web-application-schema'
-import { siteConfig } from '@/config/site'
-import { getToolById } from '@/config/tools'
+import { generateToolMetadata } from '@/lib/metadata'
 
-const tool = getToolById('tw-palette-generator')
+export async function generateMetadata (): Promise<Metadata> {
+  return generateToolMetadata('tw-palette-generator', '/tw-palette-generator')
+}
 
-export const metadata: Metadata = tool
-  ? {
-      title: tool.name,
-      description: tool.description.replace(/\r?\n/g, ''),
-      alternates: {
-        canonical: `/${tool.id}`
-      },
-      openGraph: {
-        type: 'website',
-        url: `/${tool.id}`,
-        title: `${tool.name}`,
-        description: tool.description.replace(/\r?\n/g, ''),
-        siteName: siteConfig.name,
-        images: [{
-          url: `${siteConfig.url}/og/default.png`,
-          width: 1200,
-          height: 630
-        }]
-      },
-      twitter: {
-        card: 'summary',
-        title: `${tool.name}`,
-        description: tool.description.replace(/\r?\n/g, ''),
-        images: [{
-          url: `${siteConfig.url}/og/default.png`,
-          width: 1200,
-          height: 630
-        }]
-      }
-    }
-  : {}
-
-export default function TailwindPaletteGeneratorLayout ({ children }: { children: ReactNode }) {
-  return (
-    <>
-      {tool && <WebApplicationSchema tool={tool} />}
-      {children}
-    </>
-  )
+export default function TwPaletteGeneratorLayout ({ children }: { children: ReactNode }) {
+  return children
 }

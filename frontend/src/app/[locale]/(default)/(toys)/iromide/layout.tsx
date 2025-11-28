@@ -1,49 +1,12 @@
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
 
-import { WebApplicationSchema } from '@/components/seo/web-application-schema'
-import { siteConfig } from '@/config/site'
-import { getToolById } from '@/config/tools'
+import { generateToolMetadata } from '@/lib/metadata'
 
-const tool = getToolById('iromide')
-
-export const metadata: Metadata = tool
-  ? {
-      title: tool.name,
-      description: tool.description.replace(/\r?\n/g, ''),
-      alternates: {
-        canonical: `/${tool.id}`
-      },
-      openGraph: {
-        type: 'website',
-        url: `/${tool.id}`,
-        title: `${tool.name}`,
-        description: tool.description.replace(/\r?\n/g, ''),
-        siteName: siteConfig.name,
-        images: [{
-          url: `${siteConfig.url}/og/iromide.png`,
-          width: 1200,
-          height: 630
-        }]
-      },
-      twitter: {
-        card: 'summary',
-        title: `${tool.name}`,
-        description: tool.description.replace(/\r?\n/g, ''),
-        images: [{
-          url: `${siteConfig.url}/og/iromide.png`,
-          width: 1200,
-          height: 630
-        }]
-      }
-    }
-  : {}
+export async function generateMetadata (): Promise<Metadata> {
+  return generateToolMetadata('iromide', '/iromide')
+}
 
 export default function IromideLayout ({ children }: { children: ReactNode }) {
-  return (
-    <div className='font-[family-name:var(--font-zen-maru)]'>
-      {tool && <WebApplicationSchema tool={tool} />}
-      {children}
-    </div>
-  )
+  return children
 }

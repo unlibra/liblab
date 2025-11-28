@@ -55,20 +55,20 @@ export async function generateMetadata ({ params }: { params: Promise<{ locale: 
   const messages = await getMessages({ locale }) as { site: { description: string, title: { default: string } } }
 
   return {
-    title: siteConfig.title,
+    title: messages.site.title.default,
     description: messages.site.description.replace(/\r?\n/g, ''),
     metadataBase: new URL(siteConfig.url),
     alternates: {
-      canonical: '/',
+      canonical: locale === 'ja' ? '/' : '/en',
       languages: {
-        ja: '/ja',
+        ja: '/',
         en: '/en'
       }
     },
     openGraph: {
       type: 'website',
       locale: locale === 'ja' ? 'ja_JP' : 'en_US',
-      url: '/',
+      url: locale === 'ja' ? '/' : '/en',
       title: messages.site.title.default,
       description: messages.site.description.replace(/\r?\n/g, ''),
       siteName: siteConfig.name,
