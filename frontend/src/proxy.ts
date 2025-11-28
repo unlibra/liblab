@@ -3,27 +3,27 @@ import createMiddleware from 'next-intl/middleware'
 import { defaultLocale, locales } from './i18n/request'
 
 export default createMiddleware({
-  // サポートするロケール
+  // Supported locales
   locales,
 
-  // デフォルトロケール
+  // Default locale
   defaultLocale,
 
-  // デフォルトロケールをパスに含めるかどうか
-  // falseの場合、/ja/page ではなく /page でアクセス可能
+  // Whether to include the default locale in the path
+  // When 'as-needed', /page is accessible instead of /ja/page for default locale
   localePrefix: 'as-needed',
 
-  // ブラウザの言語判定を無効化
-  // 理由: SEO最適化、パフォーマンス向上、日本プロモーションとの整合性
-  // - / は常に日本語（日本国内プロモーション用）
-  // - /en は常に英語（海外SEO流入用）
-  // - 言語切り替えはヘッダーのLocaleSwitcherで対応
+  // Disable automatic locale detection
+  // Reasons: SEO optimization, performance, consistency with Japan-focused promotion
+  // - / is always Japanese (for domestic Japan promotion)
+  // - /en is always English (for international SEO traffic)
+  // - Language switching is handled via LocaleSwitcher in header
   localeDetection: false
 })
 
 export const config = {
-  // next-intlを適用するパスのパターン
-  // 静的ファイル、API、Next.js内部ファイルを除外
+  // Path patterns to apply next-intl middleware
+  // Excludes static files, API routes, and Next.js internal files
   matcher: [
     '/',
     '/(ja|en)/:path*',
