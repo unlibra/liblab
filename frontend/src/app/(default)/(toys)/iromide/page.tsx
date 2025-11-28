@@ -239,7 +239,7 @@ export default function IromidePage () {
       <div className='fixed bottom-0 left-0 right-0 top-0 -z-50 h-screen'>
         <CorkBoardBackground className='h-full' />
       </div>
-      <div className='absolute -top-16 left-1/2 -z-10 -mt-8 h-16 w-screen -translate-x-1/2 bg-white' />
+      <div className='absolute -top-16 left-1/2 -z-10 -mt-8 h-16 w-screen -translate-x-1/2 bg-white dark:bg-atom-one-dark' />
       <div className='mx-auto flex min-h-[calc(100vh-160px)] max-w-screen-md flex-col px-6 py-12 sm:px-8 sm:py-20 lg:px-12'>
         {/* Header */}
         <div className='mb-16 text-center'>

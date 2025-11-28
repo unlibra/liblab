@@ -25,7 +25,7 @@ export default function Home () {
       <div className='relative -mt-6 mb-12 sm:mb-16'>
         {/* Wave Background - full width, extends to header and below */}
         <div className='absolute -bottom-10 -top-24 left-1/2 -z-10 w-screen -translate-x-1/2 overflow-hidden sm:-bottom-24 xl:-bottom-32'>
-          <div className='absolute inset-0 bg-gradient-to-br from-logo-light/10 to-logo-accent/10 dark:from-[#CFCFCF]/10 dark:to-[#7A7A7A]/10' />
+          <div className='absolute inset-0 bg-gradient-to-b from-white via-logo-light/60 to-logo-medium/80 dark:from-atom-one-dark dark:via-[#999999]/20 dark:to-[#CFCFCF]/20' />
           <svg
             xmlns='http://www.w3.org/2000/svg'
             viewBox='0 0 1440 320'
@@ -47,7 +47,7 @@ export default function Home () {
           <h1 className='mb-6 font-logo text-4xl font-semibold'>
             {siteConfig.name}
           </h1>
-          <p className='whitespace-pre-line font-medium text-gray-600 dark:text-gray-400'>
+          <p className='whitespace-pre-line font-medium'>
             {siteConfig.description}
           </p>
         </div>
