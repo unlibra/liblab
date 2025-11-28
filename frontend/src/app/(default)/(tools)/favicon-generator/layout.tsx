@@ -4,7 +4,7 @@ import type { ReactNode } from 'react'
 import { siteConfig } from '@/config/site'
 import { getToolById } from '@/config/tools'
 
-const tool = getToolById('password-generator')
+const tool = getToolById('favicon-generator')
 
 export const metadata: Metadata = tool
   ? {
@@ -20,7 +20,7 @@ export const metadata: Metadata = tool
         description: tool.description.replace(/\r?\n/g, ''),
         siteName: siteConfig.name,
         images: [{
-          url: `${process.env.NEXT_PUBLIC_OG_IMAGE_URL}/og.png`,
+          url: `${siteConfig.url}/og/default.png`,
           width: 1200,
           height: 630
         }]
@@ -30,7 +30,7 @@ export const metadata: Metadata = tool
         title: `${tool.name}`,
         description: tool.description.replace(/\r?\n/g, ''),
         images: [{
-          url: `${process.env.NEXT_PUBLIC_OG_IMAGE_URL}/og.png`,
+          url: `${siteConfig.url}/og/default.png`,
           width: 1200,
           height: 630
         }]
@@ -38,6 +38,6 @@ export const metadata: Metadata = tool
     }
   : {}
 
-export default function PasswordGeneratorLayout ({ children }: { children: ReactNode }) {
+export default function FaviconGeneratorLayout ({ children }: { children: ReactNode }) {
   return <>{children}</>
 }

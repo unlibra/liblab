@@ -10,7 +10,6 @@ import type { ReactNode } from 'react'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
 import { siteConfig } from '@/config/site'
-import { CloudflareAnalytics } from '@/lib/analytics/cloudflare-analytics'
 import { Providers } from '@/lib/providers'
 
 const fontASCII = Roboto_Flex({
@@ -61,7 +60,7 @@ export const metadata: Metadata = {
     description: siteConfig.description.replace(/\r?\n/g, ''),
     siteName: siteConfig.name,
     images: [{
-      url: `${process.env.NEXT_PUBLIC_OG_IMAGE_URL}/og.png`,
+      url: `${siteConfig.url}/og/default.png`,
       width: 1200,
       height: 630
     }]
@@ -71,7 +70,7 @@ export const metadata: Metadata = {
     title: siteConfig.title.default,
     description: siteConfig.description.replace(/\r?\n/g, ''),
     images: [{
-      url: `${process.env.NEXT_PUBLIC_OG_IMAGE_URL}/og.png`,
+      url: `${siteConfig.url}/og/default.png`,
       width: 1200,
       height: 630
     }]
@@ -114,7 +113,7 @@ export default function RootLayout ({
         <Providers>
           <div className='flex min-h-screen flex-col overflow-x-hidden'>
             <Header />
-            <main className='mx-auto w-full max-w-screen-xl flex-1 px-4 pb-12 pt-6 sm:px-6 lg:px-8'>
+            <main className='mx-auto w-full max-w-screen-xl flex-1 px-4 pb-12 pt-8 sm:px-6 lg:px-8'>
               {children}
             </main>
             <Footer />
@@ -122,7 +121,6 @@ export default function RootLayout ({
         </Providers>
         <Analytics />
         <SpeedInsights />
-        <CloudflareAnalytics />
       </body>
     </html>
   )

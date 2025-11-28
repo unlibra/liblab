@@ -4,7 +4,7 @@ import type { ReactNode } from 'react'
 import { siteConfig } from '@/config/site'
 import { getToolById } from '@/config/tools'
 
-const tool = getToolById('svg-optimizer')
+const tool = getToolById('iromide')
 
 export const metadata: Metadata = tool
   ? {
@@ -20,7 +20,7 @@ export const metadata: Metadata = tool
         description: tool.description.replace(/\r?\n/g, ''),
         siteName: siteConfig.name,
         images: [{
-          url: `${process.env.NEXT_PUBLIC_OG_IMAGE_URL}/og.png`,
+          url: `${siteConfig.url}/og/iromide.png`,
           width: 1200,
           height: 630
         }]
@@ -30,7 +30,7 @@ export const metadata: Metadata = tool
         title: `${tool.name}`,
         description: tool.description.replace(/\r?\n/g, ''),
         images: [{
-          url: `${process.env.NEXT_PUBLIC_OG_IMAGE_URL}/og.png`,
+          url: `${siteConfig.url}/og/iromide.png`,
           width: 1200,
           height: 630
         }]
@@ -38,6 +38,6 @@ export const metadata: Metadata = tool
     }
   : {}
 
-export default function SvgOptimizerLayout ({ children }: { children: ReactNode }) {
-  return <>{children}</>
+export default function IromideLayout ({ children }: { children: ReactNode }) {
+  return <div className='font-[family-name:var(--font-zen-maru)]'>{children}</div>
 }
