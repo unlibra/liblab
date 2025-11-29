@@ -2,6 +2,7 @@
 
 import { PhotoIcon } from '@heroicons/react/24/outline'
 import Image from 'next/image'
+import type { ReactNode } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import sampleCheki1 from '@/assets/images/iromide/sample-cheki-1.webp'
@@ -19,16 +20,16 @@ import { calculateChekiPadding, determineChekiSize } from '@/lib/utils/cheki'
 import { validateImageFile } from '@/lib/utils/file'
 import { getHeicSupport, loadImageFromFile, processImageForCheki } from '@/lib/utils/image'
 
-import { CorkBoardBackground } from './_components/cork-board-background'
-import { MaskingTape } from './_components/masking-tape'
-import { PolaroidFrame } from './_components/polaroid-frame'
+import { CorkBoardBackground } from './cork-board-background'
+import { MaskingTape } from './masking-tape'
+import { PolaroidFrame } from './polaroid-frame'
 
 const sampleChekiImages = [sampleCheki1, sampleCheki2, sampleCheki3]
 
 const ACCEPTED_IMAGE_TYPES = 'image/png, image/jpeg, image/webp, image/gif, image/avif, image/tiff, image/bmp'
 const HEIC_TYPES = 'image/heic, image/heif'
 
-export default function IromidePage () {
+export function IromideClient ({ supportSection }: { supportSection: ReactNode }) {
   const t = useTranslations()
   const toast = useToast()
   const shareTargetRef = useRef<HTMLDivElement>(null)
@@ -246,10 +247,9 @@ export default function IromidePage () {
       onFileDrop={handleFileSelect}
       accept={isHeicSupport ? `${ACCEPTED_IMAGE_TYPES}, ${HEIC_TYPES}` : ACCEPTED_IMAGE_TYPES}
     >
-      <div className='fixed bottom-0 left-0 right-0 top-0 -z-50 h-screen'>
+      <div className='absolute -bottom-12 -top-8 left-1/2 -z-50 w-screen -translate-x-1/2'>
         <CorkBoardBackground className='h-full' />
       </div>
-      <div className='absolute -top-16 left-1/2 -z-10 -mt-8 h-16 w-screen -translate-x-1/2 bg-white dark:bg-atom-one-dark' />
       <div className='mx-auto flex min-h-[calc(100vh-160px)] max-w-screen-md flex-col px-6 py-12 sm:px-8 sm:py-20 lg:px-12'>
         {/* Header */}
         <div className='mb-16 text-center'>
@@ -458,6 +458,7 @@ export default function IromidePage () {
               </div>
               )}
       </div>
+      {supportSection}
     </FullPageDropZone>
   )
 }
