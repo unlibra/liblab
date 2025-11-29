@@ -1,30 +1,41 @@
 'use client'
 
 import type { ReactNode } from 'react'
-import { createContext, useCallback, useContext, } from 'react'
+import { createContext, useCallback, useContext, useMemo } from 'react'
 
+import enMessages from '@/messages/en'
 import type { Messages } from '@/messages/ja'
+import jaMessages from '@/messages/ja'
 
 import type { Locale, NestedKeys } from './types'
+import { defaultLocale } from './types'
+
+const messagesMap = {
+  ja: jaMessages,
+  en: enMessages
+}
 
 interface I18nContextValue {
   locale: Locale
-  messages: Record<string, any>
+  messages: Messages
 }
 
 const I18nContext = createContext<I18nContextValue | undefined>(undefined)
 
 export function I18nProvider ({
   locale,
-  messages,
   children
 }: {
   locale: Locale
-  messages: Record<string, any>
   children: ReactNode
 }) {
+  const value = useMemo(() => ({
+    locale,
+    messages: messagesMap[locale]
+  }), [locale])
+
   return (
-    <I18nContext.Provider value={{ locale, messages }}>
+    <I18nContext.Provider value={value}>
       {children}
     </I18nContext.Provider>
   )
@@ -90,4 +101,34 @@ export function useTranslations (namespace?: string): (key: MessageKeys) => stri
  */
 export function useLocale (): Locale {
   return useI18nContext().locale
+}
+
+/**
+ * Generate localized path based on current locale
+ * Default locale (ja) uses root path, other locales are prefixed
+ *
+ * @example
+ * // In ja locale
+ * getLocalizedPath('/iromide', 'ja') // -> '/iromide'
+ *
+ * // In en locale
+ * getLocalizedPath('/iromide', 'en') // -> '/en/iromide'
+ */
+export function getLocalizedPath (path: string, locale: Locale): string {
+  if (locale === defaultLocale) {
+    return path
+  }
+  return `/${locale}${path}`
+}
+
+/**
+ * Hook to get localized path generator for current locale
+ *
+ * @example
+ * const getPath = useLocalizedPath()
+ * return <Link href={getPath('/iromide')} />
+ */
+export function useLocalizedPath () {
+  const locale = useLocale()
+  return useCallback((path: string) => getLocalizedPath(path, locale), [locale])
 }

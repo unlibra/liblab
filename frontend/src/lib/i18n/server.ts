@@ -1,7 +1,7 @@
 import enMessages from '@/messages/en'
+import type { Messages } from '@/messages/ja'
 import jaMessages from '@/messages/ja'
 
-import type { Messages } from '@/messages/ja'
 import type { Locale, NestedKeys } from './types'
 
 const messagesMap = {

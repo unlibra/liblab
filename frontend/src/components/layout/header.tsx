@@ -2,10 +2,10 @@
 
 import { CloseButton, Dialog, DialogPanel, Popover, PopoverButton, PopoverPanel, Transition, TransitionChild } from '@headlessui/react'
 import { Bars3Icon, ChevronDownIcon, XMarkIcon } from '@heroicons/react/24/outline'
-import Link from 'next/link'
 import { useCallback, useState } from 'react'
 
 import { LogoIcon } from '@/components/icons/logo-icon'
+import { Link } from '@/components/link'
 import { siteConfig } from '@/config/site'
 import { categories } from '@/config/tools'
 import { useTranslations } from '@/lib/i18n/client'

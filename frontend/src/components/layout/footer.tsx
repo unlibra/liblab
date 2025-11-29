@@ -1,9 +1,8 @@
 'use client'
 
-import Link from 'next/link'
-
 import { GitHubIcon } from '@/components/icons/github-icon'
 import { LogoIcon } from '@/components/icons/logo-icon'
+import { Link } from '@/components/link'
 import { siteConfig } from '@/config/site'
 import { categories } from '@/config/tools'
 import { useTranslations } from '@/lib/i18n/client'

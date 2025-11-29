@@ -1,8 +1,8 @@
 'use client'
 
 import Image from 'next/image'
-import Link from 'next/link'
 
+import { Link } from '@/components/link'
 import type { Tool } from '@/config/tools'
 import { useTranslations } from '@/lib/i18n/client'
 

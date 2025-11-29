@@ -1,6 +1,6 @@
 import { ChevronRightIcon } from '@heroicons/react/24/outline'
-import Link from 'next/link'
 
+import { Link } from '@/components/link'
 import { siteConfig } from '@/config/site'
 
 interface BreadcrumbItem {

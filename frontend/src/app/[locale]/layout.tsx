@@ -122,9 +122,6 @@ export default async function LocaleLayout ({
     notFound()
   }
 
-  // Get messages for the locale
-  const messages = await getMessages(locale as Locale)
-
   return (
     <html
       lang={locale}
@@ -134,7 +131,7 @@ export default async function LocaleLayout ({
       <body
         className='bg-white text-gray-700 antialiased dark:bg-atom-one-dark dark:text-gray-300'
       >
-        <I18nProvider locale={locale as Locale} messages={messages}>
+        <I18nProvider locale={locale as Locale}>
           <Providers>
             <div className='flex min-h-screen flex-col overflow-x-hidden'>
               <Header />

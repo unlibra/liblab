@@ -5,8 +5,9 @@ import { GlobeAltIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
-import { useLocale } from '@/lib/i18n/client'
-import { locales } from '@/lib/i18n/types'
+import { getLocalizedPath, useLocale } from '@/lib/i18n/client'
+import type { Locale } from '@/lib/i18n/types'
+import { defaultLocale, locales } from '@/lib/i18n/types'
 
 const localeNames: Record<string, string> = {
   ja: '日本語',
@@ -16,6 +17,21 @@ const localeNames: Record<string, string> = {
 export function LocaleSwitcher () {
   const locale = useLocale()
   const pathname = usePathname()
+
+  // Remove current locale prefix from pathname to get base path
+  const getBasePath = () => {
+    if (locale === defaultLocale) {
+      return pathname
+    }
+    // Remove /en prefix from /en/iromide -> /iromide
+    return pathname.replace(`/${locale}`, '')
+  }
+
+  // Generate localized path for target locale
+  const getLocalizedPathForLocale = (targetLocale: Locale) => {
+    const basePath = getBasePath()
+    return getLocalizedPath(basePath, targetLocale)
+  }
 
   return (
     <Popover className='relative'>
@@ -41,8 +57,7 @@ export function LocaleSwitcher () {
               <CloseButton
                 key={loc}
                 as={Link}
-                href={pathname}
-                locale={loc}
+                href={getLocalizedPathForLocale(loc)}
                 className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm outline-none transition-colors ${
                   locale === loc
                     ? 'bg-sky-50 dark:bg-atom-one-dark-lighter'
