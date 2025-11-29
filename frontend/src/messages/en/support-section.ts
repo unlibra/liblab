@@ -4,7 +4,6 @@ import type { SameStructure } from '../type-utils'
 export const supportSection: SameStructure<typeof jaSupportSection> = {
   title: 'Your support means the world!',
   shareOnX: 'Share on X',
-  shareOnHatena: 'Bookmark',
   sendTip: 'Send a Tip',
-  share: 'Share',
+  share: 'Share'
 } as const

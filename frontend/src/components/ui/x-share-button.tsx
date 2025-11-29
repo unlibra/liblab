@@ -22,7 +22,7 @@ export function XShareButton () {
       href={shareUrl}
       target='_blank'
       rel='noopener noreferrer'
-      className='inline-flex w-44 items-center justify-center gap-2 rounded-full bg-black py-3 font-medium text-white transition-colors hover:bg-black/80'
+      className='inline-flex w-44 items-center justify-center gap-2 rounded-full bg-gray-800 py-3 font-medium text-white transition-colors hover:bg-gray-800/80'
     >
       <XIcon className='size-5' />
       {t('supportSection.shareOnX')}

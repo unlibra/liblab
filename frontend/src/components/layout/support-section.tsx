@@ -1,4 +1,3 @@
-import { HatenaShareButton } from '@/components/ui/hatena-share-button'
 import { OfuseButton } from '@/components/ui/ofuse-button'
 import { ShareButton } from '@/components/ui/share-button'
 import { XShareButton } from '@/components/ui/x-share-button'
@@ -25,7 +24,6 @@ export async function SupportSection ({ locale }: { locale: Locale }) {
       {/* ボタン */}
       <div className='flex flex-col gap-4 sm:flex-row'>
         <XShareButton />
-        <HatenaShareButton />
         <ShareButton />
         <OfuseButton />
       </div>
