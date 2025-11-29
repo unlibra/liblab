@@ -3,10 +3,10 @@ import { OfuseButton } from '@/components/ui/ofuse-button'
 import { ShareButton } from '@/components/ui/share-button'
 import { XShareButton } from '@/components/ui/x-share-button'
 import type { Locale } from '@/lib/i18n'
-import { i18n } from '@/lib/i18n'
+import { getTranslations } from '@/lib/i18n/server'
 
 export async function SupportSection ({ locale }: { locale: Locale }) {
-  const t = await i18n.server.getTranslations(locale)
+  const t = await getTranslations(locale)
 
   return (
     <div className='relative mx-auto my-32 flex max-w-screen-md flex-col items-center gap-12'>

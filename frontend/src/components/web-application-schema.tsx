@@ -1,7 +1,8 @@
 import { siteConfig } from '@/config/site'
 import type { ToolId } from '@/config/tools'
 import type { Locale } from '@/lib/i18n'
-import { defaultLocale, i18n } from '@/lib/i18n'
+import { defaultLocale } from '@/lib/i18n'
+import { getMessages } from '@/lib/i18n/server'
 
 interface WebApplicationSchemaProps {
   toolId: ToolId
@@ -9,7 +10,7 @@ interface WebApplicationSchemaProps {
 }
 
 export async function WebApplicationSchema ({ toolId, locale }: WebApplicationSchemaProps) {
-  const messages = await i18n.server.getMessages(locale)
+  const messages = await getMessages(locale)
   const tool = messages.tools[toolId]
 
   // Generate localized URL

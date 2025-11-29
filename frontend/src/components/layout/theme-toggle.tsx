@@ -5,7 +5,7 @@ import { MoonIcon, SunIcon } from '@heroicons/react/24/solid'
 import { useTheme } from 'next-themes'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { i18n } from '@/lib/i18n'
+import { useTranslations } from '@/lib/i18n/client'
 
 function ThemePopoverContent ({
   isLight,
@@ -18,7 +18,7 @@ function ThemePopoverContent ({
   systemTheme: string | undefined
   handleThemeChange: (newTheme: string) => void
 }) {
-  const t = i18n.client.useTranslations()
+  const t = useTranslations()
   const buttonRef = useRef<HTMLButtonElement>(null)
 
   return (

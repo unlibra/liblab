@@ -4,7 +4,7 @@ import { DocumentPlusIcon } from '@heroicons/react/24/outline'
 import type { DragEvent, ReactNode } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { i18n } from '@/lib/i18n'
+import { useTranslations } from '@/lib/i18n/client'
 
 import { useToast } from './toast'
 
@@ -21,7 +21,7 @@ export function FullPageDropZone ({
   accept,
   children
 }: FullPageDropZoneProps) {
-  const t = i18n.client.useTranslations()
+  const t = useTranslations()
   const [isDragging, setIsDragging] = useState(false)
   const dragCounterRef = useRef(0)
   const toast = useToast()

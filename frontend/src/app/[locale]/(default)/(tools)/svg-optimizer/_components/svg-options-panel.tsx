@@ -4,7 +4,7 @@ import { useCallback } from 'react'
 
 import { Slider } from '@/components/ui/slider'
 import type { SvgoOptions } from '@/lib/generators/svgo'
-import { i18n } from '@/lib/i18n'
+import { useTranslations } from '@/lib/i18n/client'
 
 import { PLUGIN_DESCRIPTIONS, PLUGIN_GROUPS } from '../_lib/svgo-options'
 import type { PresetId } from '../_lib/svgo-presets'
@@ -18,7 +18,7 @@ type SvgOptionsPanelProps = {
 }
 
 export function SvgOptionsPanel ({ options, onOptionsChange, selectedPreset, onPresetChange }: SvgOptionsPanelProps) {
-  const t = i18n.client.useTranslations()
+  const t = useTranslations()
 
   const handleToggle = useCallback((key: keyof SvgoOptions) => {
     onOptionsChange({

@@ -10,7 +10,8 @@ import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
 import { siteConfig } from '@/config/site'
 import type { Locale } from '@/lib/i18n'
-import { i18n, } from '@/lib/i18n'
+import { Provider as I18nProvider } from '@/lib/i18n/client'
+import { getMessages } from '@/lib/i18n/server'
 import { Providers } from '@/lib/providers'
 
 const locales: readonly Locale[] = ['ja', 'en']
@@ -50,7 +51,7 @@ export function generateStaticParams () {
 
 export async function generateMetadata ({ params }: { params: Promise<{ locale: Locale }> }): Promise<Metadata> {
   const { locale } = await params
-  const messages = await i18n.server.getMessages(locale)
+  const messages = await getMessages(locale)
 
   return {
     title: messages.site.title.default,
@@ -123,7 +124,7 @@ export default async function LocaleLayout ({
   }
 
   // Get messages as plain object (not ES module)
-  const currentMessages = await i18n.server.getMessages(locale)
+  const currentMessages = await getMessages(locale)
 
   return (
     <html
@@ -134,7 +135,7 @@ export default async function LocaleLayout ({
       <body
         className='bg-white text-gray-700 antialiased dark:bg-atom-one-dark dark:text-gray-300'
       >
-        <i18n.client.Provider
+        <I18nProvider
           locale={locale as Locale}
           messages={currentMessages}
         >
@@ -147,7 +148,7 @@ export default async function LocaleLayout ({
               <Footer locale={locale as Locale} />
             </div>
           </Providers>
-        </i18n.client.Provider>
+        </I18nProvider>
         <Analytics />
         <SpeedInsights />
       </body>

@@ -1,5 +1,5 @@
 import { Breadcrumb } from '@/components/ui/breadcrumb'
-import { i18n } from '@/lib/i18n'
+import { getMessages } from '@/lib/i18n/server'
 
 function renderTextWithLinks (text: string) {
   const urlRegex = /(https:\/\/[^\s]+)/g
@@ -24,7 +24,7 @@ function renderTextWithLinks (text: string) {
 
 export default async function PrivacyPage ({ params }: { params: Promise<{ locale: 'ja' | 'en' }> }) {
   const { locale } = await params
-  const messages = await i18n.server.getMessages(locale)
+  const messages = await getMessages(locale)
 
   return (
     <div className='mx-auto max-w-3xl'>

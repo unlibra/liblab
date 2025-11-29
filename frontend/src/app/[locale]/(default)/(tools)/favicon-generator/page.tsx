@@ -12,7 +12,7 @@ import { FullPageDropZone } from '@/components/ui/full-page-drop-zone'
 import { useToast } from '@/components/ui/toast'
 import type { FaviconSize } from '@/lib/generators/favicon'
 import { generateOutputSet } from '@/lib/generators/favicon'
-import { i18n } from '@/lib/i18n'
+import { useTranslations } from '@/lib/i18n/client'
 import { validateImageFile } from '@/lib/utils/file'
 import { downloadBlob, getHeicSupport, loadImageFromFile, processImage } from '@/lib/utils/image'
 import { createZip } from '@/lib/utils/zip'
@@ -25,7 +25,7 @@ const ACCEPTED_IMAGE_TYPES = 'image/png, image/jpeg, image/webp, image/svg+xml, 
 const HEIC_TYPES = 'image/heic, image/heif'
 
 export default function FaviconGeneratorPage () {
-  const t = i18n.client.useTranslations()
+  const t = useTranslations()
   const toast = useToast()
   const [image, setImage] = useState<HTMLImageElement | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)

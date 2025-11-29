@@ -9,9 +9,6 @@
   },
   "exports": {
     ".": "./src/index.tsx",
-    "./client": "./src/client.tsx",
-    "./server": "./src/server.ts",
-    "./link": "./src/link.tsx",
     "./types": "./src/types.ts"
   },
   "peerDependencies": {

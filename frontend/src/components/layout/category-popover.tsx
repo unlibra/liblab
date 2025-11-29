@@ -4,10 +4,10 @@ import { CloseButton, Popover, PopoverButton, PopoverPanel, Transition } from '@
 import { ChevronDownIcon } from '@heroicons/react/24/outline'
 
 import type { categories } from '@/config/tools'
-import { i18n } from '@/lib/i18n'
+import { Link, useTranslations } from '@/lib/i18n/client'
 
 export function CategoryPopover ({ category }: { category: typeof categories[number] }) {
-  const t = i18n.client.useTranslations() // 自動的にMessageKeys型
+  const t = useTranslations() // 自動的にMessageKeys型
 
   return (
     <Popover className='group relative'>
@@ -29,7 +29,7 @@ export function CategoryPopover ({ category }: { category: typeof categories[num
           <div className='w-60 overflow-hidden rounded-lg border border-gray-200 bg-white p-1 shadow-lg dark:border-gray-700 dark:bg-atom-one-dark-light'>
             {category.tools.map((tool) => (
               <CloseButton
-                as={i18n.client.Link}
+                as={Link}
                 key={tool.id}
                 href={`/${tool.id}`}
                 className='flex w-full items-center gap-3 rounded-md px-3 py-2 outline-none transition-colors hover:bg-gray-100 focus-visible:bg-gray-100 dark:hover:bg-atom-one-dark-lighter focus-visible:dark:bg-atom-one-dark-lighter'

@@ -155,6 +155,66 @@ export function MyClientComponent() {
 }
 ```
 
+## Recommended Import Pattern (Re-exports)
+
+For cleaner imports, create re-export files in your application:
+
+```typescript
+// src/lib/i18n/server.ts
+import { i18n } from '../i18n'
+
+export const getMessages = i18n.server.getMessages
+export const getTranslations = i18n.server.getTranslations
+export const getLocale = i18n.server.getLocale
+export const getLocalizedPath = i18n.server.getLocalizedPath
+export const getLocales = i18n.server.getLocales
+export const getDefaultLocale = i18n.server.getDefaultLocale
+```
+
+```typescript
+// src/lib/i18n/client.ts
+import { i18n } from '../i18n'
+
+export const Provider = i18n.client.Provider
+export const Link = i18n.client.Link
+export const useMessages = i18n.client.useMessages
+export const useTranslations = i18n.client.useTranslations
+export const useLocale = i18n.client.useLocale
+export const useLocalizedPath = i18n.client.useLocalizedPath
+export const useLocales = i18n.client.useLocales
+```
+
+Then use them with cleaner imports:
+
+```typescript
+// Server Components
+import { getMessages, getTranslations } from '@/lib/i18n/server'
+
+export async function MyPage({ locale }: { locale: Locale }) {
+  const messages = await getMessages(locale)
+  const t = await getTranslations(locale)
+
+  return <div>{messages.site.name}</div>
+}
+```
+
+```typescript
+// Client Components
+'use client'
+
+import { Link, useTranslations } from '@/lib/i18n/client'
+
+export function MyComponent() {
+  const t = useTranslations()
+
+  return <Link href="/">{t('nav.home')}</Link>
+}
+```
+
+Both patterns work equally well - choose based on your preference:
+- **Direct access** (`i18n.server.getMessages`) - Explicit, shows the API structure
+- **Re-exports** (`getMessages`) - Cleaner imports, less typing
+
 ## API Reference
 
 ### `createI18n(config)`

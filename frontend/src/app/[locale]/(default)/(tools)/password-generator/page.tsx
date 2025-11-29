@@ -10,10 +10,10 @@ import { useToast } from '@/components/ui/toast'
 import { TogglePill } from '@/components/ui/toggle-pill'
 import type { PasswordOptions } from '@/lib/generators/password'
 import { generatePassword } from '@/lib/generators/password'
-import { i18n } from '@/lib/i18n'
+import { useTranslations } from '@/lib/i18n/client'
 
 export default function PasswordGeneratorPage () {
-  const t = i18n.client.useTranslations()
+  const t = useTranslations()
   const toast = useToast()
 
   // Password options

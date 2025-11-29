@@ -3,12 +3,12 @@
 import { ShareIcon } from '@heroicons/react/24/outline'
 import { useCallback } from 'react'
 
-import { i18n } from '@/lib/i18n'
+import { useTranslations } from '@/lib/i18n/client'
 
 import { useToast } from './toast'
 
 export function ShareButton () {
-  const t = i18n.client.useTranslations()
+  const t = useTranslations()
   const toast = useToast()
 
   const handleClick = useCallback(async () => {

@@ -13,7 +13,7 @@ import { useToast } from '@/components/ui/toast'
 import { siteConfig } from '@/config/site'
 import type { ExtractedColor } from '@/lib/api/colors'
 import { extractColorsFromImage, NetworkError } from '@/lib/api/colors'
-import { i18n } from '@/lib/i18n'
+import { useTranslations } from '@/lib/i18n/client'
 import type { ChekiPadding, ChekiSize } from '@/lib/utils/cheki'
 import { calculateChekiPadding, determineChekiSize } from '@/lib/utils/cheki'
 import { validateImageFile } from '@/lib/utils/file'
@@ -29,7 +29,7 @@ const ACCEPTED_IMAGE_TYPES = 'image/png, image/jpeg, image/webp, image/gif, imag
 const HEIC_TYPES = 'image/heic, image/heif'
 
 export default function IromidePage () {
-  const t = i18n.client.useTranslations()
+  const t = useTranslations()
   const toast = useToast()
   const shareTargetRef = useRef<HTMLDivElement>(null)
 

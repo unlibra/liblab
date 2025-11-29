@@ -14,7 +14,7 @@ import {
   generatePalette,
   getShadeLabels
 } from '@/lib/generators/palette'
-import { i18n } from '@/lib/i18n'
+import { useTranslations } from '@/lib/i18n/client'
 import { hexToOklch } from '@/lib/utils/color'
 
 import { HueSlider } from './_components/hue-slider'
@@ -22,7 +22,7 @@ import { LightnessSlider } from './_components/lightness-slider'
 import { SaturationSlider } from './_components/saturation-slider'
 
 export default function TailwindPaletteGeneratorPage () {
-  const t = i18n.client.useTranslations()
+  const t = useTranslations()
   const toast = useToast()
 
   // Palette history type

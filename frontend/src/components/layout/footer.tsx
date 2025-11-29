@@ -3,11 +3,12 @@ import { LogoIcon } from '@/components/icons/logo-icon'
 import { siteConfig } from '@/config/site'
 import { categories } from '@/config/tools'
 import type { Locale } from '@/lib/i18n'
-import { i18n, } from '@/lib/i18n'
+import { Link } from '@/lib/i18n/client'
+import { getMessages, getTranslations } from '@/lib/i18n/server'
 
 export async function Footer ({ locale }: { locale: Locale }) {
-  const messages = await i18n.server.getMessages(locale)
-  const t = await i18n.server.getTranslations(locale)
+  const messages = await getMessages(locale)
+  const t = await getTranslations(locale)
   const githubRepoUrl = siteConfig.links.github
   const issuesUrl = githubRepoUrl ? `${githubRepoUrl}/issues` : ''
   const sponsorUrl = siteConfig.links.sponsor
@@ -18,10 +19,10 @@ export async function Footer ({ locale }: { locale: Locale }) {
         <div className='grid grid-cols-1 gap-8 md:grid-cols-[1fr_2fr_1fr] lg:gap-12'>
           {/* Left: Logo and Site Name */}
           <div>
-            <i18n.client.Link href='/' className='inline-flex items-center gap-2 transition-all hover:underline'>
+            <Link href='/' className='inline-flex items-center gap-2 transition-all hover:underline'>
               <LogoIcon className='size-6' />
               <span className='font-logo text-xl font-semibold'>{messages.site.name}</span>
-            </i18n.client.Link>
+            </Link>
             <p className='mt-3 whitespace-pre-line text-sm text-gray-600 dark:text-gray-400'>
               {t('site.description')}
             </p>
@@ -48,12 +49,12 @@ export async function Footer ({ locale }: { locale: Locale }) {
                 <ul className='space-y-2'>
                   {category.tools.map((tool) => (
                     <li key={tool.id}>
-                      <i18n.client.Link
+                      <Link
                         href={`/${tool.id}`}
                         className='text-sm text-gray-600 transition-all hover:underline dark:text-gray-400'
                       >
                         {t(`tools.${tool.id}.name`)}
-                      </i18n.client.Link>
+                      </Link>
                     </li>
                   ))}
                 </ul>
@@ -104,12 +105,12 @@ export async function Footer ({ locale }: { locale: Locale }) {
                 </li>
               )}
               <li>
-                <i18n.client.Link
+                <Link
                   href='/privacy'
                   className='text-sm text-gray-600 transition-all hover:underline dark:text-gray-400'
                 >
                   {t('footer.privacyPolicy')}
-                </i18n.client.Link>
+                </Link>
               </li>
             </ul>
           </div>

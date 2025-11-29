@@ -2,14 +2,14 @@ import { LogoIcon } from '@/components/icons/logo-icon'
 import { siteConfig } from '@/config/site'
 import { categories } from '@/config/tools'
 import type { Locale } from '@/lib/i18n'
-import { i18n } from '@/lib/i18n'
+import { getMessages, getTranslations } from '@/lib/i18n/server'
 
 import { ToolCard } from './_components/tool-card'
 
 export default async function Home ({ params }: { params: Promise<{ locale: Locale }> }) {
   const { locale } = await params
-  const messages = await i18n.server.getMessages(locale) // 自動的にMessages型
-  const t = await i18n.server.getTranslations(locale) // 自動的にMessageKeys型
+  const messages = await getMessages(locale) // 自動的にMessages型
+  const t = await getTranslations(locale) // 自動的にMessageKeys型
 
   // JSON-LD structured data
   const jsonLd = {
