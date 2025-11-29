@@ -20,11 +20,12 @@ export function LocaleSwitcher () {
 
   // Remove current locale prefix from pathname to get base path
   const getBasePath = () => {
-    if (locale === defaultLocale) {
-      return pathname
-    }
-    // Remove /en prefix from /en/iromide -> /iromide
-    return pathname.replace(`/${locale}`, '')
+    // pathname is always the internal path (e.g., /ja/iromide or /en/iromide)
+    // Remove locale prefix: /ja/iromide -> /iromide, /en/iromide -> /iromide
+    // Use regex to ensure we only match locale at the start of the path
+    const localePrefix = new RegExp(`^/${locale}(/|$)`)
+    const basePath = pathname.replace(localePrefix, '/')
+    return basePath === '' ? '/' : basePath
   }
 
   // Generate localized path for target locale
