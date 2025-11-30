@@ -18,6 +18,7 @@ type PolaroidFrameProps = {
   style?: React.CSSProperties
   children?: React.ReactNode
   chekiPadding?: ChekiPadding // Cheki padding (px)
+  useDropShadow?: boolean // Use drop-shadow (for export) instead of box-shadow (for preview)
 }
 
 export function PolaroidFrame ({
@@ -26,7 +27,8 @@ export function PolaroidFrame ({
   image,
   style = {},
   children,
-  chekiPadding
+  chekiPadding,
+  useDropShadow = false
 }: PolaroidFrameProps) {
   // Use cheki padding if specified, otherwise default
   const paddingStyle = chekiPadding
@@ -47,10 +49,12 @@ export function PolaroidFrame ({
 
   const { onLoad } = image
 
+  const shadowClass = useDropShadow ? 'drop-shadow-xl' : 'shadow-xl'
+
   return (
     <div
       // Root element: handles positioning and rotation only
-      className={`drop-shadow-xl ${className}`}
+      className={className}
       style={{
         transform: `rotate(${rotation}deg)`,
         ...style
@@ -58,7 +62,7 @@ export function PolaroidFrame ({
     >
       {/* Inner element: handles Polaroid appearance and internal coordinates */}
       <div
-        className='relative overflow-hidden rounded bg-white px-3 pb-10 pt-5 dark:bg-gray-100 sm:px-12 sm:pb-40 sm:pt-20'
+        className={`relative overflow-hidden rounded bg-white px-3 pb-10 pt-5 dark:bg-gray-100 sm:px-12 sm:pb-40 sm:pt-20 ${shadowClass}`}
         style={paddingStyle}
       >
 

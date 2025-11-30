@@ -349,6 +349,7 @@ export function IromideClient ({ supportSection }: { supportSection: ReactNode }
                         }}
                         rotation={resultRotation}
                         chekiPadding={chekiPadding ?? undefined}
+                        useDropShadow
                       >
                         <div className='relative flex size-full flex-col items-center gap-2'>
                           <div className='absolute bottom-1/2 left-1/2 flex -translate-x-1/2 gap-2 '>
