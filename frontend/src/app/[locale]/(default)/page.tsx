@@ -1,11 +1,10 @@
-import { ChevronRightIcon } from '@heroicons/react/24/outline'
-
 import { LogoIcon } from '@/components/icons/logo-icon'
 import { siteConfig } from '@/config/site'
 import { categories } from '@/config/tools'
 import type { Locale } from '@/lib/i18n'
 import { getMessages, getTranslations } from '@/lib/i18n/server'
 
+import { AboutSection } from './_components/about-section'
 import { ToolCard } from './_components/tool-card'
 
 export default async function Home ({ params }: { params: Promise<{ locale: Locale }> }) {
@@ -34,7 +33,7 @@ export default async function Home ({ params }: { params: Promise<{ locale: Loca
       <div className='relative -mt-6 mb-12 sm:mb-16'>
         {/* Wave Background - full width, extends to header and below */}
         <div className='absolute -bottom-10 -top-24 left-1/2 -z-10 w-screen -translate-x-1/2 overflow-hidden sm:-bottom-24 xl:-bottom-32'>
-          <div className='absolute inset-0 bg-gradient-to-b from-white via-logo-light/60 to-logo-medium/80 dark:from-atom-one-dark dark:via-[#999999]/20 dark:to-[#CFCFCF]/20' />
+          <div className='absolute inset-0 border-b border-transparent bg-gradient-to-b from-white via-logo-light/60 to-logo-medium/80 dark:from-atom-one-dark dark:via-[#999999]/20 dark:to-[#CFCFCF]/20' />
           <svg
             xmlns='http://www.w3.org/2000/svg'
             viewBox='0 0 1440 320'
@@ -84,28 +83,12 @@ export default async function Home ({ params }: { params: Promise<{ locale: Loca
       </div>
 
       {/* About Section - band from right screen edge to center, rounded left end */}
-      <div className='ml-auto mr-[calc(50%-50vw)] mt-24 flex w-full max-w-screen-sm flex-col justify-center gap-2 rounded-l-full bg-gray-100 py-10 pl-20 pr-8 dark:bg-gray-800/50 sm:py-12 sm:pl-24'>
-
-        <span className='text-lg font-semibold'>
-          {t('about.title')}
-        </span>
-        <p className='whitespace-pre-line break-keep text-sm text-gray-600 dark:text-gray-400 sm:text-base'>
-          {t('about.description')}
-        </p>
-        {siteConfig.links.portfolio && (
-          <a
-            href={siteConfig.links.portfolio}
-            target='_blank'
-            rel='noopener noreferrer'
-            className='w-fit rounded-full p-1 pl-0 text-blue-700 underline underline-offset-4 outline-none transition-colors hover:text-blue-500 focus-visible:outline-2 focus-visible:outline-sky-500 dark:text-blue-300'
-          >
-            <div className='flex items-center gap-2'>
-              <ChevronRightIcon className='size-5' />
-              {t('about.portfolioLink')}
-            </div>
-          </a>
-        )}
-      </div>
+      <AboutSection
+        title={t('about.title')}
+        description={t('about.description')}
+        portfolioLink={new URL(siteConfig.links.portfolio).hostname}
+        portfolioUrl={siteConfig.links.portfolio}
+      />
     </>
   )
 }

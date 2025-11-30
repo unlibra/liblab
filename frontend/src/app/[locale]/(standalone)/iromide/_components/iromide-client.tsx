@@ -247,7 +247,7 @@ export function IromideClient ({ supportSection }: { supportSection: ReactNode }
       onFileDrop={handleFileSelect}
       accept={isHeicSupport ? `${ACCEPTED_IMAGE_TYPES}, ${HEIC_TYPES}` : ACCEPTED_IMAGE_TYPES}
     >
-      <div className='absolute -bottom-12 -top-8 left-1/2 -z-50 w-screen -translate-x-1/2'>
+      <div className='absolute -bottom-40 -top-8 left-1/2 -z-50 w-screen -translate-x-1/2'>
         <CorkBoardBackground className='h-full' />
       </div>
       <div className='mx-auto flex min-h-[calc(100vh-160px)] max-w-screen-md flex-col px-6 py-12 sm:px-8 sm:py-20 lg:px-12'>
