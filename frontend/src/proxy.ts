@@ -3,29 +3,21 @@ import { NextResponse } from 'next/server'
 
 import { defaultLocale, locales } from '@/lib/i18n'
 
-export function proxy (request: NextRequest) {
+export default function proxy (request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Check if pathname already has a locale
-  const pathnameHasLocale = locales.some(
+  const hasLocale = locales.some(
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
   )
 
-  if (pathnameHasLocale) {
-    return NextResponse.next()
-  }
+  if (hasLocale) return NextResponse.next()
 
-  // Rewrite root and paths without locale to default locale
-  // This keeps the URL as `/` but internally processes as `/ja`
-  const url = request.nextUrl.clone()
-  url.pathname = `/${defaultLocale}${pathname}`
-
-  return NextResponse.rewrite(url)
+  // Rewrite to default locale (keep URL as is, internally use /ja)
+  request.nextUrl.pathname = `/${defaultLocale}${pathname}`
+  return NextResponse.rewrite(request.nextUrl)
 }
 
 export const config = {
-  matcher: [
-    // Skip Next.js internals and static files
-    '/((?!_next|api|favicon.ico|.*\\..*).*)'
-  ]
+  matcher: ['/((?!api|_next|.*\\..*).*)']
 }
