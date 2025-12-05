@@ -8,7 +8,6 @@ const normalizedApiUrl = apiUrl.replace(/\/+$/, '')
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  transpilePackages: ["@8pxapp/i18n"],
   env: {
     // Ensure clients get a normalized value (no trailing slash)
     NEXT_PUBLIC_API_URL: normalizedApiUrl

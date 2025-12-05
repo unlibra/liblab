@@ -4,6 +4,7 @@ import { CloseButton, Popover, PopoverButton, PopoverPanel, Transition } from '@
 import { GlobeAltIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 import type { Locale } from '@/lib/i18n'
 import { defaultLocale, locales, useLocale } from '@/lib/i18n'
@@ -16,20 +17,24 @@ const localeNames: Record<string, string> = {
 export function LanguageSwitcher () {
   const locale = useLocale()
   const pathname = usePathname()
+  const [browserLocale, setBrowserLocale] = useState<string | null>(null)
 
-  // Remove current locale prefix from pathname to get base path
-  const getBasePath = () => {
-    const localePrefix = new RegExp(`^/${locale}(/|$)`)
-    const basePath = pathname.replace(localePrefix, '/')
-    return basePath === '' ? '/' : basePath
-  }
+  useEffect(() => {
+    // Detect browser language on client side
+    const detected = navigator.language.split('-')[0].toLowerCase()
+    setBrowserLocale(locales.includes(detected as Locale) ? detected : defaultLocale)
+  }, [])
 
   // Generate localized path for new locale
   const getLocalizedPath = (newLocale: Locale) => {
-    const basePath = getBasePath()
-    if (newLocale === defaultLocale) {
+    const basePath = removeLocalePrefix(pathname, locales)
+
+    // If browser locale matches target locale and it's the default locale, use no prefix
+    if (browserLocale === newLocale && newLocale === defaultLocale) {
       return basePath
     }
+
+    // Otherwise, use explicit locale prefix
     return `/${newLocale}${basePath}`
   }
 

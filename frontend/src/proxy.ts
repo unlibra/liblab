@@ -1,19 +1,24 @@
+import { detectLocale } from '@i18n-tiny/core'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
-import { defaultLocale, locales } from '@/lib/i18n'
+import { locales } from '@/lib/i18n'
 
-export function proxy (request: NextRequest) {
-  const { pathname } = request.nextUrl
+export function proxy (req: NextRequest) {
+  const { pathname } = req.nextUrl
 
   const hasLocale = locales.some(
-    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
+    (locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`)
   )
-
   if (hasLocale) return NextResponse.next()
 
-  request.nextUrl.pathname = `/${defaultLocale}${pathname}`
-  return NextResponse.rewrite(request.nextUrl)
+  const acceptLanguage = req.headers.get('accept-language')
+  const lang = detectLocale(acceptLanguage, locales) ?? 'en'
+
+  if (lang === 'ja') {
+    return NextResponse.rewrite(new URL(`/ja${pathname}`, req.url))
+  }
+  return NextResponse.redirect(new URL(`/en${pathname}`, req.url))
 }
 
 export const config = {

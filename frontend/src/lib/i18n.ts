@@ -1,5 +1,5 @@
 // i18n.ts
-import { define } from 'next-i18n-tiny'
+import { define } from '@i18n-tiny/next'
 
 import enMessages from '@/messages/en'
 import jaMessages from '@/messages/ja'
