@@ -2,12 +2,9 @@
 
 import { CloseButton, Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react'
 import { GlobeAltIcon } from '@heroicons/react/24/outline'
-import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useEffect, useState } from 'react'
 
-import type { Locale } from '@/lib/i18n'
-import { defaultLocale, locales, useLocale } from '@/lib/i18n'
+import { Link, locales, useLocale } from '@/lib/i18n'
 
 const localeNames: Record<string, string> = {
   ja: '日本語',
@@ -17,26 +14,6 @@ const localeNames: Record<string, string> = {
 export function LanguageSwitcher () {
   const locale = useLocale()
   const pathname = usePathname()
-  const [browserLocale, setBrowserLocale] = useState<string | null>(null)
-
-  useEffect(() => {
-    // Detect browser language on client side
-    const detected = navigator.language.split('-')[0].toLowerCase()
-    setBrowserLocale(locales.includes(detected as Locale) ? detected : defaultLocale)
-  }, [])
-
-  // Generate localized path for new locale
-  const getLocalizedPath = (newLocale: Locale) => {
-    const basePath = removeLocalePrefix(pathname, locales)
-
-    // If browser locale matches target locale and it's the default locale, use no prefix
-    if (browserLocale === newLocale && newLocale === defaultLocale) {
-      return basePath
-    }
-
-    // Otherwise, use explicit locale prefix
-    return `/${newLocale}${basePath}`
-  }
 
   return (
     <Popover className='relative'>
@@ -62,7 +39,9 @@ export function LanguageSwitcher () {
               <CloseButton
                 key={loc}
                 as={Link}
-                href={getLocalizedPath(loc)}
+                href={pathname}
+                locale={loc}
+                normalize
                 className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm outline-none transition-colors ${
                   locale === loc
                     ? 'bg-sky-50 dark:bg-atom-one-dark-lighter'

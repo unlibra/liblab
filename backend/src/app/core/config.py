@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     """Application settings."""
 
     # API Metadata
-    API_TITLE: str = '8px.app API'
+    API_TITLE: str = '8px app API'
     API_DESCRIPTION: str = 'Web Development Toolkit API'
     API_VERSION: str = '1.0.0'
 
