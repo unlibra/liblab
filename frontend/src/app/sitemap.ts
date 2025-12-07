@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next'
 
 import { siteConfig } from '@/config/site'
 import { categories } from '@/config/tools'
-import { defaultLocale, locales } from '@/lib/i18n'
+import { locales } from '@/lib/i18n'
 
 export const dynamic = 'force-static'
 
@@ -12,17 +12,14 @@ export default function sitemap (): MetadataRoute.Sitemap {
 
   // Generate URLs for each locale
   for (const locale of locales) {
-    const localePrefix = locale === defaultLocale ? '' : `/${locale}`
+    const localePrefix = `/${locale}`
 
     // Homepage
     routes.push({
       url: `${baseUrl}${localePrefix}`,
       alternates: {
         languages: Object.fromEntries(
-          locales.map(l => [
-            l,
-            `${baseUrl}${l === defaultLocale ? '' : `/${l}`}`
-          ])
+          locales.map(l => [l, `${baseUrl}/${l}`])
         )
       }
     })
@@ -34,16 +31,12 @@ export default function sitemap (): MetadataRoute.Sitemap {
           url: `${baseUrl}${localePrefix}/${tool.id}`,
           alternates: {
             languages: Object.fromEntries(
-              locales.map(l => [
-                l,
-                `${baseUrl}${l === defaultLocale ? '' : `/${l}`}/${tool.id}`
-              ])
+              locales.map(l => [l, `${baseUrl}/${l}/${tool.id}`])
             )
           }
         })
       }
     }
-
   }
 
   // Add privacy policy page (Japanese only, no locale prefix)

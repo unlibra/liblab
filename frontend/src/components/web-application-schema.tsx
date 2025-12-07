@@ -1,7 +1,7 @@
 import { siteConfig } from '@/config/site'
 import type { ToolId } from '@/config/tools'
 import type { Locale } from '@/lib/i18n'
-import { defaultLocale, getMessages } from '@/lib/i18n'
+import { getMessages } from '@/lib/i18n'
 
 interface WebApplicationSchemaProps {
   toolId: ToolId
@@ -13,9 +13,7 @@ export async function WebApplicationSchema ({ toolId, locale }: WebApplicationSc
   const tool = messages.tools[toolId]
 
   // Generate localized URL
-  const url = locale === defaultLocale
-    ? `${siteConfig.url}/${toolId}`
-    : `${siteConfig.url}/${locale}/${toolId}`
+  const url = `${siteConfig.url}/${locale}/${toolId}`
 
   const schema = {
     '@context': 'https://schema.org',

@@ -17,7 +17,7 @@ export async function generateToolMetadata (
 
   const title = tool.name
   const description = tool.description.replace(/\r?\n/g, '')
-  const url = locale === 'ja' ? pathname : `/en${pathname}`
+  const url = `/${locale}${pathname}`
 
   return {
     title,
@@ -25,7 +25,7 @@ export async function generateToolMetadata (
     alternates: {
       canonical: url,
       languages: {
-        ja: pathname,
+        ja: `/ja${pathname}`,
         en: `/en${pathname}`
       }
     },

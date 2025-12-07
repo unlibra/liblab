@@ -1,12 +1,12 @@
+import '@/app/globals.css'
+
 import type { Metadata } from 'next'
 // eslint-disable-next-line camelcase
 import { IBM_Plex_Sans_JP, Outfit, Roboto_Mono, Zen_Maru_Gothic } from 'next/font/google'
+import { ThemeProvider } from 'next-themes'
 import type { ReactNode } from 'react'
 
 import { siteConfig } from '@/config/site'
-import { ThemeProvider } from '@/lib/theme-provider'
-
-import '@/app/globals.css'
 
 const fontSans = IBM_Plex_Sans_JP({
   weight: ['400', '500', '600', '700'],
@@ -62,7 +62,7 @@ export default function NonLocalizedLayout ({
       <body
         className='bg-white text-gray-700 antialiased dark:bg-atom-one-dark dark:text-gray-300'
       >
-        <ThemeProvider>
+        <ThemeProvider attribute='class' defaultTheme='system' enableSystem>
           <div className='flex min-h-screen flex-col overflow-x-hidden'>
             <main className='mx-auto w-full max-w-screen-xl flex-1 px-4 pb-12 pt-8 sm:px-6 lg:px-8'>
               {children}

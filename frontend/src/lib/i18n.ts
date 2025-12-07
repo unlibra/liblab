@@ -1,5 +1,4 @@
 // i18n.ts
-import { removeLocalePrefix } from '@i18n-tiny/core/router'
 import { define } from '@i18n-tiny/next'
 import { Link } from '@i18n-tiny/next/router'
 
@@ -16,6 +15,6 @@ const { client, server, Provider } = define({
   messages: { ja: jaMessages, en: enMessages }
 })
 
-export { Link, Provider, removeLocalePrefix }
+export { Link, Provider }
 export const { useMessages, useTranslations, useLocale } = client
 export const { getMessages, getTranslations } = server
