@@ -7,8 +7,7 @@ import jaMessages from '@/messages/ja'
 
 export type Locale = 'ja' | 'en'
 export const locales: Locale[] = ['ja', 'en']
-export const defaultLocale: Locale = 'ja'
-export const fallbackLocale: Locale = 'en'
+export const defaultLocale: Locale = 'en'
 
 const { client, server, Provider } = define({
   locales,
