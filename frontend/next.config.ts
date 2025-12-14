@@ -7,7 +7,7 @@ if (!apiUrl) {
 const normalizedApiUrl = apiUrl.replace(/\/+$/, '')
 
 const nextConfig: NextConfig = {
-  basePath: '/lab',
+  assetPrefix: '/lab',
   trailingSlash: false,
   reactStrictMode: true,
   env: {
