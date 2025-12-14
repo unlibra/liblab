@@ -107,10 +107,10 @@ export async function generateMetadata ({ params }: { params: Promise<{ locale: 
     },
     icons: {
       icon: [
-        { url: '/icon.svg', type: 'image/svg+xml' },
-        { url: '/favicon.ico', sizes: 'any' }
+        { url: '/lab/icon.svg', type: 'image/svg+xml' },
+        { url: '/lab/favicon.ico', sizes: 'any' }
       ],
-      apple: '/apple-touch-icon.png'
+      apple: '/lab/apple-touch-icon.png'
     },
     manifest: '/lab/manifest.json'
   }
