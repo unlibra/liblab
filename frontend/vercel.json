@@ -1,29 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "rewrites": [
-    {
-      "source": "/lab",
-      "has": [
-        {
-          "type": "header",
-          "key": "accept-language",
-          "value": "^ja.*"
-        }
-      ],
-      "destination": "/lab/ja"
-    },
-    {
-      "source": "/lab/:path((?!ja|en|_next|.*\\.).*)",
-      "has": [
-        {
-          "type": "header",
-          "key": "accept-language",
-          "value": "^ja.*"
-        }
-      ],
-      "destination": "/lab/ja/:path"
-    }
-  ],
   "redirects": [
     {
       "source": "/lab",
