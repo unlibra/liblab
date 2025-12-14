@@ -13,7 +13,7 @@
       "destination": "/lab/ja"
     },
     {
-      "source": "/lab/:path((?!ja|en).*)",
+      "source": "/lab/:path((?!ja|en|_next|.*\\.).*)",
       "has": [
         {
           "type": "header",
@@ -31,7 +31,7 @@
       "permanent": false
     },
     {
-      "source": "/lab/:path((?!ja|en).*)",
+      "source": "/lab/:path((?!ja|en|_next|.*\\.).*)",
       "destination": "/lab/en/:path",
       "permanent": false
     }
