@@ -1,12 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "trailingSlash": false,
-  "rewrites": [
-    {
-      "source": "/lab/:path*",
-      "destination": "/:path*"
-    }
-  ],
   "redirects": [
     {
       "source": "/lab",
