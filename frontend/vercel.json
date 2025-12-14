@@ -14,7 +14,31 @@
       "permanent": false
     },
     {
+      "source": "/lab/",
+      "has": [
+        {
+          "type": "header",
+          "key": "accept-language",
+          "value": "^ja.*"
+        }
+      ],
+      "destination": "/lab/ja",
+      "permanent": false
+    },
+    {
       "source": "/lab",
+      "missing": [
+        {
+          "type": "header",
+          "key": "accept-language",
+          "value": "^ja.*"
+        }
+      ],
+      "destination": "/lab/en",
+      "permanent": false
+    },
+    {
+      "source": "/lab/",
       "missing": [
         {
           "type": "header",
