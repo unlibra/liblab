@@ -8,6 +8,7 @@ const normalizedApiUrl = apiUrl.replace(/\/+$/, '')
 
 const nextConfig: NextConfig = {
   basePath: '/lab',
+  skipTrailingSlashRedirect: true,
   reactStrictMode: true,
   env: {
     // Ensure clients get a normalized value (no trailing slash)
